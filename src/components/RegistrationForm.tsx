@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface FormData {
   name: string;
@@ -21,10 +23,53 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
     birthTime: "",
     birthPlace: ""
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setIsLoading(true);
+
+    try {
+      // Guardar datos en Supabase
+      const { error } = await supabase
+        .from('user_registrations')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          birth_date: formData.birthDate,
+          birth_time: formData.birthTime || null,
+          birth_place: formData.birthPlace
+        });
+
+      if (error) {
+        console.error('Error saving data:', error);
+        toast({
+          title: "Error",
+          description: "Hubo un problema al guardar tus datos. Por favor intenta de nuevo.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Si se guardó exitosamente, continuar con el flujo
+      console.log('Data saved successfully');
+      toast({
+        title: "¡Perfecto!",
+        description: "Tus datos han sido guardados. Generando tu carta astral...",
+      });
+      
+      onSubmit(formData);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error inesperado. Por favor intenta de nuevo.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (field: keyof FormData, value: string) => {
@@ -57,6 +102,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12"
                 placeholder="Tu nombre"
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -72,6 +118,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12"
                 placeholder="tu@email.com"
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -86,6 +133,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 onChange={(e) => handleChange("birthDate", e.target.value)}
                 className="bg-white/10 border-white/30 text-white h-12"
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -99,6 +147,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 value={formData.birthTime}
                 onChange={(e) => handleChange("birthTime", e.target.value)}
                 className="bg-white/10 border-white/30 text-white h-12"
+                disabled={isLoading}
               />
             </div>
 
@@ -114,14 +163,16 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12"
                 placeholder="Madrid, España"
                 required
+                disabled={isLoading}
               />
             </div>
 
             <Button 
               type="submit"
               className="stellar-button w-full text-lg py-6 rounded-full"
+              disabled={isLoading}
             >
-              Generar mi carta astral
+              {isLoading ? "Generando carta astral..." : "Generar mi carta astral"}
             </Button>
           </form>
         </Card>

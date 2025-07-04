@@ -75,20 +75,23 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
   };
 
   return (
-    <section className="py-12 md:py-20 px-4 md:px-6">
-      <div className="max-w-md mx-auto">
-        <Card className="glass-card p-6 md:p-8 space-y-6">
-          <div className="text-center space-y-3">
-            <h2 className="text-xl md:text-2xl font-bold text-white">
+    <section className="py-8 md:py-12 px-4 md:px-6">
+      <div className="max-w-lg mx-auto">
+        <Card className="glass-card p-4 md:p-6 space-y-4 md:space-y-6">
+          <div className="text-center space-y-2 md:space-y-3">
+            <div className="w-12 h-12 mx-auto bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow">
+              <span className="text-xl">✨</span>
+            </div>
+            <h2 className="text-lg md:text-xl font-bold text-white">
               Descubre tu destino cósmico
             </h2>
-            <p className="text-sm md:text-base text-white/70">
+            <p className="text-sm text-white/70">
               Ingresa tus datos para generar tu carta astral única
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+            <div className="space-y-1.5">
               <Label htmlFor="name" className="text-white font-medium text-sm">
                 Nombre completo
               </Label>
@@ -97,14 +100,14 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10 md:h-12"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10"
                 placeholder="Tu nombre"
                 required
                 disabled={isLoading}
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="email" className="text-white font-medium text-sm">
                 Correo electrónico
               </Label>
@@ -113,30 +116,30 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10 md:h-12"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10"
                 placeholder="tu@email.com"
                 required
                 disabled={isLoading}
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
                 <Label htmlFor="birthDate" className="text-white font-medium text-sm">
-                  Fecha de nacimiento
+                  Fecha nacimiento
                 </Label>
                 <Input
                   id="birthDate"
                   type="date"
                   value={formData.birthDate}
                   onChange={(e) => handleChange("birthDate", e.target.value)}
-                  className="bg-white/10 border-white/30 text-white h-10 md:h-12"
+                  className="bg-white/10 border-white/30 text-white h-10 text-sm"
                   required
                   disabled={isLoading}
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="birthTime" className="text-white font-medium text-sm">
                   Hora (opcional)
                 </Label>
@@ -145,13 +148,13 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                   type="time"
                   value={formData.birthTime}
                   onChange={(e) => handleChange("birthTime", e.target.value)}
-                  className="bg-white/10 border-white/30 text-white h-10 md:h-12"
+                  className="bg-white/10 border-white/30 text-white h-10 text-sm"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="birthPlace" className="text-white font-medium text-sm">
                 Ciudad y país de nacimiento
               </Label>
@@ -160,7 +163,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 type="text"
                 value={formData.birthPlace}
                 onChange={(e) => handleChange("birthPlace", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10 md:h-12"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10"
                 placeholder="Madrid, España"
                 required
                 disabled={isLoading}
@@ -169,11 +172,15 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
 
             <Button 
               type="submit"
-              className="stellar-button w-full text-base md:text-lg py-4 md:py-6 rounded-full"
+              className="stellar-button w-full text-base py-4 rounded-full mt-4"
               disabled={isLoading}
             >
-              {isLoading ? "Generando carta astral..." : "Generar mi carta astral"}
+              {isLoading ? "Generando carta astral..." : "Generar mi carta astral ✨"}
             </Button>
+
+            <p className="text-xs text-white/60 text-center mt-2">
+              Datos 100% seguros y privados
+            </p>
           </form>
         </Card>
       </div>

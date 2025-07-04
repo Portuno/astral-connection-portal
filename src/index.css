@@ -71,11 +71,11 @@ All colors MUST be HSL.
     width: 100%;
     height: 100%;
     background-image: 
-      radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.6), transparent),
-      radial-gradient(1px 1px at 40px 70px, rgba(255, 255, 255, 0.4), transparent),
-      radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.7), transparent),
-      radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.5), transparent),
-      radial-gradient(1px 1px at 160px 30px, rgba(255, 255, 255, 0.3), transparent);
+      radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.4), transparent),
+      radial-gradient(1px 1px at 40px 70px, rgba(255, 255, 255, 0.3), transparent),
+      radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.3), transparent),
+      radial-gradient(1px 1px at 160px 30px, rgba(255, 255, 255, 0.2), transparent);
     background-size: 150px 80px;
     animation: sparkle 25s linear infinite;
     pointer-events: none;
@@ -109,16 +109,16 @@ All colors MUST be HSL.
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
   }
 }
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
   }
   50% {
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
   }
 }
 
@@ -153,17 +153,15 @@ All colors MUST be HSL.
 }
 
 .zodiac-symbol {
-  opacity: 0.25;
   position: absolute;
   animation: float 8s ease-in-out infinite;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
 }
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .zodiac-symbol {
-    opacity: 0.15;
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
   
   .glass-card {

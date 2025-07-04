@@ -1,10 +1,9 @@
 
 import { useState } from "react";
 import HeroSection from "@/components/HeroSection";
+import CompactInfoSection from "@/components/CompactInfoSection";
 import RegistrationForm from "@/components/RegistrationForm";
 import WelcomeSection from "@/components/WelcomeSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
 
 interface FormData {
@@ -44,7 +43,11 @@ const Index = () => {
     <div className="content-wrapper">
       <HeroSection onDiscoverClick={handleDiscoverClick} />
       
-      {showForm && (
+      {!showForm && !showWelcome && (
+        <CompactInfoSection />
+      )}
+      
+      {showForm && !showWelcome && (
         <div id="registration-form">
           <RegistrationForm onSubmit={handleFormSubmit} />
         </div>
@@ -56,8 +59,6 @@ const Index = () => {
         </div>
       )}
       
-      <HowItWorksSection />
-      <TestimonialsSection />
       <Footer />
     </div>
   );

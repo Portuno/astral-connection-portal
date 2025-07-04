@@ -31,7 +31,6 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
     setIsLoading(true);
 
     try {
-      // Guardar datos en Supabase
       const { error } = await supabase
         .from('user_registrations')
         .insert({
@@ -52,7 +51,6 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
         return;
       }
 
-      // Si se guardó exitosamente, continuar con el flujo
       console.log('Data saved successfully');
       toast({
         title: "¡Perfecto!",
@@ -77,21 +75,21 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
   };
 
   return (
-    <section className="py-20 px-6">
+    <section className="py-12 md:py-20 px-4 md:px-6">
       <div className="max-w-md mx-auto">
-        <Card className="glass-card p-8 space-y-6">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-white">
+        <Card className="glass-card p-6 md:p-8 space-y-6">
+          <div className="text-center space-y-3">
+            <h2 className="text-xl md:text-2xl font-bold text-white">
               Descubre tu destino cósmico
             </h2>
-            <p className="text-white/70">
+            <p className="text-sm md:text-base text-white/70">
               Ingresa tus datos para generar tu carta astral única
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-white font-medium">
+              <Label htmlFor="name" className="text-white font-medium text-sm">
                 Nombre completo
               </Label>
               <Input
@@ -99,7 +97,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10 md:h-12"
                 placeholder="Tu nombre"
                 required
                 disabled={isLoading}
@@ -107,7 +105,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white font-medium">
+              <Label htmlFor="email" className="text-white font-medium text-sm">
                 Correo electrónico
               </Label>
               <Input
@@ -115,44 +113,46 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10 md:h-12"
                 placeholder="tu@email.com"
                 required
                 disabled={isLoading}
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="birthDate" className="text-white font-medium">
-                Fecha de nacimiento
-              </Label>
-              <Input
-                id="birthDate"
-                type="date"
-                value={formData.birthDate}
-                onChange={(e) => handleChange("birthDate", e.target.value)}
-                className="bg-white/10 border-white/30 text-white h-12"
-                required
-                disabled={isLoading}
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="birthDate" className="text-white font-medium text-sm">
+                  Fecha de nacimiento
+                </Label>
+                <Input
+                  id="birthDate"
+                  type="date"
+                  value={formData.birthDate}
+                  onChange={(e) => handleChange("birthDate", e.target.value)}
+                  className="bg-white/10 border-white/30 text-white h-10 md:h-12"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="birthTime" className="text-white font-medium text-sm">
+                  Hora (opcional)
+                </Label>
+                <Input
+                  id="birthTime"
+                  type="time"
+                  value={formData.birthTime}
+                  onChange={(e) => handleChange("birthTime", e.target.value)}
+                  className="bg-white/10 border-white/30 text-white h-10 md:h-12"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="birthTime" className="text-white font-medium">
-                Hora de nacimiento (opcional)
-              </Label>
-              <Input
-                id="birthTime"
-                type="time"
-                value={formData.birthTime}
-                onChange={(e) => handleChange("birthTime", e.target.value)}
-                className="bg-white/10 border-white/30 text-white h-12"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="birthPlace" className="text-white font-medium">
+              <Label htmlFor="birthPlace" className="text-white font-medium text-sm">
                 Ciudad y país de nacimiento
               </Label>
               <Input
@@ -160,7 +160,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 type="text"
                 value={formData.birthPlace}
                 onChange={(e) => handleChange("birthPlace", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10 md:h-12"
                 placeholder="Madrid, España"
                 required
                 disabled={isLoading}
@@ -169,7 +169,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
 
             <Button 
               type="submit"
-              className="stellar-button w-full text-lg py-6 rounded-full"
+              className="stellar-button w-full text-base md:text-lg py-4 md:py-6 rounded-full"
               disabled={isLoading}
             >
               {isLoading ? "Generando carta astral..." : "Generar mi carta astral"}

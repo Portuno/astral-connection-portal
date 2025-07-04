@@ -71,13 +71,13 @@ All colors MUST be HSL.
     width: 100%;
     height: 100%;
     background-image: 
-      radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
-      radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.6), transparent),
-      radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.9), transparent),
-      radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.7), transparent),
-      radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.5), transparent);
-    background-size: 200px 100px;
-    animation: sparkle 20s linear infinite;
+      radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.6), transparent),
+      radial-gradient(1px 1px at 40px 70px, rgba(255, 255, 255, 0.4), transparent),
+      radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 160px 30px, rgba(255, 255, 255, 0.3), transparent);
+    background-size: 150px 80px;
+    animation: sparkle 25s linear infinite;
     pointer-events: none;
     z-index: 1;
   }
@@ -86,6 +86,13 @@ All colors MUST be HSL.
     position: relative;
     z-index: 2;
   }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    body::before {
+      background-size: 100px 60px;
+    }
+  }
 }
 
 @keyframes sparkle {
@@ -93,7 +100,7 @@ All colors MUST be HSL.
     transform: translateY(0);
   }
   100% {
-    transform: translateY(-100px);
+    transform: translateY(-80px);
   }
 }
 
@@ -102,16 +109,16 @@ All colors MUST be HSL.
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
 }
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
   }
   50% {
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
   }
 }
 
@@ -124,10 +131,10 @@ All colors MUST be HSL.
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
 }
 
 .stellar-button {
@@ -142,12 +149,29 @@ All colors MUST be HSL.
 .stellar-button:hover {
   background: rgba(255, 255, 255, 1);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
 }
 
 .zodiac-symbol {
-  font-size: 2rem;
-  opacity: 0.3;
+  opacity: 0.25;
   position: absolute;
   animation: float 8s ease-in-out infinite;
+  font-size: 1.5rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .zodiac-symbol {
+    opacity: 0.15;
+    font-size: 1.25rem;
+  }
+  
+  .glass-card {
+    border-radius: 12px;
+  }
+  
+  .stellar-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
 }

@@ -1,12 +1,64 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from "react";
+import HeroSection from "@/components/HeroSection";
+import RegistrationForm from "@/components/RegistrationForm";
+import WelcomeSection from "@/components/WelcomeSection";
+import HowItWorksSection from "@/components/HowItWorksSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import Footer from "@/components/Footer";
+
+interface FormData {
+  name: string;
+  email: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+}
 
 const Index = () => {
+  const [showForm, setShowForm] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  const handleDiscoverClick = () => {
+    setShowForm(true);
+    // Smooth scroll to form
+    setTimeout(() => {
+      document.getElementById('registration-form')?.scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    }, 100);
+  };
+
+  const handleFormSubmit = (data: FormData) => {
+    console.log('Form submitted:', data);
+    setShowWelcome(true);
+    // Smooth scroll to welcome section
+    setTimeout(() => {
+      document.getElementById('welcome-section')?.scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    }, 100);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="content-wrapper">
+      <HeroSection onDiscoverClick={handleDiscoverClick} />
+      
+      {showForm && (
+        <div id="registration-form">
+          <RegistrationForm onSubmit={handleFormSubmit} />
+        </div>
+      )}
+      
+      {showWelcome && (
+        <div id="welcome-section">
+          <WelcomeSection />
+        </div>
+      )}
+      
+      <HowItWorksSection />
+      <TestimonialsSection />
+      <Footer />
     </div>
   );
 };

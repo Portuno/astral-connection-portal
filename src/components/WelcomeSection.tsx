@@ -1,5 +1,4 @@
 
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 const WelcomeSection = () => {
@@ -26,11 +25,70 @@ const WelcomeSection = () => {
           </div>
 
           <div className="space-y-3">
-            <Button 
-              className="stellar-button w-full text-lg py-4 rounded-full font-bold"
-            >
-              Suscribirme por 29,90 €/mes
-            </Button>
+            {/* Square Payment Button */}
+            <div className="w-full flex justify-center">
+              <div style={{
+                overflow: "auto",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                width: "100%",
+                maxWidth: "300px",
+                background: "#FFFFFF",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+                borderRadius: "16px",
+                fontFamily: "Karla, SQ Market, Helvetica, Arial, sans-serif"
+              }}>
+                <div style={{ padding: "20px", width: "100%" }}>
+                  <p style={{
+                    fontSize: "18px",
+                    lineHeight: "20px",
+                    color: "#1a1f3a",
+                    marginBottom: "8px",
+                    textAlign: "center"
+                  }}>AstroTarot</p>
+                  <p style={{
+                    fontSize: "18px",
+                    lineHeight: "20px",
+                    fontWeight: "600",
+                    color: "#1a1f3a",
+                    marginBottom: "16px",
+                    textAlign: "center"
+                  }}>29,90&nbsp;€</p>
+                  <a 
+                    target="_blank" 
+                    href="https://square.link/u/NuZ4xbVI?src=embed" 
+                    style={{
+                      display: "inline-block",
+                      fontSize: "18px",
+                      lineHeight: "48px",
+                      height: "48px",
+                      color: "#ffffff",
+                      width: "100%",
+                      backgroundColor: "#cc0023",
+                      textAlign: "center",
+                      boxShadow: "0 0 0 1px rgba(0,0,0,.1) inset",
+                      borderRadius: "50px",
+                      textDecoration: "none",
+                      transition: "all 0.3s ease"
+                    }}
+                    onMouseOver={(e) => {
+                      e.target.style.backgroundColor = "#a8001d";
+                      e.target.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseOut={(e) => {
+                      e.target.style.backgroundColor = "#cc0023";
+                      e.target.style.transform = "translateY(0)";
+                    }}
+                  >
+                    Comprar ahora
+                  </a>
+                </div>
+                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Karla" />
+              </div>
+            </div>
             
             <p className="text-xs text-white/60">
               Pago seguro mediante Square. Puedes cancelar cuando quieras.

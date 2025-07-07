@@ -74,13 +74,15 @@ const WelcomeSection = () => {
                       textDecoration: "none",
                       transition: "all 0.3s ease"
                     }}
-                    onMouseOver={(e) => {
-                      e.target.style.backgroundColor = "#a8001d";
-                      e.target.style.transform = "translateY(-2px)";
+                    onMouseEnter={(e) => {
+                      const target = e.target as HTMLAnchorElement;
+                      target.style.backgroundColor = "#a8001d";
+                      target.style.transform = "translateY(-2px)";
                     }}
-                    onMouseOut={(e) => {
-                      e.target.style.backgroundColor = "#cc0023";
-                      e.target.style.transform = "translateY(0)";
+                    onMouseLeave={(e) => {
+                      const target = e.target as HTMLAnchorElement;
+                      target.style.backgroundColor = "#cc0023";
+                      target.style.transform = "translateY(0)";
                     }}
                   >
                     Comprar ahora

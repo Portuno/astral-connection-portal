@@ -3,7 +3,7 @@ import { useState } from "react";
 import HeroSection from "@/components/HeroSection";
 import CompactInfoSection from "@/components/CompactInfoSection";
 import RegistrationForm from "@/components/RegistrationForm";
-import WelcomeSection from "@/components/WelcomeSection";
+import PaymentGate from "@/components/PaymentGate";
 import Footer from "@/components/Footer";
 
 interface FormData {
@@ -16,7 +16,7 @@ interface FormData {
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [showPaymentGate, setShowPaymentGate] = useState(false);
 
   const handleDiscoverClick = () => {
     setShowForm(true);
@@ -30,10 +30,10 @@ const Index = () => {
 
   const handleFormSubmit = (data: FormData) => {
     console.log('Form submitted:', data);
-    setShowWelcome(true);
-    // Smooth scroll to welcome section
+    setShowPaymentGate(true);
+    // Smooth scroll to payment gate
     setTimeout(() => {
-      document.getElementById('welcome-section')?.scrollIntoView({ 
+      document.getElementById('payment-gate')?.scrollIntoView({ 
         behavior: 'smooth' 
       });
     }, 100);
@@ -43,19 +43,19 @@ const Index = () => {
     <div className="content-wrapper">
       <HeroSection onDiscoverClick={handleDiscoverClick} />
       
-      {!showForm && !showWelcome && (
+      {!showForm && !showPaymentGate && (
         <CompactInfoSection />
       )}
       
-      {showForm && !showWelcome && (
+      {showForm && !showPaymentGate && (
         <div id="registration-form">
           <RegistrationForm onSubmit={handleFormSubmit} />
         </div>
       )}
       
-      {showWelcome && (
-        <div id="welcome-section">
-          <WelcomeSection />
+      {showPaymentGate && (
+        <div id="payment-gate">
+          <PaymentGate />
         </div>
       )}
       

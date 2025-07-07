@@ -14,6 +14,163 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_message: string | null
+          last_message_date: string | null
+          profile_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_message?: string | null
+          last_message_date?: string | null
+          profile_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_message?: string | null
+          last_message_date?: string | null
+          profile_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "chat_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          id: string
+          message: string
+          sender_type: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          sender_type: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_profiles: {
+        Row: {
+          age: number
+          avatar_url: string | null
+          compatibility_score: number | null
+          created_at: string
+          description: string
+          id: string
+          interests: string[]
+          is_active: boolean | null
+          location: string
+          name: string
+          personality: string
+          zodiac_sign: string
+        }
+        Insert: {
+          age: number
+          avatar_url?: string | null
+          compatibility_score?: number | null
+          created_at?: string
+          description: string
+          id?: string
+          interests: string[]
+          is_active?: boolean | null
+          location: string
+          name: string
+          personality: string
+          zodiac_sign: string
+        }
+        Update: {
+          age?: number
+          avatar_url?: string | null
+          compatibility_score?: number | null
+          created_at?: string
+          description?: string
+          id?: string
+          interests?: string[]
+          is_active?: boolean | null
+          location?: string
+          name?: string
+          personality?: string
+          zodiac_sign?: string
+        }
+        Relationships: []
+      }
+      user_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          email: string
+          id: string
+          payment_date: string | null
+          payment_status: string | null
+          square_payment_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          email: string
+          id?: string
+          payment_date?: string | null
+          payment_status?: string | null
+          square_payment_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          email?: string
+          id?: string
+          payment_date?: string | null
+          payment_status?: string | null
+          square_payment_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_registrations: {
         Row: {
           birth_date: string

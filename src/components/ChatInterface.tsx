@@ -98,10 +98,21 @@ export const ChatInterface = ({ profileId, profileName, onBack }: ChatInterfaceP
         if (insertError) {
           console.error('Error creating initial message:', insertError);
         } else {
-          setMessages([newMsg]);
+          setMessages([{
+            id: newMsg.id,
+            message: newMsg.message,
+            sender_type: newMsg.sender_type as 'user' | 'profile',
+            created_at: newMsg.created_at
+          }]);
         }
       } else {
-        setMessages(existingMessages);
+        const typedMessages: Message[] = existingMessages.map(msg => ({
+          id: msg.id,
+          message: msg.message,
+          sender_type: msg.sender_type as 'user' | 'profile',
+          created_at: msg.created_at
+        }));
+        setMessages(typedMessages);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -140,7 +151,12 @@ export const ChatInterface = ({ profileId, profileName, onBack }: ChatInterfaceP
         return;
       }
 
-      setMessages(prev => [...prev, userMessage]);
+      setMessages(prev => [...prev, {
+        id: userMessage.id,
+        message: userMessage.message,
+        sender_type: userMessage.sender_type as 'user' | 'profile',
+        created_at: userMessage.created_at
+      }]);
 
       // Simulate profile response
       setTimeout(async () => {
@@ -165,7 +181,12 @@ export const ChatInterface = ({ profileId, profileName, onBack }: ChatInterfaceP
           .single();
 
         if (!profileError) {
-          setMessages(prev => [...prev, profileMessage]);
+          setMessages(prev => [...prev, {
+            id: profileMessage.id,
+            message: profileMessage.message,
+            sender_type: profileMessage.sender_type as 'user' | 'profile',
+            created_at: profileMessage.created_at
+          }]);
         }
       }, 1000 + Math.random() * 2000);
 

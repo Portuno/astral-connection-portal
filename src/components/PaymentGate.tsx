@@ -7,7 +7,7 @@ import { AuthModal } from './AuthModal';
 import { ChatProfiles } from './ChatProfiles';
 import { ChatInterface } from './ChatInterface';
 
-export const PaymentGate = () => {
+export default function PaymentGate() {
   const { user, hasPaidAccess, loading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [currentView, setCurrentView] = useState<'profiles' | 'chat'>('profiles');
@@ -199,4 +199,6 @@ export const PaymentGate = () => {
       </div>
     </section>
   );
-};
+}
+
+export { PaymentGate };

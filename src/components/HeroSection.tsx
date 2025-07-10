@@ -14,50 +14,60 @@ const HeroSection = ({ onDiscoverClick }: { onDiscoverClick: () => void }) => {
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center">
           {/* Left side - Text content */}
           <div className="space-y-4 lg:space-y-6 text-center lg:text-left animate-float">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
-              Tu alma gemela está escrita en las estrellas
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
+              Tu <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">alma gemela</span> está escrita en las estrellas
             </h1>
             
-            <p className="text-base sm:text-lg lg:text-xl text-white/80 font-light leading-relaxed max-w-xl mx-auto lg:mx-0">
-              Conecta con la persona destinada para ti a través de tu carta natal
+            <p className="text-lg sm:text-xl lg:text-2xl text-white/90 font-light leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              El universo ha conspirado para este momento. Conecta con tu destino cósmico a través de tu carta natal única.
             </p>
             
-            <div className="pt-2 lg:pt-4">
+            <div className="pt-4 lg:pt-6">
               <Button 
                 onClick={onDiscoverClick}
-                className="stellar-button text-base sm:text-lg px-6 sm:px-10 py-3 sm:py-5 rounded-full animate-pulse-glow w-full sm:w-auto"
+                className="stellar-button text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 rounded-full animate-pulse-glow w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-2xl hover:shadow-purple-500/25 transform hover:scale-105 transition-all duration-300 border-2 border-white/20"
                 size="lg"
               >
-                Descubre quién es ✨
+                <span className="flex items-center gap-3">
+                  Despertar mi magia interior
+                  <span className="text-2xl animate-bounce">✨</span>
+                </span>
               </Button>
             </div>
 
             {/* Quick info points */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4 lg:pt-6 text-center lg:text-left">
-              <div className="flex flex-col items-center lg:items-start space-y-1">
-                <div className="text-lg">🌟</div>
-                <p className="text-xs sm:text-sm text-white/70">Carta astral única</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 lg:pt-8 text-center lg:text-left">
+              <div className="flex flex-col items-center lg:items-start space-y-2 p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div className="text-2xl animate-pulse-glow">🌟</div>
+                <p className="text-sm sm:text-base text-white/90 font-semibold">Carta astral única</p>
+                <p className="text-xs text-white/60">Basada en tu momento exacto</p>
               </div>
-              <div className="flex flex-col items-center lg:items-start space-y-1">
-                <div className="text-lg">💫</div>
-                <p className="text-xs sm:text-sm text-white/70">Compatibilidad cósmica</p>
+              <div className="flex flex-col items-center lg:items-start space-y-2 p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div className="text-2xl animate-pulse-glow">💫</div>
+                <p className="text-sm sm:text-base text-white/90 font-semibold">Compatibilidad perfecta</p>
+                <p className="text-xs text-white/60">Algoritmo cósmico avanzado</p>
               </div>
-              <div className="flex flex-col items-center lg:items-start space-y-1">
-                <div className="text-lg">💖</div>
-                <p className="text-xs sm:text-sm text-white/70">Tu alma gemela</p>
+              <div className="flex flex-col items-center lg:items-start space-y-2 p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div className="text-2xl animate-pulse-glow">💖</div>
+                <p className="text-sm sm:text-base text-white/90 font-semibold">Tu alma gemela</p>
+                <p className="text-xs text-white/60">Esperándote en el cosmos</p>
               </div>
             </div>
           </div>
           
           {/* Right side - Visual element */}
           <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-64 h-64 xl:w-80 xl:h-80">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-blue-500/30 rounded-full animate-pulse-glow"></div>
-              <div className="absolute inset-4 bg-gradient-to-br from-purple-500/20 to-blue-600/20 rounded-full animate-float"></div>
-              <div className="absolute inset-8 bg-gradient-to-br from-purple-600/10 to-blue-700/10 rounded-full"></div>
-              <div className="absolute inset-0 flex items-center justify-center text-5xl xl:text-6xl animate-float" style={{ animationDelay: '1s' }}>
+            <div className="relative w-72 h-72 xl:w-96 xl:h-96">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 via-pink-400/20 to-blue-500/30 rounded-full animate-pulse-glow blur-sm"></div>
+              <div className="absolute inset-4 bg-gradient-to-br from-purple-500/20 via-pink-500/15 to-blue-600/20 rounded-full animate-float border border-white/10"></div>
+              <div className="absolute inset-8 bg-gradient-to-br from-purple-600/10 via-pink-600/10 to-blue-700/10 rounded-full border border-white/5"></div>
+              <div className="absolute inset-0 flex items-center justify-center text-6xl xl:text-7xl animate-float" style={{ animationDelay: '1s' }}>
                 ✨
               </div>
+              {/* Floating elements around */}
+              <div className="absolute top-4 right-8 text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>🌙</div>
+              <div className="absolute bottom-8 left-4 text-2xl animate-bounce" style={{ animationDelay: '1.5s' }}>⭐</div>
+              <div className="absolute top-1/3 left-2 text-xl animate-bounce" style={{ animationDelay: '2s' }}>💫</div>
             </div>
           </div>
         </div>

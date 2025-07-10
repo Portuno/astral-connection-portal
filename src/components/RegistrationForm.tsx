@@ -44,8 +44,8 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
       if (error) {
         console.error('Error saving data:', error);
         toast({
-          title: "Error",
-          description: "Hubo un problema al guardar tus datos. Por favor intenta de nuevo.",
+          title: "¡Ups! 🌟",
+          description: "Las estrellas están alineándose... Inténtalo de nuevo en un momento.",
           variant: "destructive"
         });
         return;
@@ -53,16 +53,16 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
 
       console.log('Data saved successfully');
       toast({
-        title: "¡Perfecto!",
-        description: "Tus datos han sido guardados. Generando tu carta astral...",
+        title: "¡Magia cósmica activada! ✨",
+        description: "Tu energía astral ha sido capturada. Preparando tu destino...",
       });
       
       onSubmit(formData);
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
-        title: "Error",
-        description: "Ocurrió un error inesperado. Por favor intenta de nuevo.",
+        title: "Interferencia cósmica 🌙",
+        description: "Los planetas están jugando... Prueba otra vez.",
         variant: "destructive"
       });
     } finally {
@@ -75,112 +75,143 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
   };
 
   return (
-    <section className="py-8 md:py-12 px-4 md:px-6">
-      <div className="max-w-lg mx-auto">
-        <Card className="glass-card p-4 md:p-6 space-y-4 md:space-y-6">
-          <div className="text-center space-y-2 md:space-y-3">
-            <div className="w-12 h-12 mx-auto bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow">
-              <span className="text-xl">✨</span>
+    <section className="py-8 md:py-16 px-4 md:px-6">
+      <div className="max-w-md mx-auto">
+        <Card className="glass-card p-6 md:p-8 space-y-6 md:space-y-8 rounded-3xl border-2 border-white/20 shadow-2xl">
+          <div className="text-center space-y-4">
+            <div className="relative">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-purple-400 via-pink-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow shadow-lg">
+                <span className="text-2xl animate-float">✨</span>
+              </div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-xs animate-bounce">
+                🌟
+              </div>
             </div>
-            <h2 className="text-lg md:text-xl font-bold text-white">
-              Descubre tu destino cósmico
-            </h2>
-            <p className="text-sm text-white/70">
-              Ingresa tus datos para generar tu carta astral única
-            </p>
+            <div className="space-y-3">
+              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent leading-tight">
+                Despierta tu magia interior
+              </h2>
+              <p className="text-base text-white/80 leading-relaxed max-w-sm mx-auto">
+                Las estrellas han conspirado para traerte hasta aquí. 
+                <span className="block mt-1 text-white/60 text-sm">✨ Tu alma gemela te está esperando ✨</span>
+              </p>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-white font-medium text-sm">
-                Nombre completo
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-white font-semibold text-sm flex items-center gap-2">
+                <span className="text-pink-300">👤</span>
+                Tu nombre mágico
               </Label>
               <Input
                 id="name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10"
-                placeholder="Tu nombre"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12 rounded-2xl border-2 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
+                placeholder="¿Cómo te llamas, alma cósmica?"
                 required
                 disabled={isLoading}
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-white font-medium text-sm">
-                Correo electrónico
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-white font-semibold text-sm flex items-center gap-2">
+                <span className="text-blue-300">📧</span>
+                Tu portal digital
               </Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10"
-                placeholder="tu@email.com"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12 rounded-2xl border-2 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-300"
+                placeholder="tuenergia@cosmica.com"
                 required
                 disabled={isLoading}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="birthDate" className="text-white font-medium text-sm">
-                  Fecha nacimiento
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="birthDate" className="text-white font-semibold text-sm flex items-center gap-1">
+                  <span className="text-yellow-300">🌅</span>
+                  Tu llegada
                 </Label>
                 <Input
                   id="birthDate"
                   type="date"
                   value={formData.birthDate}
                   onChange={(e) => handleChange("birthDate", e.target.value)}
-                  className="bg-white/10 border-white/30 text-white h-10 text-sm"
+                  className="bg-white/10 border-white/30 text-white h-12 rounded-xl border-2 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-300"
                   required
                   disabled={isLoading}
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="birthTime" className="text-white font-medium text-sm">
-                  Hora (opcional)
+              <div className="space-y-2">
+                <Label htmlFor="birthTime" className="text-white font-semibold text-sm flex items-center gap-1">
+                  <span className="text-purple-300">🕐</span>
+                  Tu momento
                 </Label>
                 <Input
                   id="birthTime"
                   type="time"
                   value={formData.birthTime}
                   onChange={(e) => handleChange("birthTime", e.target.value)}
-                  className="bg-white/10 border-white/30 text-white h-10 text-sm"
+                  className="bg-white/10 border-white/30 text-white h-12 rounded-xl border-2 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="birthPlace" className="text-white font-medium text-sm">
-                Ciudad y país de nacimiento
+            <div className="space-y-2">
+              <Label htmlFor="birthPlace" className="text-white font-semibold text-sm flex items-center gap-2">
+                <span className="text-green-300">🌍</span>
+                Tu punto de origen cósmico
               </Label>
               <Input
                 id="birthPlace"
                 type="text"
                 value={formData.birthPlace}
                 onChange={(e) => handleChange("birthPlace", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-10"
-                placeholder="Madrid, España"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12 rounded-2xl border-2 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 transition-all duration-300"
+                placeholder="Barcelona, España ✨"
                 required
                 disabled={isLoading}
               />
             </div>
 
-            <Button 
-              type="submit"
-              className="stellar-button w-full text-base py-4 rounded-full mt-4"
-              disabled={isLoading}
-            >
-              {isLoading ? "Generando carta astral..." : "Generar mi carta astral ✨"}
-            </Button>
+            <div className="pt-4">
+              <Button 
+                type="submit"
+                className="stellar-button w-full text-lg font-bold py-6 rounded-2xl mt-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300 border-2 border-white/20"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center gap-3">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Consultando las estrellas...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    Revelar mi destino cósmico
+                    <span className="text-xl animate-bounce">🌟</span>
+                  </span>
+                )}
+              </Button>
+            </div>
 
-            <p className="text-xs text-white/60 text-center mt-2">
-              Datos 100% seguros y privados
-            </p>
+            <div className="text-center space-y-2 pt-2">
+              <p className="text-xs text-white/70 flex items-center justify-center gap-2">
+                <span className="text-green-400">🔒</span>
+                Tu energía está protegida por magia ancestral
+              </p>
+              <p className="text-xs text-white/50">
+                Más de <span className="text-pink-300 font-semibold">10,000 almas</span> ya encontraron su conexión 💫
+              </p>
+            </div>
           </form>
         </Card>
       </div>

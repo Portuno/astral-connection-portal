@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { DateTimePicker } from "./DateTimePicker";
+import CityAutocomplete from "./CityAutocomplete";
 
 interface FormData {
   name: string;
@@ -23,6 +25,7 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
     birthTime: "",
     birthPlace: ""
   });
+  const [selectedDate, setSelectedDate] = useState<Date>();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -74,16 +77,28 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleDateChange = (date: Date | undefined) => {
+    setSelectedDate(date);
+    if (date) {
+      const isoDate = date.toISOString().split('T')[0];
+      handleChange('birthDate', isoDate);
+    }
+  };
+
+  const handleTimeChange = (time: string) => {
+    handleChange('birthTime', time);
+  };
+
   return (
     <section className="py-8 md:py-16 px-4 md:px-6">
       <div className="max-w-md mx-auto">
-        <Card className="glass-card p-6 md:p-8 space-y-6 md:space-y-8 rounded-3xl border-2 border-white/20 shadow-2xl">
+        <Card className="glass-card p-6 md:p-8 space-y-6 md:space-y-8 rounded-3xl border-2 border-white/20 shadow-2xl backdrop-blur-xl">
           <div className="text-center space-y-4">
             <div className="relative">
-              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-purple-400 via-pink-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow shadow-lg">
-                <span className="text-2xl animate-float">✨</span>
+              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 via-pink-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow shadow-2xl">
+                <span className="text-3xl animate-float">✨</span>
               </div>
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-xs animate-bounce">
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-sm animate-bounce shadow-lg">
                 🌟
               </div>
             </div>
@@ -98,10 +113,10 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-3">
               <Label htmlFor="name" className="text-white font-semibold text-sm flex items-center gap-2">
-                <span className="text-pink-300">👤</span>
+                <span className="text-pink-300 text-lg">👤</span>
                 Tu nombre mágico
               </Label>
               <Input
@@ -109,16 +124,16 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12 rounded-2xl border-2 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12 rounded-2xl border-2 focus:border-pink-400 focus:ring-2 focus:ring-pink-400/20 transition-all duration-300"
                 placeholder="¿Cómo te llamas, alma cósmica?"
                 required
                 disabled={isLoading}
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label htmlFor="email" className="text-white font-semibold text-sm flex items-center gap-2">
-                <span className="text-blue-300">📧</span>
+                <span className="text-blue-300 text-lg">📧</span>
                 Tu portal digital
               </Label>
               <Input
@@ -133,60 +148,36 @@ const RegistrationForm = ({ onSubmit }: { onSubmit: (data: FormData) => void }) 
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="birthDate" className="text-white font-semibold text-sm flex items-center gap-1">
-                  <span className="text-yellow-300">🌅</span>
-                  Tu llegada
-                </Label>
-                <Input
-                  id="birthDate"
-                  type="date"
-                  value={formData.birthDate}
-                  onChange={(e) => handleChange("birthDate", e.target.value)}
-                  className="bg-white/10 border-white/30 text-white h-12 rounded-xl border-2 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-300"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="birthTime" className="text-white font-semibold text-sm flex items-center gap-1">
-                  <span className="text-purple-300">🕐</span>
-                  Tu momento
-                </Label>
-                <Input
-                  id="birthTime"
-                  type="time"
-                  value={formData.birthTime}
-                  onChange={(e) => handleChange("birthTime", e.target.value)}
-                  className="bg-white/10 border-white/30 text-white h-12 rounded-xl border-2 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="birthPlace" className="text-white font-semibold text-sm flex items-center gap-2">
-                <span className="text-green-300">🌍</span>
-                Tu punto de origen cósmico
+            <div className="space-y-3">
+              <Label className="text-white font-semibold text-sm flex items-center gap-2">
+                <span className="text-yellow-300 text-lg">🌅</span>
+                Tu momento cósmico de llegada
               </Label>
-              <Input
-                id="birthPlace"
-                type="text"
-                value={formData.birthPlace}
-                onChange={(e) => handleChange("birthPlace", e.target.value)}
-                className="bg-white/10 border-white/30 text-white placeholder:text-white/50 h-12 rounded-2xl border-2 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 transition-all duration-300"
-                placeholder="Barcelona, España ✨"
-                required
+              <DateTimePicker
+                date={selectedDate}
+                onDateChange={handleDateChange}
+                time={formData.birthTime}
+                onTimeChange={handleTimeChange}
                 disabled={isLoading}
               />
             </div>
 
-            <div className="pt-4">
+            <div className="space-y-3">
+              <Label htmlFor="birthPlace" className="text-white font-semibold text-sm flex items-center gap-2">
+                <span className="text-green-300 text-lg">🌍</span>
+                Tu punto de origen cósmico
+              </Label>
+              <CityAutocomplete
+                value={formData.birthPlace}
+                onChange={(value) => handleChange("birthPlace", value)}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="pt-6">
               <Button 
                 type="submit"
-                className="stellar-button w-full text-lg font-bold py-6 rounded-2xl mt-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300 border-2 border-white/20"
+                className="stellar-button w-full text-lg font-bold py-6 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300 border-2 border-white/20"
                 disabled={isLoading}
               >
                 {isLoading ? (

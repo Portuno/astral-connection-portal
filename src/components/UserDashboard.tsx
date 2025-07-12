@@ -60,7 +60,6 @@ export default function UserDashboard({ onShowPaymentModal }: UserDashboardProps
 
   const renderHomeTab = () => (
     <div className="space-y-6">
-      {/* Header personalizado */}
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold text-white">
           Hola, {userName} 🌙
@@ -70,7 +69,6 @@ export default function UserDashboard({ onShowPaymentModal }: UserDashboardProps
         </p>
       </div>
 
-      {/* Dashboard de matches */}
       <div className="space-y-4">
         {matches.map((match) => (
           <Card key={match.id} className="glass-card p-4 relative overflow-hidden">
@@ -143,7 +141,6 @@ export default function UserDashboard({ onShowPaymentModal }: UserDashboardProps
       <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-white">Mi Carta Astral ✨</h2>
         
-        {/* Zodiac wheel animation */}
         <div className="relative w-48 h-48 mx-auto">
           <div className="absolute inset-0 rounded-full border-4 border-purple-400/30 animate-spin" style={{ animationDuration: '20s' }}>
             <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
@@ -255,15 +252,12 @@ export default function UserDashboard({ onShowPaymentModal }: UserDashboardProps
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%239C92AC\" fill-opacity=\"0.1\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"1\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
       
-      {/* Floating stars */}
       <div className="absolute top-20 left-10 w-2 h-2 bg-white rounded-full animate-pulse"></div>
       <div className="absolute top-40 right-20 w-1 h-1 bg-purple-300 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
       <div className="absolute top-60 left-1/4 w-1.5 h-1.5 bg-pink-300 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
 
-      {/* Main content */}
       <div className="relative z-10 pb-20">
         <div className="container mx-auto px-4 py-8">
           {activeTab === 'home' && renderHomeTab()}
@@ -273,7 +267,6 @@ export default function UserDashboard({ onShowPaymentModal }: UserDashboardProps
         </div>
       </div>
 
-      {/* Bottom navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/30 backdrop-blur-lg border-t border-white/20">
         <div className="flex justify-around py-2">
           {[
@@ -298,7 +291,6 @@ export default function UserDashboard({ onShowPaymentModal }: UserDashboardProps
         </div>
       </div>
 
-      {/* Payment modal trigger for blocked matches */}
       {!hasPaidAccess && (
         <div className="fixed inset-0 pointer-events-none">
           {/* This will be handled by the parent component */}

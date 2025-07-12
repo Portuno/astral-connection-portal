@@ -26,18 +26,8 @@ const Index = () => {
   const { user } = useAuth();
 
   const handleDiscoverClick = () => {
-    if (user) {
-      // Si el usuario está autenticado, mostrar el formulario
-      setShowForm(true);
-      setTimeout(() => {
-        document.getElementById('registration-form')?.scrollIntoView({ 
-          behavior: 'smooth' 
-        });
-      }, 100);
-    } else {
-      // Si no está autenticado, mostrar modal de auth
-      setShowAuthModal(true);
-    }
+    // Always show the auth modal when button is clicked
+    setShowAuthModal(true);
   };
 
   const handleFormSubmit = (data: FormData) => {
@@ -53,16 +43,11 @@ const Index = () => {
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
-    setShowForm(true);
-    setTimeout(() => {
-      document.getElementById('registration-form')?.scrollIntoView({ 
-        behavior: 'smooth' 
-      });
-    }, 100);
+    // User will now see the UserDashboard automatically
   };
 
-  // Si el usuario está logueado y ha completado el registro, mostrar el dashboard
-  if (user && (showPaymentGate || user.user_metadata?.hasCompletedRegistration)) {
+  // If the user is logged in, show the dashboard directly
+  if (user) {
     return (
       <>
         <UserDashboard onShowPaymentModal={() => setShowPaymentModal(true)} />
@@ -74,6 +59,7 @@ const Index = () => {
     );
   }
 
+  // If user is not logged in, show the landing page
   return (
     <div className="content-wrapper">
       <HeroSection onDiscoverClick={handleDiscoverClick} />

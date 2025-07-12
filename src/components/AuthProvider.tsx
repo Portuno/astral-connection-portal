@@ -9,6 +9,7 @@ interface AuthContextType {
   hasPaidAccess: boolean;
   signUp: (email: string, password: string, userData: any) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   checkPaymentStatus: () => Promise<void>;
 }
@@ -69,11 +70,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
 
   const signUp = async (email: string, password: string, userData: any) => {
+    const redirectUrl = `${window.location.origin}/`;
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: userData
+        data: userData,
+        emailRedirectTo: redirectUrl
       }
     });
     if (error) throw error;
@@ -83,6 +87,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
+    });
+    if (error) throw error;
+  };
+
+  const signInWithGoogle = async () => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl
+      }
     });
     if (error) throw error;
   };
@@ -98,6 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     hasPaidAccess,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     checkPaymentStatus
   };

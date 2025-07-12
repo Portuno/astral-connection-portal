@@ -14,11 +14,11 @@ const HeroSection = ({ onDiscoverClick }: { onDiscoverClick: () => void }) => {
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center">
           {/* Left side - Text content */}
           <div className="space-y-4 lg:space-y-6 text-center lg:text-left animate-float">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight text-justify sm:text-center lg:text-left">
               Tu <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">alma gemela</span> está escrita en las estrellas
             </h1>
             
-            <p className="text-lg sm:text-xl lg:text-2xl text-white/90 font-light leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            <p className="text-lg sm:text-xl lg:text-2xl text-white/90 font-light leading-relaxed max-w-2xl mx-auto lg:mx-0 text-justify sm:text-center lg:text-left">
               El universo ha conspirado para este momento. Conecta con tu destino cósmico a través de tu carta natal única.
             </p>
             
@@ -40,17 +40,17 @@ const HeroSection = ({ onDiscoverClick }: { onDiscoverClick: () => void }) => {
               <div className="flex flex-col items-center lg:items-start space-y-2 p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
                 <div className="text-2xl animate-pulse-glow">🌟</div>
                 <p className="text-sm sm:text-base text-white/90 font-semibold">Carta astral única</p>
-                <p className="text-xs text-white/60">Basada en tu momento exacto</p>
+                <p className="text-xs text-white/60 text-justify sm:text-center lg:text-left">Basada en tu momento exacto</p>
               </div>
               <div className="flex flex-col items-center lg:items-start space-y-2 p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
                 <div className="text-2xl animate-pulse-glow">💫</div>
                 <p className="text-sm sm:text-base text-white/90 font-semibold">Compatibilidad perfecta</p>
-                <p className="text-xs text-white/60">Algoritmo cósmico avanzado</p>
+                <p className="text-xs text-white/60 text-justify sm:text-center lg:text-left">Algoritmo cósmico avanzado</p>
               </div>
               <div className="flex flex-col items-center lg:items-start space-y-2 p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
                 <div className="text-2xl animate-pulse-glow">💖</div>
                 <p className="text-sm sm:text-base text-white/90 font-semibold">Tu alma gemela</p>
-                <p className="text-xs text-white/60">Esperándote en el cosmos</p>
+                <p className="text-xs text-white/60 text-justify sm:text-center lg:text-left">Esperándote en el cosmos</p>
               </div>
             </div>
           </div>

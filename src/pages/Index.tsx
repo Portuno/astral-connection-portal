@@ -5,6 +5,8 @@ import CompactInfoSection from "@/components/CompactInfoSection";
 import RegistrationForm from "@/components/RegistrationForm";
 import PaymentGate from "@/components/PaymentGate";
 import Footer from "@/components/Footer";
+import { AuthModal } from "@/components/AuthModal";
+import { useAuth } from "@/components/AuthProvider";
 
 interface FormData {
   name: string;
@@ -17,15 +19,22 @@ interface FormData {
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
   const [showPaymentGate, setShowPaymentGate] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { user } = useAuth();
 
   const handleDiscoverClick = () => {
-    setShowForm(true);
-    // Smooth scroll to form
-    setTimeout(() => {
-      document.getElementById('registration-form')?.scrollIntoView({ 
-        behavior: 'smooth' 
-      });
-    }, 100);
+    if (user) {
+      // Si el usuario está autenticado, mostrar el formulario
+      setShowForm(true);
+      setTimeout(() => {
+        document.getElementById('registration-form')?.scrollIntoView({ 
+          behavior: 'smooth' 
+        });
+      }, 100);
+    } else {
+      // Si no está autenticado, mostrar modal de auth
+      setShowAuthModal(true);
+    }
   };
 
   const handleFormSubmit = (data: FormData) => {
@@ -34,6 +43,16 @@ const Index = () => {
     // Smooth scroll to payment gate
     setTimeout(() => {
       document.getElementById('payment-gate')?.scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    }, 100);
+  };
+
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    setShowForm(true);
+    setTimeout(() => {
+      document.getElementById('registration-form')?.scrollIntoView({ 
         behavior: 'smooth' 
       });
     }, 100);
@@ -60,6 +79,12 @@ const Index = () => {
       )}
       
       <Footer />
+      
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 };

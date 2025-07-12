@@ -7,6 +7,8 @@ import PaymentGate from "@/components/PaymentGate";
 import Footer from "@/components/Footer";
 import { AuthModal } from "@/components/AuthModal";
 import { useAuth } from "@/components/AuthProvider";
+import UserDashboard from "@/components/UserDashboard";
+import PaymentModal from "@/components/PaymentModal";
 
 interface FormData {
   name: string;
@@ -20,6 +22,7 @@ const Index = () => {
   const [showForm, setShowForm] = useState(false);
   const [showPaymentGate, setShowPaymentGate] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const { user } = useAuth();
 
   const handleDiscoverClick = () => {
@@ -57,6 +60,19 @@ const Index = () => {
       });
     }, 100);
   };
+
+  // Si el usuario está logueado y ha completado el registro, mostrar el dashboard
+  if (user && (showPaymentGate || user.user_metadata?.hasCompletedRegistration)) {
+    return (
+      <>
+        <UserDashboard onShowPaymentModal={() => setShowPaymentModal(true)} />
+        <PaymentModal 
+          isOpen={showPaymentModal} 
+          onClose={() => setShowPaymentModal(false)} 
+        />
+      </>
+    );
+  }
 
   return (
     <div className="content-wrapper">

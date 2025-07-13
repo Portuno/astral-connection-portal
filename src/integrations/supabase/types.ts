@@ -141,6 +141,7 @@ export type Database = {
           email: string | null
           id: string
           name: string | null
+          onboarding_completed: boolean | null
           updated_at: string
         }
         Insert: {
@@ -151,6 +152,7 @@ export type Database = {
           email?: string | null
           id: string
           name?: string | null
+          onboarding_completed?: boolean | null
           updated_at?: string
         }
         Update: {
@@ -161,7 +163,95 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string | null
+          onboarding_completed?: boolean | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_onboarding: {
+        Row: {
+          ascendant_sign: string | null
+          birth_city: string
+          birth_country: string
+          birth_date: string
+          birth_latitude: number | null
+          birth_longitude: number | null
+          birth_place: string
+          birth_time: string
+          compatibility_notes: string | null
+          completed_at: string | null
+          created_at: string | null
+          full_name: string
+          id: string
+          is_completed: boolean | null
+          jupiter_sign: string | null
+          mars_sign: string | null
+          mercury_sign: string | null
+          moon_sign: string | null
+          onboarding_step: number | null
+          personality_description: string | null
+          saturn_sign: string | null
+          strengths: string[] | null
+          sun_sign: string | null
+          updated_at: string | null
+          user_id: string | null
+          venus_sign: string | null
+        }
+        Insert: {
+          ascendant_sign?: string | null
+          birth_city: string
+          birth_country: string
+          birth_date: string
+          birth_latitude?: number | null
+          birth_longitude?: number | null
+          birth_place: string
+          birth_time: string
+          compatibility_notes?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          full_name: string
+          id?: string
+          is_completed?: boolean | null
+          jupiter_sign?: string | null
+          mars_sign?: string | null
+          mercury_sign?: string | null
+          moon_sign?: string | null
+          onboarding_step?: number | null
+          personality_description?: string | null
+          saturn_sign?: string | null
+          strengths?: string[] | null
+          sun_sign?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          venus_sign?: string | null
+        }
+        Update: {
+          ascendant_sign?: string | null
+          birth_city?: string
+          birth_country?: string
+          birth_date?: string
+          birth_latitude?: number | null
+          birth_longitude?: number | null
+          birth_place?: string
+          birth_time?: string
+          compatibility_notes?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          is_completed?: boolean | null
+          jupiter_sign?: string | null
+          mars_sign?: string | null
+          mercury_sign?: string | null
+          moon_sign?: string | null
+          onboarding_step?: number | null
+          personality_description?: string | null
+          saturn_sign?: string | null
+          strengths?: string[] | null
+          sun_sign?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          venus_sign?: string | null
         }
         Relationships: []
       }

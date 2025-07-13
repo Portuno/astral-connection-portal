@@ -23,10 +23,10 @@ const Index = () => {
   const [showPaymentGate, setShowPaymentGate] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
   const { user } = useAuth();
 
   const handleDiscoverClick = () => {
-    // Always show the auth modal when button is clicked
     setShowAuthModal(true);
   };
 
@@ -43,11 +43,11 @@ const Index = () => {
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
-    // User will now see the UserDashboard automatically
+    setShowDashboard(true);
   };
 
-  // If the user is logged in, show the dashboard directly
-  if (user) {
+  // If user chooses to see dashboard, show it
+  if (showDashboard && user) {
     return (
       <>
         <UserDashboard onShowPaymentModal={() => setShowPaymentModal(true)} />
@@ -59,7 +59,7 @@ const Index = () => {
     );
   }
 
-  // If user is not logged in, show the landing page
+  // Always show the landing page first
   return (
     <div className="content-wrapper">
       <HeroSection onDiscoverClick={handleDiscoverClick} />

@@ -87,10 +87,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signInWithGoogle = async () => {
+    // Detectar si estamos en desarrollo o producción
+    const isProduction = window.location.hostname !== 'localhost';
+    const redirectUrl = isProduction 
+      ? `${window.location.origin}/auth/callback`
+      : `${window.location.origin}/auth/callback`;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: redirectUrl,
       },
     });
     

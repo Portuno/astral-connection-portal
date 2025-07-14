@@ -94,8 +94,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (isLocalhost) {
       redirectUrl = `${window.location.origin}/auth/callback`;
     } else {
-      // Usar la URL específica de Vercel para producción
-      redirectUrl = 'https://astral-connection-portal-2olb8zwpi-portuno-projects.vercel.app/auth/callback';
+      // Usar la URL correcta de Vercel para producción
+      redirectUrl = 'https://astral-connection-portal.vercel.app/auth/callback';
     }
 
     console.log('Redirect URL:', redirectUrl); // Para debug

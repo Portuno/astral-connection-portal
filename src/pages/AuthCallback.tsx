@@ -40,77 +40,91 @@ const AuthCallback = () => {
           return;
         }
 
-        // Wait for Supabase to process any OAuth fragments
-        console.log('Waiting for Supabase to process OAuth...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Múltiples estrategias para establecer la sesión
+        let session = null;
+        let attempts = 0;
+        const maxAttempts = 5;
 
-        // Try to get the session
-        console.log('Getting session...');
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          throw sessionError;
+        while (!session && attempts < maxAttempts) {
+          attempts++;
+          logAuthDebug(`Session attempt ${attempts}/${maxAttempts}`);
+
+          // Estrategia 1: Verificar si hay código de autorización en la URL
+          if (attempts === 1) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            
+            const authCode = urlParams.get('code') || hashParams.get('code');
+            const accessToken = hashParams.get('access_token');
+            
+            if (authCode || accessToken) {
+              logAuthDebug('Auth code or token found in URL', { 
+                hasCode: !!authCode, 
+                hasToken: !!accessToken 
+              });
+              // Dar más tiempo para que Supabase procese automáticamente
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+          }
+
+          // Estrategia 2: Esperar y usar getSession
+          const waitTime = attempts * 1000; // 1s, 2s, 3s, 4s, 5s
+          logAuthDebug(`Waiting ${waitTime}ms before getSession attempt...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+
+          try {
+            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError) {
+              logAuthDebug(`Session error on attempt ${attempts}`, sessionError);
+            } else if (sessionData?.session) {
+              session = sessionData.session;
+              logAuthDebug(`Session obtained on attempt ${attempts}`, session.user?.email);
+              break;
+            } else {
+              logAuthDebug(`No session on attempt ${attempts}`);
+            }
+          } catch (error) {
+            logAuthDebug(`getSession threw error on attempt ${attempts}`, error);
+          }
         }
 
-        console.log('Session data:', sessionData);
+        if (!session) {
+          throw new Error('No se pudo establecer la sesión después de múltiples intentos');
+        }
 
-        if (sessionData?.session?.user) {
-          const user = sessionData.session.user;
-          console.log('User authenticated:', user.email);
-          
-          // Check if user has profile
+        const user = session.user;
+        logAuthDebug('User authenticated successfully', user.email);
+        
+        // Check if user has profile
+        try {
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('onboarding_completed')
             .eq('id', user.id)
             .maybeSingle();
 
-          console.log('Profile check:', profile, profileError);
-
-          toast({
-            title: "¡Bienvenido! ✨",
-            description: `Has iniciado sesión correctamente como ${user.user_metadata?.name || user.email}.`,
-          });
-          
-          // Clear URL and redirect
-          window.history.replaceState(null, '', '/');
-          
-          // Small delay to ensure toast shows
-          setTimeout(() => {
-            navigate('/', { replace: true });
-          }, 1500);
-          
-        } else {
-          console.log('No session found after OAuth, trying one more time...');
-          
-          // One more attempt after a longer wait
-          await new Promise(resolve => setTimeout(resolve, 3000));
-          
-          const { data: retrySession, error: retryError } = await supabase.auth.getSession();
-          
-          if (retryError || !retrySession?.session) {
-            console.error('Still no session:', retryError);
-            throw new Error('No se pudo establecer la sesión de usuario');
-          }
-          
-          // Success on retry
-          const user = retrySession.session.user;
-          console.log('User authenticated on retry:', user.email);
-          
-          toast({
-            title: "¡Bienvenido! ✨",
-            description: `Has iniciado sesión correctamente como ${user.user_metadata?.name || user.email}.`,
-          });
-          
-          window.history.replaceState(null, '', '/');
-          setTimeout(() => {
-            navigate('/', { replace: true });
-          }, 1500);
+          logAuthDebug('Profile check', { profile, error: profileError });
+        } catch (profileCheckError) {
+          logAuthDebug('Profile check failed', profileCheckError);
+          // No fallar por esto, continuar
         }
+
+        toast({
+          title: "¡Bienvenido! ✨",
+          description: `Has iniciado sesión correctamente como ${user.user_metadata?.name || user.email}.`,
+        });
         
+        // Clear URL and redirect
+        window.history.replaceState(null, '', '/');
+        
+        // Small delay to ensure toast shows
+        setTimeout(() => {
+          navigate('/', { replace: true });
+        }, 1500);
+          
       } catch (error: any) {
-        console.error('Auth callback error:', error);
+        logAuthDebug('Auth callback error', error);
         setError(error.message || 'Error desconocido');
         
         toast({
@@ -159,7 +173,7 @@ const AuthCallback = () => {
         {isProcessing && (
           <div className="mt-4">
             <div className="w-8 h-8 mx-auto border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-            <p className="text-xs text-white/50 mt-2">Procesando autenticación...</p>
+            <p className="text-xs text-white/50 mt-2">Estableciendo conexión cósmica...</p>
           </div>
         )}
       </div>

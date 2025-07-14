@@ -103,6 +103,19 @@
   animation: pulse-glow 2s infinite;
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
 /* Justified text for mobile */
 @media (max-width: 768px) {
   .mobile-justify {

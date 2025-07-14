@@ -81,6 +81,36 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Función para asegurar que el usuario tenga perfil
+  const ensureUserProfile = async (userId: string, userEmail: string, userName?: string) => {
+    try {
+      // Verificar si el perfil ya existe
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single();
+
+      if (!existingProfile) {
+        // Crear perfil si no existe
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            name: userName || userEmail.split('@')[0],
+            email: userEmail,
+            onboarding_completed: false
+          });
+
+        if (insertError) {
+          console.warn('Error creating profile:', insertError);
+        }
+      }
+    } catch (error) {
+      console.warn('Error ensuring user profile:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setShowValidation(true);
@@ -113,7 +143,10 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     setIsLoading(true);
 
     try {
-      // Update profiles table with onboarding completion
+      // 1. Asegurar que el usuario tenga perfil antes de continuar
+      await ensureUserProfile(user.id, user.email || '', user.user_metadata?.name || user.user_metadata?.full_name);
+
+      // 2. Intentar actualizar/crear el perfil
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
@@ -124,19 +157,31 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           birth_time: formData.unknownTime ? null : (formData.birthTime || null),
           birth_place: formData.birthPlace.trim(),
           onboarding_completed: true
+        }, {
+          onConflict: 'id'
         });
 
       if (profileError) {
         console.error('Error updating profile:', profileError);
-        toast({
-          title: "Error cósmico 🌙",
-          description: "No pudimos guardar tu información. Las estrellas están alineándose mal. Inténtalo de nuevo.",
-          variant: "destructive"
-        });
+        
+        // Mensajes de error más específicos
+        if (profileError.code === '23503') {
+          toast({
+            title: "Error de configuración 🔧",
+            description: "Hay un problema con tu cuenta. Por favor, cierra sesión y vuelve a iniciar sesión.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error cósmico 🌙",
+            description: "No pudimos guardar tu información. Las estrellas están alineándose mal. Inténtalo de nuevo.",
+            variant: "destructive"
+          });
+        }
         return;
       }
 
-      // Also save to user_onboarding table for detailed astrological data
+      // 3. Guardar en la tabla de onboarding detallado
       const { error: onboardingError } = await supabase
         .from('user_onboarding')
         .upsert({
@@ -150,10 +195,13 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           onboarding_step: 1,
           is_completed: true,
           completed_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         });
 
       if (onboardingError) {
         console.error('Error saving onboarding data:', onboardingError);
+        // No fallar si esto falla, el perfil principal ya se guardó
       }
 
       toast({
@@ -227,7 +275,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       <div className="absolute top-40 right-20 w-1 h-1 bg-purple-300 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
       <div className="absolute top-60 left-1/4 w-1.5 h-1.5 bg-pink-300 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
 
-      <Card className="glass-card p-8 max-w-md w-full space-y-8 rounded-3xl border-2 border-white/20 shadow-2xl backdrop-blur-xl relative z-10">
+      <Card className="glass-card p-8 max-w-lg w-full space-y-8 rounded-3xl border-2 border-white/20 shadow-2xl backdrop-blur-xl relative z-10">
         <div className="text-center space-y-4">
           <div className="relative">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 via-pink-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow shadow-2xl">
@@ -260,7 +308,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-3">
             <Label htmlFor="name" className="text-white font-semibold text-sm flex items-center gap-2">
               <span className="text-pink-300 text-lg">👤</span>
@@ -287,12 +335,12 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           </div>
 
           <div className="space-y-3">
-            <Label className="text-white font-semibold text-sm flex items-center gap-2">
+            <Label className="text-white font-semibold text-sm flex items-center gap-2 mb-4">
               <span className="text-yellow-300 text-lg">🌅</span>
               Tu momento de llegada al cosmos
               <span className="text-red-400 ml-1">*</span>
             </Label>
-            <div className={`${showValidation && errors.birthDate ? 'p-1 bg-red-400/20 rounded-xl border border-red-400/30' : ''}`}>
+            <div className={`${showValidation && errors.birthDate ? 'p-2 bg-red-400/20 rounded-xl border border-red-400/30' : ''}`}>
               <DateTimePicker
                 date={selectedDate}
                 onDateChange={handleDateChange}

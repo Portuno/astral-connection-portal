@@ -15,12 +15,15 @@ export default function PaymentGate() {
 
   if (loading) {
     return (
-      <div className="py-8 md:py-12 px-4 md:px-6">
+      <div className="py-6 sm:py-8 lg:py-12 px-4 sm:px-6">
         <div className="max-w-lg mx-auto">
-          <Card className="glass-card p-6 text-center">
-            <div className="animate-pulse">
-              <div className="h-6 bg-white/20 rounded mb-4"></div>
-              <div className="h-4 bg-white/10 rounded"></div>
+          <Card className="glass-card p-4 sm:p-6 text-center">
+            <div className="animate-pulse space-y-4">
+              <div className="w-16 h-16 mx-auto bg-white/20 rounded-full"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-white/20 rounded mx-auto w-3/4"></div>
+                <div className="h-3 bg-white/10 rounded mx-auto w-1/2"></div>
+              </div>
             </div>
           </Card>
         </div>
@@ -28,30 +31,32 @@ export default function PaymentGate() {
     );
   }
 
-  // User not logged in
+  // No user logged in
   if (!user) {
     return (
       <>
-        <section className="py-8 md:py-12 px-4 md:px-6">
+        <section className="py-6 sm:py-8 lg:py-12 px-4 sm:px-6">
           <div className="max-w-lg mx-auto">
-            <Card className="glass-card p-6 text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow">
-                <span className="text-2xl">🔐</span>
+            <Card className="glass-card p-4 sm:p-6 lg:p-8 text-center space-y-4 sm:space-y-6">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow shadow-2xl">
+                <span className="text-2xl sm:text-3xl">🔮</span>
               </div>
               
-              <h2 className="text-xl font-bold text-white">
-                Accede a Tu Destino Cósmico
-              </h2>
-              
-              <p className="text-white/80">
-                Inicia sesión para acceder a tus perfiles de alma gemela y comenzar a chatear.
-              </p>
+              <div className="space-y-3">
+                <h2 className="text-lg sm:text-xl font-bold text-white">
+                  Tu Destino Cósmico Te Espera
+                </h2>
+                
+                <p className="text-sm sm:text-base text-white/80 leading-relaxed">
+                  Inicia sesión para descubrir tu carta astral y conectar con almas compatibles en el universo.
+                </p>
+              </div>
               
               <Button 
                 onClick={() => setShowAuthModal(true)}
-                className="stellar-button w-full"
+                className="w-full stellar-button bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Iniciar Sesión / Registrarse ✨
+                ✨ Iniciar Sesión Cósmica
               </Button>
             </Card>
           </div>
@@ -59,7 +64,8 @@ export default function PaymentGate() {
         
         <AuthModal 
           isOpen={showAuthModal} 
-          onClose={() => setShowAuthModal(false)} 
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={() => setShowAuthModal(false)}
         />
       </>
     );
@@ -68,33 +74,51 @@ export default function PaymentGate() {
   // User logged in but no paid access
   if (!hasPaidAccess) {
     return (
-      <section className="py-8 md:py-12 px-4 md:px-6">
-        <div className="max-w-lg mx-auto">
-          <Card className="glass-card p-6 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow">
-              <span className="text-2xl">💫</span>
+      <section className="py-6 sm:py-8 lg:py-12 px-4 sm:px-6">
+        <div className="max-w-xl mx-auto">
+          <Card className="glass-card p-4 sm:p-6 lg:p-8 text-center space-y-4 sm:space-y-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center animate-pulse-glow shadow-2xl">
+              <span className="text-2xl sm:text-3xl">💫</span>
             </div>
             
-            <h2 className="text-xl font-bold text-white">
-              ¡Hola {user.user_metadata?.name || 'Alma Cósmica'}!
-            </h2>
-            
-            <p className="text-white/80">
-              Tu carta astral está lista. Para acceder a tus matches cósmicos y comenzar a chatear, activa tu suscripción.
-            </p>
-            
-            <div className="bg-white/10 p-4 rounded-lg text-left space-y-2">
-              <h3 className="font-semibold text-white">Acceso Premium incluye:</h3>
-              <ul className="text-sm text-white/80 space-y-1">
-                <li>• 8 perfiles de alma gemela personalizados</li>
-                <li>• Chat ilimitado con tus matches</li>
-                <li>• Compatibilidad astral detallada</li>
-                <li>• Acceso 24/7 a tu panel personal</li>
-              </ul>
+            <div className="space-y-3">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
+                ¡Hola {user.user_metadata?.name || 'Alma Cósmica'}!
+              </h2>
+              
+              <p className="text-sm sm:text-base text-white/80 leading-relaxed">
+                Tu carta astral está lista. Para acceder a tus matches cósmicos y comenzar a chatear, activa tu suscripción premium.
+              </p>
             </div>
             
-            {/* Square Payment Button */}
-            <div className="w-full flex justify-center">
+            {/* Premium Benefits */}
+            <div className="bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-2xl text-left space-y-3 border border-white/20">
+              <h3 className="font-bold text-white text-center text-base sm:text-lg flex items-center justify-center gap-2">
+                <span className="text-yellow-400">👑</span>
+                Acceso Premium incluye:
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-sm text-white/80">
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
+                  <span className="text-purple-400">💖</span>
+                  <span>Matches personalizados</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
+                  <span className="text-blue-400">💬</span>
+                  <span>Chat ilimitado</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
+                  <span className="text-pink-400">✨</span>
+                  <span>Compatibilidad detallada</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
+                  <span className="text-yellow-400">🌟</span>
+                  <span>Acceso 24/7</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Square Payment Button - Mobile Optimized */}
+            <div className="w-full flex justify-center pt-2">
               <div style={{
                 overflow: "auto",
                 display: "flex",
@@ -102,66 +126,73 @@ export default function PaymentGate() {
                 justifyContent: "flex-end",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: "300px",
-                background: "#FFFFFF",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-                borderRadius: "16px",
+                maxWidth: "320px",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                border: "2px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
+                borderRadius: "20px",
                 fontFamily: "Karla, SQ Market, Helvetica, Arial, sans-serif"
               }}>
                 <div style={{ padding: "20px", width: "100%" }}>
-                  <p style={{
-                    fontSize: "18px",
-                    lineHeight: "20px",
-                    color: "#1a1f3a",
-                    marginBottom: "8px",
-                    textAlign: "center"
-                  }}>AstroTarot</p>
-                  <p style={{
-                    fontSize: "18px",
-                    lineHeight: "20px",
-                    fontWeight: "600",
-                    color: "#1a1f3a",
-                    marginBottom: "16px",
-                    textAlign: "center"
-                  }}>29,90&nbsp;€</p>
+                  <div className="text-center mb-4">
+                    <div className="flex items-center justify-center space-x-2 mb-2">
+                      <span className="text-yellow-300 text-lg">👑</span>
+                      <p style={{
+                        fontSize: "16px",
+                        lineHeight: "20px",
+                        color: "#ffffff",
+                        fontWeight: "600",
+                        margin: 0
+                      }}>AlmaEstelar Premium</p>
+                    </div>
+                    <p style={{
+                      fontSize: "24px",
+                      lineHeight: "28px",
+                      fontWeight: "700",
+                      color: "#ffffff",
+                      margin: "4px 0 0 0"
+                    }}>29,90€</p>
+                  </div>
                   <a 
                     target="_blank" 
                     href="https://square.link/u/NuZ4xbVI?src=embed" 
                     style={{
                       display: "inline-block",
-                      fontSize: "18px",
+                      fontSize: "14px",
                       lineHeight: "48px",
                       height: "48px",
                       color: "#ffffff",
                       width: "100%",
-                      backgroundColor: "#cc0023",
+                      backgroundColor: "#ff6b6b",
                       textAlign: "center",
-                      boxShadow: "0 0 0 1px rgba(0,0,0,.1) inset",
-                      borderRadius: "50px",
+                      boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
+                      borderRadius: "24px",
                       textDecoration: "none",
-                      transition: "all 0.3s ease"
+                      transition: "all 0.3s ease",
+                      fontWeight: "600"
                     }}
                     onMouseEnter={(e) => {
                       const target = e.target as HTMLAnchorElement;
-                      target.style.backgroundColor = "#a8001d";
+                      target.style.backgroundColor = "#ff5252";
                       target.style.transform = "translateY(-2px)";
+                      target.style.boxShadow = "0 12px 24px rgba(0, 0, 0, 0.3)";
                     }}
                     onMouseLeave={(e) => {
                       const target = e.target as HTMLAnchorElement;
-                      target.style.backgroundColor = "#cc0023";
+                      target.style.backgroundColor = "#ff6b6b";
                       target.style.transform = "translateY(0)";
+                      target.style.boxShadow = "0 8px 16px rgba(0, 0, 0, 0.2)";
                     }}
                   >
-                    Activar Acceso Premium
+                    🌟 Activar Magia Cósmica
                   </a>
                 </div>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Karla" />
               </div>
             </div>
             
-            <p className="text-xs text-white/60">
-              Pago seguro mediante Square. Acceso inmediato tras el pago.
+            <p className="text-xs text-white/60 text-center leading-relaxed">
+              🔐 Pago seguro con Square • ⚡ Activación instantánea • 💫 Cancela cuando quieras
             </p>
           </Card>
         </div>
@@ -181,23 +212,21 @@ export default function PaymentGate() {
   };
 
   return (
-    <section className="py-8 md:py-12 px-4 md:px-6">
-      <div className="max-w-lg mx-auto">
-        <Card className="glass-card p-4 md:p-6">
-          {currentView === 'profiles' ? (
-            <ChatProfiles onStartChat={handleStartChat} />
-          ) : (
-            selectedProfile && (
-              <ChatInterface
-                profileId={selectedProfile.id}
-                profileName={selectedProfile.name}
-                onBack={handleBackToProfiles}
-              />
-            )
-          )}
-        </Card>
+    <div className="py-4 sm:py-6 lg:py-8 px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto">
+        {currentView === 'profiles' ? (
+          <ChatProfiles onStartChat={handleStartChat} />
+        ) : (
+          selectedProfile && (
+            <ChatInterface 
+              profileId={selectedProfile.id}
+              profileName={selectedProfile.name}
+              onBack={handleBackToProfiles}
+            />
+          )
+        )}
       </div>
-    </section>
+    </div>
   );
 }
 

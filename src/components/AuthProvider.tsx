@@ -88,10 +88,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signInWithGoogle = async () => {
     // Detectar si estamos en desarrollo o producción
-    const isProduction = window.location.hostname !== 'localhost';
-    const redirectUrl = isProduction 
-      ? `${window.location.origin}/auth/callback`
-      : `${window.location.origin}/auth/callback`;
+    const isLocalhost = window.location.hostname === 'localhost';
+    
+    let redirectUrl;
+    if (isLocalhost) {
+      redirectUrl = `${window.location.origin}/auth/callback`;
+    } else {
+      // Usar la URL específica de Vercel para producción
+      redirectUrl = 'https://astral-connection-portal-2olb8zwpi-portuno-projects.vercel.app/auth/callback';
+    }
+
+    console.log('Redirect URL:', redirectUrl); // Para debug
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

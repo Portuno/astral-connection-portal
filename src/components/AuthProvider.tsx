@@ -1,6 +1,7 @@
 ﻿import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { getAuthConfig, logAuthDebug } from '@/lib/auth-config';
 
 interface AuthContextType {
   user: User | null;
@@ -87,28 +88,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signInWithGoogle = async () => {
-    // Detectar si estamos en desarrollo o producción
-    const isLocalhost = window.location.hostname === 'localhost';
-    
-    let redirectUrl;
-    if (isLocalhost) {
-      redirectUrl = `${window.location.origin}/auth/callback`;
-    } else {
-      // Usar la URL correcta de Vercel para producción
-      redirectUrl = 'https://astral-connection-portal.vercel.app/auth/callback';
-    }
+    try {
+      const authConfig = getAuthConfig();
+      
+      logAuthDebug('Starting Google OAuth', {
+        redirectUrl: authConfig.redirectUrl,
+        siteUrl: authConfig.siteUrl,
+        isProduction: authConfig.isProduction,
+        currentLocation: window.location.href
+      });
 
-    console.log('Redirect URL:', redirectUrl); // Para debug
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: authConfig.redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+      
+      if (error) {
+        logAuthDebug('OAuth initiation error', error);
+        throw error;
+      }
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: redirectUrl,
-      },
-    });
-    
-    if (error) {
-      throw error;
+      logAuthDebug('OAuth initiation successful', data);
+      
+    } catch (error: any) {
+      logAuthDebug('Google sign-in error', error);
+      // Re-throw the error so it can be handled by the calling component
+      throw new Error(error.message || 'Error al iniciar sesión con Google');
     }
   };
 

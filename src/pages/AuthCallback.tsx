@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { getAuthConfig, logAuthDebug } from '@/lib/auth-config';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -12,9 +13,13 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        console.log('AuthCallback started - Location:', window.location.href);
-        console.log('Hash:', window.location.hash);
-        console.log('Search:', window.location.search);
+        const authConfig = getAuthConfig();
+        logAuthDebug('AuthCallback started', {
+          location: window.location.href,
+          hash: window.location.hash,
+          search: window.location.search,
+          config: authConfig
+        });
 
         // Check for error in URL parameters first
         const urlParams = new URLSearchParams(window.location.search);
@@ -24,7 +29,7 @@ const AuthCallback = () => {
         const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
         
         if (errorParam) {
-          console.error('OAuth error:', errorParam, errorDescription);
+          logAuthDebug('OAuth error detected', { error: errorParam, description: errorDescription });
           setError(errorDescription || errorParam);
           toast({
             title: "Error de autenticación",

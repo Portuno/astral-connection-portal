@@ -85,11 +85,16 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const ensureUserProfile = async (userId: string, userEmail: string, userName?: string) => {
     try {
       // Verificar si el perfil ya existe
-      const { data: existingProfile } = await supabase
+      const { data: existingProfile, error: selectError } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
+
+      if (selectError) {
+        console.warn('Error checking existing profile:', selectError);
+        return;
+      }
 
       if (!existingProfile) {
         // Crear perfil si no existe

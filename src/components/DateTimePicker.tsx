@@ -1,12 +1,9 @@
 
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Calendar as CalendarIcon, Clock, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
 interface DateTimePickerProps {
   date?: Date;
@@ -180,7 +177,12 @@ export const DateTimePicker = ({
         {isDateValid() && (
           <div className="p-3 bg-yellow-500/10 rounded-lg border border-yellow-400/30 backdrop-blur-sm">
             <p className="text-yellow-200 text-sm text-center font-medium">
-              📅 {format(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)), "dd 'de' MMMM 'de' yyyy", { locale: es })}
+              📅 {(() => {
+                const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                                  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                const monthName = monthNames[parseInt(month) - 1] || 'mes';
+                return `${day} de ${monthName} de ${year}`;
+              })()}
             </p>
           </div>
         )}

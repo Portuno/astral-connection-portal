@@ -77,11 +77,17 @@ export const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = 'signin' }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md glass-card">
+      <DialogContent className="sm:max-w-md glass-card" aria-describedby="auth-modal-description">
         <DialogHeader>
           <DialogTitle className="text-center text-white text-xl font-bold">
             {mode === 'signin' ? 'Despertar tu Magia Interior' : 'Unirse al Cosmos'}
           </DialogTitle>
+          <p id="auth-modal-description" className="text-white/70 text-center text-sm mt-2">
+            {mode === 'signin' 
+              ? 'Inicia sesión para acceder a tu destino cósmico' 
+              : 'Crea tu cuenta para comenzar tu viaje astral'
+            }
+          </p>
         </DialogHeader>
         
         <div className="space-y-6">

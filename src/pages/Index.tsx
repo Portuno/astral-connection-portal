@@ -6,6 +6,7 @@ import Landing from "./Landing";
 import Home from "./Home";
 import OnboardingFlow from "@/components/OnboardingFlow";
 import CosmicLoadingScreen from "@/components/CosmicLoadingScreen";
+import { DebugAuth } from "@/components/DebugAuth";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -63,7 +64,12 @@ const Index = () => {
 
   // If no user, show landing page
   if (!user) {
-    return <Landing />;
+    return (
+      <>
+        <DebugAuth />
+        <Landing />
+      </>
+    );
   }
 
   // If showing cosmic loading screen
@@ -77,7 +83,12 @@ const Index = () => {
   }
 
   // User is logged in and has completed onboarding - show home
-  return <Home />;
+  return (
+    <>
+      <DebugAuth />
+      <Home />
+    </>
+  );
 };
 
 export default Index;

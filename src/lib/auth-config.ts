@@ -18,7 +18,6 @@ export const getAuthConfig = () => {
 };
 
 export const logAuthDebug = (message: string, data?: any) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[AUTH] ${message}`, data);
-  }
+  // Siempre hacer log por ahora para debug en producción
+  console.log(`[AUTH] ${message}`, data);
 }; 

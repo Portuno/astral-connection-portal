@@ -58,27 +58,36 @@ export const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = 'signin' }
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
-      console.log('Initiating Google OAuth from modal...');
+      console.log('[AuthModal] Initiating Google OAuth from modal...');
+      console.log('[AuthModal] Current window location:', window.location.href);
+      console.log('[AuthModal] User agent:', navigator.userAgent);
       
+      // Verificar que signInWithGoogle existe
+      if (typeof signInWithGoogle !== 'function') {
+        throw new Error('signInWithGoogle is not a function');
+      }
+      
+      console.log('[AuthModal] Calling signInWithGoogle...');
       await signInWithGoogle();
       
-      // No mostrar toast aquí porque el usuario será redirigido
-      // El toast se mostrará en AuthCallback cuando regrese
-      console.log('Google OAuth initiated successfully, user will be redirected...');
-      
-      // No llamar onSuccess aquí porque el usuario será redirigido
-      // onSuccess se llamará cuando regrese del callback
+      console.log('[AuthModal] Google OAuth initiated successfully, user will be redirected...');
       
     } catch (error: any) {
-      console.error('Error in handleGoogleSignIn:', error);
+      console.error('[AuthModal] Error in handleGoogleSignIn:', error);
+      console.error('[AuthModal] Error stack:', error.stack);
+      console.error('[AuthModal] signInWithGoogle type:', typeof signInWithGoogle);
       
       let errorMessage = "No se pudo iniciar sesión con Google.";
       
       // Mensajes de error más específicos
-      if (error.message?.includes('fetch')) {
+      if (error.message?.includes('not a function')) {
+        errorMessage = "Error interno de la aplicación. Recarga la página e inténtalo de nuevo.";
+      } else if (error.message?.includes('fetch')) {
         errorMessage = "Error de conexión. Verifica tu internet e inténtalo de nuevo.";
       } else if (error.message?.includes('popup')) {
         errorMessage = "Error con la ventana emergente. Verifica que no esté bloqueada.";
+      } else if (error.message?.includes('redirect')) {
+        errorMessage = "Error de configuración. Contacta al administrador.";
       } else if (error.message) {
         errorMessage = error.message;
       }

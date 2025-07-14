@@ -89,6 +89,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signInWithGoogle = async () => {
     try {
+      console.log('[AuthProvider] signInWithGoogle called');
+      console.log('[AuthProvider] supabase client:', !!supabase);
+      console.log('[AuthProvider] supabase.auth:', !!supabase?.auth);
+      console.log('[AuthProvider] supabase.auth.signInWithOAuth:', typeof supabase?.auth?.signInWithOAuth);
+      
       const authConfig = getAuthConfig();
       
       logAuthDebug('Starting Google OAuth', {
@@ -97,6 +102,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isProduction: authConfig.isProduction,
         currentLocation: window.location.href
       });
+
+      if (!supabase?.auth?.signInWithOAuth) {
+        throw new Error('Supabase client not properly initialized');
+      }
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -117,6 +126,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       logAuthDebug('OAuth initiation successful', data);
       
     } catch (error: any) {
+      console.error('[AuthProvider] Google sign-in error:', error);
       logAuthDebug('Google sign-in error', error);
       // Re-throw the error so it can be handled by the calling component
       throw new Error(error.message || 'Error al iniciar sesión con Google');
@@ -167,6 +177,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signOut,
     checkPaymentStatus,
   };
+
+  // Debug: verificar que todas las funciones estén definidas
+  console.log('[AuthProvider] Context value functions:', {
+    signIn: typeof signIn,
+    signUp: typeof signUp,
+    signInWithGoogle: typeof signInWithGoogle,
+    signOut: typeof signOut,
+    checkPaymentStatus: typeof checkPaymentStatus,
+  });
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

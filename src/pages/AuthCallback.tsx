@@ -10,6 +10,19 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
+        // Check if we have hash params (from OAuth redirect)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        
+        if (accessToken) {
+          // If we have access token in URL, this is a direct OAuth redirect
+          // Let Supabase handle the session automatically
+          console.log('OAuth redirect detected, processing...');
+          
+          // Wait a moment for Supabase to process the session
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -24,17 +37,26 @@ const AuthCallback = () => {
         }
 
         if (data.session) {
+          console.log('Session established successfully:', data.session.user.email);
           toast({
             title: "¡Bienvenido!",
-            description: "Has iniciado sesión correctamente con Google.",
+            description: `Has iniciado sesión correctamente como ${data.session.user.user_metadata?.name || data.session.user.email}.`,
           });
-          // Redirigir a la página principal
-          navigate('/');
+          
+          // Clear the hash from URL and redirect to home
+          window.history.replaceState(null, '', window.location.pathname);
+          navigate('/', { replace: true });
         } else {
+          console.log('No session found, redirecting to home');
           navigate('/');
         }
       } catch (error) {
         console.error('Unexpected auth error:', error);
+        toast({
+          title: "Error inesperado",
+          description: "Ocurrió un error al procesar la autenticación.",
+          variant: "destructive"
+        });
         navigate('/');
       }
     };
@@ -50,6 +72,9 @@ const AuthCallback = () => {
         </div>
         <h2 className="text-xl font-bold text-white">Conectando con las estrellas...</h2>
         <p className="text-white/70">Un momento mientras completamos tu ingreso cósmico</p>
+        <div className="mt-4">
+          <div className="w-8 h-8 mx-auto border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        </div>
       </div>
     </div>
   );

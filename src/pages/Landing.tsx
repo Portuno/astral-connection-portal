@@ -2,10 +2,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 
 const Landing = () => {
+  const navigate = useNavigate();
+  
   const handleOpenOnboarding = () => {
-    window.open('/onboarding', '_blank', 'noopener,noreferrer');
+    navigate('/onboarding');
   };
 
   const pillars = [

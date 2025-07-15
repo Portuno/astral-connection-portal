@@ -1,93 +1,22 @@
 
-import { useAuth } from "@/components/AuthProvider";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import Landing from "./Landing";
-import Home from "./Home";
-import OnboardingFlow from "@/components/OnboardingFlow";
-import CosmicLoadingScreen from "@/components/CosmicLoadingScreen";
-import { DebugAuth } from "@/components/DebugAuth";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Index = () => {
-  const { user, loading } = useAuth();
-  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
-  const [showLoading, setShowLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Check if user has completed onboarding
   useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      if (!user) {
-        setOnboardingCompleted(null);
-        return;
-      }
+    // Redirigir inmediatamente a la página de landing
+    navigate("/", { replace: true });
+  }, [navigate]);
 
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('onboarding_completed')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error checking onboarding status:', error);
-          setOnboardingCompleted(false);
-          return;
-        }
-
-        setOnboardingCompleted(data?.onboarding_completed || false);
-      } catch (error) {
-        console.error('Unexpected error:', error);
-        setOnboardingCompleted(false);
-      }
-    };
-
-    checkOnboardingStatus();
-  }, [user]);
-
-  const handleOnboardingComplete = () => {
-    setShowLoading(true);
-  };
-
-  const handleLoadingComplete = () => {
-    setShowLoading(false);
-    setOnboardingCompleted(true);
-  };
-
-  // Show loading state while checking authentication
-  if (loading || (user && onboardingCompleted === null)) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
-        <div className="text-white text-xl">Conectando con el cosmos...</div>
-      </div>
-    );
-  }
-
-  // If no user, show landing page
-  if (!user) {
-    return (
-      <>
-        <DebugAuth />
-        <Landing />
-      </>
-    );
-  }
-
-  // If showing cosmic loading screen
-  if (showLoading) {
-    return <CosmicLoadingScreen onLoadingComplete={handleLoadingComplete} />;
-  }
-
-  // If user exists but hasn't completed onboarding
-  if (user && onboardingCompleted === false) {
-    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
-  }
-
-  // User is logged in and has completed onboarding - show home
   return (
-    <>
-      <DebugAuth />
-      <Home />
-    </>
+    <div className="min-h-screen flex items-center justify-center bg-cosmic-blue text-white">
+      <div className="text-center">
+        <div className="animate-spin w-16 h-16 border-4 border-cosmic-magenta border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p className="text-xl">Cargando AlmaEstelar...</p>
+      </div>
+    </div>
   );
 };
 

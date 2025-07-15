@@ -1,69 +1,93 @@
 
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlmaEstelar - Tu alma gemela está escrita en las estrellas</title>
+    <meta name="description" content="Encuentra tu alma gemela a través de la astrología y la sinastría cósmica" />
     
-    <!-- SEO Meta Tags -->
-    <title>AlmaEstelar - Encuentra tu Alma Gemela Cósmica | Compatibilidad Astral</title>
-    <meta name="description" content="Descubre tu alma gemela perfecta a través de la astrología. Carta astral personalizada, compatibilidad cósmica y conexiones auténticas basadas en las estrellas. ¡Tu destino te espera!" />
-    <meta name="keywords" content="alma gemela, astrología, carta astral, compatibilidad astral, horóscopo, signos zodiacales, amor cósmico, destino, conexión espiritual" />
-    <meta name="author" content="AlmaEstelar" />
-    <meta name="robots" content="index, follow" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="AlmaEstelar - Tu Alma Gemela Está Escrita en las Estrellas" />
-    <meta property="og:description" content="Conecta con la persona destinada para ti a través de tu carta natal. Miles ya encontraron su conexión cósmica perfecta." />
-    <meta property="og:url" content="https://almaestelar.com" />
-    <meta property="og:site_name" content="AlmaEstelar" />
-    <meta property="og:image" content="https://almaestelar.com/og-image.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:locale" content="es_ES" />
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="AlmaEstelar - Encuentra tu Alma Gemela Cósmica" />
-    <meta name="twitter:description" content="Tu alma gemela está escrita en las estrellas. Descubre tu conexión perfecta a través de la astrología." />
-    <meta name="twitter:image" content="https://almaestelar.com/og-image.jpg" />
-    <meta name="twitter:site" content="@almaestelar" />
-    <meta name="twitter:creator" content="@almaestelar" />
-
-    <!-- Additional SEO -->
-    <link rel="canonical" href="https://almaestelar.com" />
-    <meta name="theme-color" content="#0a0e27" />
-    <meta name="msapplication-TileColor" content="#0a0e27" />
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #root {
+            min-height: 100vh;
+        }
+        
+        /* Loading animation while React loads */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f1035 0%, #1a1b4b 50%, #000000 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .loading-content {
+            text-align: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #d946ef;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            color: #d946ef;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen shown while React loads -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text">Cargando AlmaEstelar...</div>
+        </div>
+    </div>
     
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "AlmaEstelar",
-      "description": "Plataforma de compatibilidad astrológica para encontrar tu alma gemela",
-      "url": "https://almaestelar.com",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://almaestelar.com/buscar?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
-
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <link rel="icon" type="image/png" sizes="16x16" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-  </head>
-
-  <body>
+    <!-- React app mounts here -->
     <div id="root"></div>
+    
     <script type="module" src="/src/main.tsx"></script>
-  </body>
+    
+    <script>
+        // Hide loading screen once React has mounted
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'none';
+                }
+            }, 500);
+        });
+    </script>
+</body>
 </html>

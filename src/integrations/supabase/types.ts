@@ -14,431 +14,372 @@ export type Database = {
   }
   public: {
     Tables: {
-      chat_conversations: {
+      chats: {
         Row: {
-          created_at: string
           id: string
-          is_active: boolean | null
-          last_message: string | null
-          last_message_date: string | null
-          profile_id: string | null
+          user1_id: string
+          user2_id: string
+          user1_auth_id: string | null
+          user2_auth_id: string | null
+          created_at: string
           updated_at: string
-          user_id: string | null
+          last_message_at: string | null
         }
         Insert: {
-          created_at?: string
           id?: string
-          is_active?: boolean | null
-          last_message?: string | null
-          last_message_date?: string | null
-          profile_id?: string | null
+          user1_id: string
+          user2_id: string
+          user1_auth_id?: string | null
+          user2_auth_id?: string | null
+          created_at?: string
           updated_at?: string
-          user_id?: string | null
+          last_message_at?: string | null
         }
         Update: {
-          created_at?: string
           id?: string
-          is_active?: boolean | null
-          last_message?: string | null
-          last_message_date?: string | null
-          profile_id?: string | null
+          user1_id?: string
+          user2_id?: string
+          user1_auth_id?: string | null
+          user2_auth_id?: string | null
+          created_at?: string
           updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "chat_conversations_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "chat_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      chat_messages: {
-        Row: {
-          conversation_id: string | null
-          created_at: string
-          id: string
-          message: string
-          sender_type: string
-        }
-        Insert: {
-          conversation_id?: string | null
-          created_at?: string
-          id?: string
-          message: string
-          sender_type: string
-        }
-        Update: {
-          conversation_id?: string | null
-          created_at?: string
-          id?: string
-          message?: string
-          sender_type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "chat_messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "chat_conversations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      chat_profiles: {
-        Row: {
-          age: number
-          avatar_url: string | null
-          compatibility_score: number | null
-          created_at: string
-          description: string
-          id: string
-          interests: string[]
-          is_active: boolean | null
-          location: string
-          name: string
-          personality: string
-          zodiac_sign: string
-        }
-        Insert: {
-          age: number
-          avatar_url?: string | null
-          compatibility_score?: number | null
-          created_at?: string
-          description: string
-          id?: string
-          interests: string[]
-          is_active?: boolean | null
-          location: string
-          name: string
-          personality: string
-          zodiac_sign: string
-        }
-        Update: {
-          age?: number
-          avatar_url?: string | null
-          compatibility_score?: number | null
-          created_at?: string
-          description?: string
-          id?: string
-          interests?: string[]
-          is_active?: boolean | null
-          location?: string
-          name?: string
-          personality?: string
-          zodiac_sign?: string
+          last_message_at?: string | null
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          id: string
+          chat_id: string
+          sender_id: string
+          sender_auth_id: string | null
+          content: string
+          created_at: string
+          read_at: string | null
+        }
+        Insert: {
+          id?: string
+          chat_id: string
+          sender_id: string
+          sender_auth_id?: string | null
+          content: string
+          created_at?: string
+          read_at?: string | null
+        }
+        Update: {
+          id?: string
+          chat_id?: string
+          sender_id?: string
+          sender_auth_id?: string | null
+          content?: string
+          created_at?: string
+          read_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      payments: {
+        Row: {
+          id: string
+          user_id: string
+          subscription_id: string | null
+          amount_cents: number
+          currency: string
+          status: string
+          payment_method: string
+          external_payment_id: string | null
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          subscription_id?: string | null
+          amount_cents: number
+          currency?: string
+          status: string
+          payment_method: string
+          external_payment_id?: string | null
+          metadata?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          subscription_id?: string | null
+          amount_cents?: number
+          currency?: string
+          status?: string
+          payment_method?: string
+          external_payment_id?: string | null
+          metadata?: Json | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       profiles: {
         Row: {
-          birth_date: string | null
-          birth_place: string | null
-          birth_time: string | null
-          created_at: string
-          email: string | null
-          id: string
-          name: string | null
-          onboarding_completed: boolean | null
-          updated_at: string
-        }
-        Insert: {
-          birth_date?: string | null
-          birth_place?: string | null
-          birth_time?: string | null
-          created_at?: string
-          email?: string | null
-          id: string
-          name?: string | null
-          onboarding_completed?: boolean | null
-          updated_at?: string
-        }
-        Update: {
-          birth_date?: string | null
-          birth_place?: string | null
-          birth_time?: string | null
-          created_at?: string
-          email?: string | null
-          id?: string
-          name?: string | null
-          onboarding_completed?: boolean | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      user_onboarding: {
-        Row: {
-          ascendant_sign: string | null
-          birth_city: string
-          birth_country: string
-          birth_date: string
-          birth_latitude: number | null
-          birth_longitude: number | null
-          birth_place: string
-          birth_time: string
-          compatibility_notes: string | null
-          completed_at: string | null
-          created_at: string | null
-          full_name: string
-          id: string
-          is_completed: boolean | null
-          jupiter_sign: string | null
-          mars_sign: string | null
-          mercury_sign: string | null
-          moon_sign: string | null
-          onboarding_step: number | null
-          personality_description: string | null
-          saturn_sign: string | null
-          strengths: string[] | null
-          sun_sign: string | null
-          updated_at: string | null
-          user_id: string | null
-          venus_sign: string | null
-        }
-        Insert: {
-          ascendant_sign?: string | null
-          birth_city: string
-          birth_country: string
-          birth_date: string
-          birth_latitude?: number | null
-          birth_longitude?: number | null
-          birth_place: string
-          birth_time: string
-          compatibility_notes?: string | null
-          completed_at?: string | null
-          created_at?: string | null
-          full_name: string
-          id?: string
-          is_completed?: boolean | null
-          jupiter_sign?: string | null
-          mars_sign?: string | null
-          mercury_sign?: string | null
-          moon_sign?: string | null
-          onboarding_step?: number | null
-          personality_description?: string | null
-          saturn_sign?: string | null
-          strengths?: string[] | null
-          sun_sign?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          venus_sign?: string | null
-        }
-        Update: {
-          ascendant_sign?: string | null
-          birth_city?: string
-          birth_country?: string
-          birth_date?: string
-          birth_latitude?: number | null
-          birth_longitude?: number | null
-          birth_place?: string
-          birth_time?: string
-          compatibility_notes?: string | null
-          completed_at?: string | null
-          created_at?: string | null
-          full_name?: string
-          id?: string
-          is_completed?: boolean | null
-          jupiter_sign?: string | null
-          mars_sign?: string | null
-          mercury_sign?: string | null
-          moon_sign?: string | null
-          onboarding_step?: number | null
-          personality_description?: string | null
-          saturn_sign?: string | null
-          strengths?: string[] | null
-          sun_sign?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          venus_sign?: string | null
-        }
-        Relationships: []
-      }
-      user_payments: {
-        Row: {
-          amount: number
-          created_at: string
-          currency: string | null
-          email: string
-          id: string
-          payment_date: string | null
-          payment_status: string | null
-          square_payment_id: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          currency?: string | null
-          email: string
-          id?: string
-          payment_date?: string | null
-          payment_status?: string | null
-          square_payment_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          currency?: string | null
-          email?: string
-          id?: string
-          payment_date?: string | null
-          payment_status?: string | null
-          square_payment_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      user_registrations: {
-        Row: {
-          birth_date: string
-          birth_place: string
-          birth_time: string | null
-          created_at: string
-          email: string
           id: string
           name: string
-          updated_at: string
+          age: number
+          sign: string
+          moon_sign: string
+          rising_sign: string
+          description: string
+          photo_url: string | null
+          compatibility_score: number
+          created_at: string
         }
         Insert: {
-          birth_date: string
-          birth_place: string
-          birth_time?: string | null
-          created_at?: string
-          email: string
-          id?: string
+          id: string
           name: string
-          updated_at?: string
+          age: number
+          sign: string
+          moon_sign: string
+          rising_sign: string
+          description: string
+          photo_url?: string | null
+          compatibility_score?: number
+          created_at?: string
         }
         Update: {
-          birth_date?: string
-          birth_place?: string
-          birth_time?: string | null
-          created_at?: string
-          email?: string
           id?: string
           name?: string
-          updated_at?: string
+          age?: number
+          sign?: string
+          moon_sign?: string
+          rising_sign?: string
+          description?: string
+          photo_url?: string | null
+          compatibility_score?: number
+          created_at?: string
         }
         Relationships: []
       }
-      user_conversations: {
+      subscriptions: {
         Row: {
-          created_at: string
           id: string
-          is_active: boolean | null
-          last_message: string | null
-          last_message_date: string | null
+          user_id: string
+          status: string
+          plan_type: string
+          amount_cents: number
+          currency: string
+          start_date: string
+          end_date: string | null
+          stripe_subscription_id: string | null
+          square_subscription_id: string | null
+          payment_method: string | null
+          created_at: string
           updated_at: string
-          user1_id: string | null
-          user2_id: string | null
         }
         Insert: {
-          created_at?: string
           id?: string
-          is_active?: boolean | null
-          last_message?: string | null
-          last_message_date?: string | null
+          user_id: string
+          status: string
+          plan_type?: string
+          amount_cents?: number
+          currency?: string
+          start_date: string
+          end_date?: string | null
+          stripe_subscription_id?: string | null
+          square_subscription_id?: string | null
+          payment_method?: string | null
+          created_at?: string
           updated_at?: string
-          user1_id?: string | null
-          user2_id?: string | null
         }
         Update: {
-          created_at?: string
           id?: string
-          is_active?: boolean | null
-          last_message?: string | null
-          last_message_date?: string | null
+          user_id?: string
+          status?: string
+          plan_type?: string
+          amount_cents?: number
+          currency?: string
+          start_date?: string
+          end_date?: string | null
+          stripe_subscription_id?: string | null
+          square_subscription_id?: string | null
+          payment_method?: string | null
+          created_at?: string
           updated_at?: string
-          user1_id?: string | null
-          user2_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "user_conversations_user1_id_fkey"
-            columns: ["user1_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_conversations_user2_id_fkey"
-            columns: ["user2_id"]
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
         ]
       }
-      user_messages: {
+      temporary_profiles: {
         Row: {
-          conversation_id: string | null
-          created_at: string
           id: string
-          image_url: string | null
-          is_read: boolean | null
-          message_content: string
-          message_type: string | null
-          sender_id: string | null
+          session_id: string
+          full_name: string
+          gender: string
+          birth_date: string
+          birth_time: string
+          birth_place: string
+          looking_for: string
+          created_at: string
         }
         Insert: {
-          conversation_id?: string | null
-          created_at?: string
           id?: string
-          image_url?: string | null
-          is_read?: boolean | null
-          message_content: string
-          message_type?: string | null
-          sender_id?: string | null
+          session_id: string
+          full_name: string
+          gender: string
+          birth_date: string
+          birth_time: string
+          birth_place: string
+          looking_for: string
+          created_at?: string
         }
         Update: {
-          conversation_id?: string | null
-          created_at?: string
           id?: string
-          image_url?: string | null
-          is_read?: boolean | null
-          message_content?: string
-          message_type?: string | null
-          sender_id?: string | null
+          session_id?: string
+          full_name?: string
+          gender?: string
+          birth_date?: string
+          birth_time?: string
+          birth_place?: string
+          looking_for?: string
+          created_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "user_conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          birth_date: string
+          birth_place: string
+          birth_time: string
+          created_at: string
+          full_name: string
+          gender: string
+          id: string
+          looking_for: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth_date: string
+          birth_place: string
+          birth_time: string
+          created_at?: string
+          full_name: string
+          gender: string
+          id?: string
+          looking_for: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth_date?: string
+          birth_place?: string
+          birth_time?: string
+          created_at?: string
+          full_name?: string
+          gender?: string
+          id?: string
+          looking_for?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          avatar_url: string | null
+          birth_date: string | null
+          birth_time: string | null
+          birth_place: string | null
+          gender: string | null
+          looking_for: string | null
+          onboarding_completed: boolean
+          is_premium: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          full_name?: string | null
+          avatar_url?: string | null
+          birth_date?: string | null
+          birth_time?: string | null
+          birth_place?: string | null
+          gender?: string | null
+          looking_for?: string | null
+          onboarding_completed?: boolean
+          is_premium?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          avatar_url?: string | null
+          birth_date?: string | null
+          birth_time?: string | null
+          birth_place?: string | null
+          gender?: string | null
+          looking_for?: string | null
+          onboarding_completed?: boolean
+          is_premium?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_or_create_user_conversation: {
+      get_user_profile: {
         Args: {
-          other_user_id: string
+          user_uuid: string
         }
-        Returns: string
+        Returns: {
+          id: string
+          email: string
+          full_name: string
+          avatar_url: string
+          has_premium: boolean
+          onboarding_completed: boolean
+        }[]
       }
-      mark_messages_as_read: {
+      user_has_active_subscription: {
         Args: {
-          conversation_id_param: string
+          user_uuid: string
         }
-        Returns: undefined
+        Returns: boolean
       }
     }
     Enums: {

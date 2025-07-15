@@ -37,7 +37,7 @@ const AuthCallback = () => {
             console.log("✅ Sesión establecida exitosamente:", session.user.email);
             
             // Esperar un poco para que el AuthProvider procese el cambio
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 500));
             
             // Verificar si el usuario existe en nuestra tabla
             console.log("📊 Verificando usuario en BD...");
@@ -79,10 +79,10 @@ const AuthCallback = () => {
             // Limpiar URL
             window.history.replaceState({}, document.title, window.location.pathname);
             
-            // Navegar a home
+            // Navegar a home más rápido
             setTimeout(() => {
               navigate('/home');
-            }, 1500);
+            }, 1000);
             
             return;
           }
@@ -129,7 +129,7 @@ const AuthCallback = () => {
       } finally {
         setTimeout(() => {
           setLoading(false);
-        }, 2000);
+        }, 1500);
       }
     };
 

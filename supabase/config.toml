@@ -1,1 +1,24 @@
-project_id = "gmheymrnjuqlmzyjcgap"
+# Configuración básica de Supabase para AstroTarot
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:8080"
+additional_redirect_urls = ["https://astral-connection-portal.vercel.app"]
+jwt_expiry = 3600
+enable_signup = true
+enable_email_confirmations = false
+enable_phone_confirmations = false
+
+[auth.external.google]
+enabled = true
+# client_id = "your_google_client_id"
+# secret = "your_google_client_secret"
+redirect_uri = "http://localhost:54324/auth/v1/callback" 

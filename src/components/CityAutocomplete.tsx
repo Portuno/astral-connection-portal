@@ -104,6 +104,7 @@ const CityAutocomplete = ({ value, onChange, placeholder = "Ciudad, País", clas
   const [showLocationButton, setShowLocationButton] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -118,6 +119,23 @@ const CityAutocomplete = ({ value, onChange, placeholder = "Ciudad, País", clas
       }
     }
   }, []);
+
+  // Manejar clicks fuera del componente
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setSelectedIndex(-1);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
 
   // Guardar búsqueda reciente
   const saveRecentSearch = useCallback((city: City) => {
@@ -400,16 +418,33 @@ const CityAutocomplete = ({ value, onChange, placeholder = "Ciudad, País", clas
     return () => clearTimeout(timeoutId);
   }, [value, searchCities]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
-  };
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    onChange(newValue);
+    
+    // Abrir dropdown si hay texto suficiente o mostrar recientes si está vacío
+    if (newValue.length >= 2) {
+      setIsOpen(true);
+    } else if (newValue.length === 0 && recentSearches.length > 0) {
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+    
+    setSelectedIndex(-1);
+  }, [onChange, recentSearches.length]);
 
-  const handleSuggestionClick = (city: City) => {
+  const handleSuggestionClick = useCallback((city: City) => {
     onChange(city.display_name);
     setIsOpen(false);
     setSelectedIndex(-1);
     saveRecentSearch(city);
-  };
+    
+    // Enfocar el input después de la selección
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+  }, [onChange, saveRecentSearch]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) return;
@@ -438,23 +473,18 @@ const CityAutocomplete = ({ value, onChange, placeholder = "Ciudad, País", clas
     }
   };
 
-  const handleFocus = () => {
-    if (value.length >= 2 && suggestions.length > 0) {
-      setIsOpen(true);
-    } else if (value.length === 0 && recentSearches.length > 0) {
+  const handleFocus = useCallback(() => {
+    if (value.length >= 2 || (value.length === 0 && recentSearches.length > 0)) {
       setIsOpen(true);
     }
-  };
+  }, [value.length, recentSearches.length]);
 
-  const handleBlur = () => {
-    setTimeout(() => {
-      setIsOpen(false);
-      setSelectedIndex(-1);
-    }, 150);
-  };
+  const handleBlur = useCallback(() => {
+    // No hacer nada aquí, el manejo de click fuera se encarga del cierre
+  }, []);
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <div className="relative">
         <Input
           ref={inputRef}
@@ -494,7 +524,10 @@ const CityAutocomplete = ({ value, onChange, placeholder = "Ciudad, País", clas
 
       {/* Lista de sugerencias */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white/95 backdrop-blur-md border border-white/20 rounded-lg shadow-xl max-h-64 overflow-y-auto">
+        <div 
+          data-suggestion-container
+          className="absolute z-50 w-full mt-1 bg-white/95 backdrop-blur-md border border-white/20 rounded-lg shadow-xl max-h-64 overflow-y-auto"
+        >
           {/* Búsquedas recientes */}
           {value.length === 0 && recentSearches.length > 0 && (
             <>
@@ -506,7 +539,14 @@ const CityAutocomplete = ({ value, onChange, placeholder = "Ciudad, País", clas
                 <div
                   key={`recent_${city.place_id}`}
                   className="px-4 py-2 cursor-pointer transition-colors text-gray-700 hover:bg-cosmic-magenta/10 hover:text-cosmic-magenta flex items-center"
-                  onClick={() => handleSuggestionClick(city)}
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // Prevenir blur del input
+                    handleSuggestionClick(city);
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSuggestionClick(city);
+                  }}
                 >
                   <Clock className="h-3 w-3 mr-2 text-gray-400" />
                   <span className="text-sm">{city.display_name}</span>
@@ -526,7 +566,15 @@ const CityAutocomplete = ({ value, onChange, placeholder = "Ciudad, País", clas
                   ? 'bg-cosmic-magenta/20 text-cosmic-magenta' 
                   : 'text-gray-800 hover:bg-white/30'
               }`}
-              onClick={() => handleSuggestionClick(city)}
+              onMouseDown={(e) => {
+                e.preventDefault(); // Prevenir blur del input
+                handleSuggestionClick(city);
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                handleSuggestionClick(city);
+              }}
+              onMouseEnter={() => setSelectedIndex(index)}
             >
               <div className="flex items-center">
                 <div className="flex items-center mr-2">

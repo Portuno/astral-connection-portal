@@ -54,17 +54,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Función para cargar usuario completo desde la base de datos
   const loadUserFromDatabase = async (supabaseUser: SupabaseUser): Promise<User> => {
     try {
-      console.log("📊 Cargando datos completos del usuario desde BD...");
-      const { data: userData, error } = await supabase
+      console.log("📊 Cargando datos completos del usuario desde BD...", supabaseUser.email);
+      
+      // Timeout para la consulta - máximo 5 segundos
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 5000);
+      });
+      
+      const queryPromise = supabase
         .from('users')
         .select('*')
         .eq('id', supabaseUser.id)
         .single();
+      
+      const { data: userData, error } = await Promise.race([queryPromise, timeoutPromise]);
 
       if (error) {
-        console.error('❌ Error consultando datos del usuario:', error);
+        console.error('❌ Error consultando datos del usuario:', error.message, error.code);
+        
+        // Si es error de tabla no encontrada o permisos, intentar crear el usuario
+        if (error.code === 'PGRST116' || error.code === '42P01' || error.message.includes('relation "public.users" does not exist')) {
+          console.log("🔧 Tabla users no existe o usuario no encontrado, creando usuario básico...");
+          // Intentar crear el usuario en la tabla
+          try {
+            const { error: insertError } = await supabase
+              .from('users')
+              .insert({
+                id: supabaseUser.id,
+                email: supabaseUser.email,
+                full_name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name,
+                avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
+                is_premium: false,
+                onboarding_completed: false
+              });
+              
+            if (insertError) {
+              console.error('❌ Error creando usuario:', insertError);
+            } else {
+              console.log("✅ Usuario creado en la BD");
+            }
+          } catch (insertErr) {
+            console.error('❌ Error en inserción:', insertErr);
+          }
+        }
+        
         // Fallback: usuario básico
-        return {
+        const fallbackUser = {
           id: supabaseUser.id,
           email: supabaseUser.email || '',
           name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
@@ -72,11 +107,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           isPremium: false,
           onboardingCompleted: false
         };
+        console.log("🔧 Usando usuario básico como fallback:", fallbackUser);
+        return fallbackUser;
       }
 
       if (!userData) {
         console.error('❌ No se encontró el usuario en la tabla users');
-        return {
+        const fallbackUser = {
           id: supabaseUser.id,
           email: supabaseUser.email || '',
           name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
@@ -84,6 +121,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           isPremium: false,
           onboardingCompleted: false
         };
+        console.log("🔧 Usuario no encontrado, usando fallback:", fallbackUser);
+        return fallbackUser;
       }
 
       // Usuario real de la BD
@@ -100,7 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('❌ Error cargando usuario desde BD:', error);
       // Fallback: usuario básico
-      return {
+      const fallbackUser = {
         id: supabaseUser.id,
         email: supabaseUser.email || '',
         name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
@@ -108,6 +147,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isPremium: false,
         onboardingCompleted: false
       };
+      console.log("🔧 Error manejado, usando fallback:", fallbackUser);
+      return fallbackUser;
     }
   };
 
@@ -130,33 +171,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (initialSession?.user) {
           console.log("✅ Sesión encontrada:", initialSession.user.email);
-          try {
-            const fullUser = await loadUserFromDatabase(initialSession.user);
-            setUser(fullUser);
-            setSession(initialSession);
-            console.log("👤 Usuario cargado:", fullUser);
-          } catch (e) {
-            console.error("❌ Error en loadUserFromDatabase:", e);
-          }
+          setSession(initialSession);
+          
+          // Crear usuario básico INMEDIATAMENTE para evitar loading infinito
+          const basicUser = {
+            id: initialSession.user.id,
+            email: initialSession.user.email || '',
+            name: initialSession.user.user_metadata?.full_name || initialSession.user.user_metadata?.name || initialSession.user.email?.split('@')[0] || 'Usuario',
+            avatar_url: initialSession.user.user_metadata?.avatar_url || initialSession.user.user_metadata?.picture,
+            isPremium: false,
+            onboardingCompleted: false
+          };
+          setUser(basicUser);
+          setIsLoading(false);
+          console.log("👤 Usuario básico creado inmediatamente:", basicUser);
+          
+          // Intentar cargar datos completos en background (sin bloquear)
+          loadUserFromDatabase(initialSession.user)
+            .then(fullUser => {
+              setUser(fullUser);
+              console.log("👤 Usuario actualizado con datos de BD:", fullUser);
+            })
+            .catch(e => {
+              console.error("❌ Error cargando desde BD (background):", e);
+              // Mantener el usuario básico que ya tenemos
+            });
         } else {
           console.log("❌ No hay sesión activa");
+          setIsLoading(false);
         }
       } catch (error) {
         console.error('Error loading initial session:', error);
-      } finally {
         setIsLoading(false);
       }
     };
 
     getInitialSession();
 
-    // Timeout de seguridad: nunca más de 8 segundos en loading
+    // Timeout de seguridad: nunca más de 6 segundos en loading
     timeoutId = setTimeout(() => {
       if (isLoading) {
         console.error("⏰ Timeout: loading demasiado largo en AuthProvider");
         setIsLoading(false);
       }
-    }, 8000);
+    }, 6000);
 
     // Escuchar cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -165,18 +223,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setSession(session);
 
         if (session?.user) {
-          try {
-            const fullUser = await loadUserFromDatabase(session.user);
-            setUser(fullUser);
-            console.log("👤 Usuario actualizado por auth change:", fullUser);
-          } catch (e) {
-            console.error("❌ Error en loadUserFromDatabase (auth change):", e);
+          // No cargar desde BD si es la misma sesión que ya tenemos
+          if (session.user.id === user?.id) {
+            console.log("👤 Misma sesión, saltando carga de BD");
+            return;
           }
+          
+          // Crear usuario básico INMEDIATAMENTE
+          const basicUser = {
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
+            avatar_url: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
+            isPremium: false,
+            onboardingCompleted: false
+          };
+          setUser(basicUser);
+          console.log("👤 Usuario básico por auth change:", basicUser);
+          
+          // Intentar cargar desde BD en background
+          loadUserFromDatabase(session.user)
+            .then(fullUser => {
+              setUser(fullUser);
+              console.log("👤 Usuario actualizado por auth change desde BD:", fullUser);
+            })
+            .catch(e => {
+              console.error("❌ Error en loadUserFromDatabase (auth change, background):", e);
+              // Mantener el usuario básico que ya tenemos
+            });
         } else {
           setUser(null);
           console.log("❌ Usuario deslogueado");
         }
-        setIsLoading(false);
       }
     );
 

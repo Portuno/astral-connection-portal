@@ -8,10 +8,9 @@
 - Ve a **SQL Editor** en el menú lateral
 
 ### 2. Ejecutar el script de la tabla users
-Copia y pega el siguiente SQL en el editor:
+Copia y pega el siguiente SQL en el editor (sin comentarios para evitar errores):
 
 ```sql
--- Crear tabla de usuarios completa para el sistema AstroTarot
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID REFERENCES auth.users ON DELETE CASCADE,
   email VARCHAR(255) NOT NULL,
@@ -30,10 +29,8 @@ CREATE TABLE IF NOT EXISTS public.users (
   PRIMARY KEY (id)
 );
 
--- Habilitar RLS (Row Level Security)
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
--- Políticas RLS
 CREATE POLICY "Users can view own profile" ON public.users
   FOR SELECT USING (auth.uid() = id);
 
@@ -43,7 +40,6 @@ CREATE POLICY "Users can update own profile" ON public.users
 CREATE POLICY "Users can insert own profile" ON public.users
   FOR INSERT WITH CHECK (auth.uid() = id);
 
--- Función para crear usuario automáticamente
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -73,7 +69,7 @@ BEGIN
 END;
 $$ language 'plpgsql' security definer;
 
--- Trigger para crear usuario automáticamente
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
@@ -102,15 +98,20 @@ CREATE TRIGGER on_auth_user_created
 - La tabla no se creó correctamente
 - Vuelve a ejecutar el script SQL
 
-### Error: "permission denied"
+### Error: "permission denied" o "insufficient_privilege"
 - Problema con RLS policies
 - Ejecuta este SQL adicional:
 
 ```sql
--- Política temporal más permisiva
+DROP POLICY IF EXISTS "Temporary full access" ON public.users;
 CREATE POLICY "Temporary full access" ON public.users
   FOR ALL USING (true);
 ```
+
+### Error: "syntax error at or near" 
+- Problema con comentarios en el SQL
+- Usa el archivo `supabase/002_users_table_clean.sql` que no tiene comentarios
+- O copia el SQL de arriba línea por línea
 
 ### Usuario no aparece en la tabla
 - El trigger no se ejecutó

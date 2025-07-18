@@ -51,14 +51,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Función para cargar usuario completo desde la base de datos
-  const loadUserFromDatabase = async (supabaseUser: SupabaseUser): Promise<User> => {
+  // Función simplificada para crear usuario desde datos de Supabase
+  const createUserFromSupabase = (supabaseUser: SupabaseUser): User => {
+    return {
+      id: supabaseUser.id,
+      email: supabaseUser.email || '',
+      name: supabaseUser.user_metadata?.full_name || 
+            supabaseUser.user_metadata?.name || 
+            supabaseUser.email?.split('@')[0] || 
+            'Usuario',
+      avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
+      isPremium: false, // Por defecto no premium
+      onboardingCompleted: false
+    };
+  };
+
+  // Función para cargar usuario (simplificada)
+  const loadUser = async (supabaseUser: SupabaseUser): Promise<User> => {
     try {
-      console.log("📊 Cargando datos completos del usuario desde BD...", supabaseUser.email);
+      console.log("📊 Cargando usuario:", supabaseUser.email);
       
-      // Timeout para la consulta - máximo 5 segundos
+      // Intentar obtener datos adicionales de la BD con timeout
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Database query timeout')), 5000);
+        setTimeout(() => reject(new Error('Database timeout')), 3000);
       });
       
       const queryPromise = supabase
@@ -67,224 +82,170 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .eq('id', supabaseUser.id)
         .single();
       
-      const { data: userData, error } = await Promise.race([queryPromise, timeoutPromise]);
-
-      if (error) {
-        console.error('❌ Error consultando datos del usuario:', error.message, error.code);
+      try {
+        const { data: userData, error } = await Promise.race([queryPromise, timeoutPromise]);
         
-        // Si es error de tabla no encontrada o permisos, intentar crear el usuario
-        if (error.code === 'PGRST116' || error.code === '42P01' || error.message.includes('relation "public.users" does not exist')) {
-          console.log("🔧 Tabla users no existe o usuario no encontrado, creando usuario básico...");
-          // Intentar crear el usuario en la tabla
-          try {
-            const { error: insertError } = await supabase
-              .from('users')
-              .insert({
-                id: supabaseUser.id,
-                email: supabaseUser.email,
-                full_name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name,
-                avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
-                is_premium: false,
-                onboarding_completed: false
-              });
-              
-            if (insertError) {
-              console.error('❌ Error creando usuario:', insertError);
-            } else {
-              console.log("✅ Usuario creado en la BD");
-            }
-          } catch (insertErr) {
-            console.error('❌ Error en inserción:', insertErr);
-          }
+        if (userData && !error) {
+          console.log("✅ Datos de usuario encontrados en BD");
+                     return {
+             id: userData.id,
+             email: userData.email,
+             name: userData.full_name || userData.email?.split('@')[0] || 'Usuario',
+             avatar_url: userData.avatar_url,
+             isPremium: userData.is_premium || false,
+             subscriptionDate: userData.created_at,
+             onboardingCompleted: userData.onboarding_completed || false,
+             birth_date: userData.birth_date,
+             birth_time: userData.birth_time,
+             birth_place: userData.birth_place,
+             gender: userData.gender,
+             looking_for: userData.looking_for
+           };
         }
-        
-        // Fallback: usuario básico
-        const fallbackUser = {
-          id: supabaseUser.id,
-          email: supabaseUser.email || '',
-          name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
-          avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
-          isPremium: false,
-          onboardingCompleted: false
-        };
-        console.log("🔧 Usando usuario básico como fallback:", fallbackUser);
-        return fallbackUser;
+      } catch (dbError) {
+        console.log("⚠️ Error/timeout en BD, usando datos básicos:", dbError);
       }
-
-      if (!userData) {
-        console.error('❌ No se encontró el usuario en la tabla users');
-        const fallbackUser = {
-          id: supabaseUser.id,
-          email: supabaseUser.email || '',
-          name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
-          avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
-          isPremium: false,
-          onboardingCompleted: false
-        };
-        console.log("🔧 Usuario no encontrado, usando fallback:", fallbackUser);
-        return fallbackUser;
-      }
-
-      // Usuario real de la BD
-      const user: User = {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        name: userData.full_name || supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
-        avatar_url: userData.avatar_url || supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
-        isPremium: userData.is_premium || false,
-        onboardingCompleted: userData.onboarding_completed || false
-      };
-      console.log("✅ Usuario cargado desde BD:", user);
-      return user;
+      
+      // Si no se puede cargar desde BD, usar datos básicos
+      const basicUser = createUserFromSupabase(supabaseUser);
+      
+      // Intentar crear el usuario en BD en background (sin esperar)
+      setTimeout(async () => {
+        try {
+          await supabase.from('users').insert({
+            id: supabaseUser.id,
+            email: supabaseUser.email,
+            full_name: basicUser.name,
+            avatar_url: basicUser.avatar_url,
+            is_premium: false,
+            onboarding_completed: false
+          });
+          console.log("✅ Usuario creado en BD en background");
+        } catch (err) {
+          console.log("⚠️ No se pudo crear usuario en BD:", err);
+        }
+      }, 100);
+      
+      return basicUser;
     } catch (error) {
-      console.error('❌ Error cargando usuario desde BD:', error);
-      // Fallback: usuario básico
-      const fallbackUser = {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
-        avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
-        isPremium: false,
-        onboardingCompleted: false
-      };
-      console.log("🔧 Error manejado, usando fallback:", fallbackUser);
-      return fallbackUser;
+      console.error('❌ Error cargando usuario:', error);
+      return createUserFromSupabase(supabaseUser);
     }
   };
 
-  // Cargar sesión inicial
+  // Función para refrescar usuario
+  const refreshUser = async (): Promise<void> => {
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (currentSession?.user) {
+        console.log("🔄 Refrescando datos del usuario...");
+        const userData = await loadUser(currentSession.user);
+        setUser(userData);
+        setSession(currentSession);
+        console.log("✅ Usuario refrescado:", userData.email);
+      } else {
+        console.log("❌ No hay sesión activa para refrescar");
+        setUser(null);
+        setSession(null);
+      }
+    } catch (error) {
+      console.error('❌ Error refrescando usuario:', error);
+    }
+  };
+
+  // Inicialización del AuthProvider
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
-
-    const getInitialSession = async () => {
-      setIsLoading(true);
+    let mounted = true;
+    
+    const initializeAuth = async () => {
       try {
-        console.log("🔍 Verificando sesión inicial de Supabase...");
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        console.log("🔍 Resultado de getSession:", initialSession, error);
-
-        if (error) {
-          console.error('Error getting session:', error);
-          setIsLoading(false);
-          return;
-        }
-
-        if (initialSession?.user) {
-          console.log("✅ Sesión encontrada:", initialSession.user.email);
-          setSession(initialSession);
-          
-          // Crear usuario básico INMEDIATAMENTE para evitar loading infinito
-          const basicUser = {
-            id: initialSession.user.id,
-            email: initialSession.user.email || '',
-            name: initialSession.user.user_metadata?.full_name || initialSession.user.user_metadata?.name || initialSession.user.email?.split('@')[0] || 'Usuario',
-            avatar_url: initialSession.user.user_metadata?.avatar_url || initialSession.user.user_metadata?.picture,
-            isPremium: false,
-            onboardingCompleted: false
-          };
-          setUser(basicUser);
-          setIsLoading(false);
-          console.log("👤 Usuario básico creado inmediatamente:", basicUser);
-          
-          // Intentar cargar datos completos en background (sin bloquear)
-          loadUserFromDatabase(initialSession.user)
-            .then(fullUser => {
-              setUser(fullUser);
-              console.log("👤 Usuario actualizado con datos de BD:", fullUser);
-            })
-            .catch(e => {
-              console.error("❌ Error cargando desde BD (background):", e);
-              // Mantener el usuario básico que ya tenemos
-            });
+        console.log("🔄 Inicializando AuthProvider...");
+        
+        // Obtener sesión actual
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        
+        if (currentSession?.user && mounted) {
+          console.log("✅ Sesión encontrada:", currentSession.user.email);
+          const userData = await loadUser(currentSession.user);
+          setUser(userData);
+          setSession(currentSession);
         } else {
-          console.log("❌ No hay sesión activa");
-          setIsLoading(false);
+          console.log("ℹ️ No hay sesión activa");
+          setUser(null);
+          setSession(null);
         }
       } catch (error) {
-        console.error('Error loading initial session:', error);
-        setIsLoading(false);
+        console.error('❌ Error inicializando auth:', error);
+        setUser(null);
+        setSession(null);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+          console.log("✅ AuthProvider inicializado");
+        }
       }
     };
 
-    getInitialSession();
+    initializeAuth();
 
-    // Timeout de seguridad: nunca más de 6 segundos en loading
-    timeoutId = setTimeout(() => {
-      if (isLoading) {
-        console.error("⏰ Timeout: loading demasiado largo en AuthProvider");
-        setIsLoading(false);
-      }
-    }, 6000);
-
-    // Escuchar cambios de autenticación
+    // Listener para cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("🔄 Auth state change:", event, session?.user?.email);
-        setSession(session);
-
-        if (session?.user) {
-          // No cargar desde BD si es la misma sesión que ya tenemos
-          if (session.user.id === user?.id) {
-            console.log("👤 Misma sesión, saltando carga de BD");
-            return;
-          }
-          
-          // Crear usuario básico INMEDIATAMENTE
-          const basicUser = {
-            id: session.user.id,
-            email: session.user.email || '',
-            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
-            avatar_url: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
-            isPremium: false,
-            onboardingCompleted: false
-          };
-          setUser(basicUser);
-          console.log("👤 Usuario básico por auth change:", basicUser);
-          
-          // Intentar cargar desde BD en background
-          loadUserFromDatabase(session.user)
-            .then(fullUser => {
-              setUser(fullUser);
-              console.log("👤 Usuario actualizado por auth change desde BD:", fullUser);
-            })
-            .catch(e => {
-              console.error("❌ Error en loadUserFromDatabase (auth change, background):", e);
-              // Mantener el usuario básico que ya tenemos
-            });
-        } else {
+        if (!mounted) return;
+        
+        console.log("🔄 Cambio de estado de auth:", event, session?.user?.email);
+        
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log("✅ Usuario logueado:", session.user.email);
+          const userData = await loadUser(session.user);
+          setUser(userData);
+          setSession(session);
+        } else if (event === 'SIGNED_OUT') {
+          console.log("🚪 Usuario deslogueado");
           setUser(null);
-          console.log("❌ Usuario deslogueado");
+          setSession(null);
+        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+          console.log("🔄 Token refrescado");
+          const userData = await loadUser(session.user);
+          setUser(userData);
+          setSession(session);
         }
+        
+        setIsLoading(false);
       }
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
-      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      console.log("🔐 Intentando login con email:", email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
       if (error) {
-        console.error('Login error:', error.message);
+        console.error('❌ Login error:', error.message);
         return false;
       }
 
+      console.log("✅ Login exitoso:", data.user?.email);
       return !!data.user;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
       return false;
     }
   };
 
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
     try {
+      console.log("📝 Registrando usuario:", email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -296,19 +257,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (error) {
-        console.error('Registration error:', error.message);
+        console.error('❌ Registration error:', error.message);
         return false;
       }
 
+      console.log("✅ Registro exitoso:", data.user?.email);
       return !!data.user;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('❌ Registration error:', error);
       return false;
     }
   };
 
   const loginWithGoogle = async (): Promise<boolean> => {
     try {
+      console.log("🔄 Iniciando login con Google...");
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -317,13 +280,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (error) {
-        console.error('Google login error:', error.message);
+        console.error('❌ Google login error:', error.message);
         return false;
       }
 
+      console.log("✅ Redirigiendo a Google...");
       return true; // El usuario será redirigido a Google
     } catch (error) {
-      console.error('Google login error:', error);
+      console.error('❌ Google login error:', error);
       return false;
     }
   };
@@ -333,12 +297,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("🚪 Cerrando sesión...");
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('Logout error:', error.message);
+        console.error('❌ Logout error:', error.message);
       } else {
         console.log("✅ Sesión cerrada exitosamente");
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('❌ Logout error:', error);
     }
   };
 
@@ -346,7 +310,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!user) return false;
 
     try {
-      // Actualizar perfil en Supabase
+      console.log("🔄 Actualizando perfil...");
       const { error } = await supabase
         .from('users')
         .update({
@@ -362,90 +326,80 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .eq('id', user.id);
 
       if (error) {
-        console.error('Profile update error:', error.message);
+        console.error('❌ Error actualizando perfil:', error);
         return false;
       }
 
       // Actualizar estado local
-      setUser(prevUser => prevUser ? { ...prevUser, ...updates } : null);
+      setUser(prev => prev ? { ...prev, ...updates } : null);
+      console.log("✅ Perfil actualizado");
       return true;
     } catch (error) {
-      console.error('Profile update error:', error);
+      console.error('❌ Error actualizando perfil:', error);
       return false;
     }
   };
 
   const checkSubscription = async (): Promise<boolean> => {
     if (!user) return false;
-
+    
     try {
-      const { data } = await supabase
-        .rpc('user_has_active_subscription', { user_uuid: user.id });
+      const { data, error } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('id', user.id)
+        .single();
 
-      const hasPremium = !!data;
-      
-      // Actualizar estado local si cambió
-      if (user.isPremium !== hasPremium) {
-        setUser(prevUser => prevUser ? { ...prevUser, isPremium: hasPremium } : null);
+      if (error) {
+        console.error('❌ Error verificando suscripción:', error);
+        return false;
       }
 
-      return hasPremium;
+      const isPremium = data?.is_premium || false;
+      setUser(prev => prev ? { ...prev, isPremium } : null);
+      return isPremium;
     } catch (error) {
-      console.error('Subscription check error:', error);
+      console.error('❌ Error verificando suscripción:', error);
       return false;
     }
   };
 
   const upgradeToPremiumFree = async (): Promise<boolean> => {
-    if (!user) {
-      console.log("❌ No hay usuario logueado para upgrade");
-      return false;
-    }
+    if (!user) return false;
 
     try {
-      console.log("🎁 Iniciando upgrade premium gratuito para usuario:", user.email);
-      
-      // Actualizar directamente el campo is_premium en la tabla users
-      const { error } = await supabase
-        .from('users')
-        .update({ is_premium: true })
-        .eq('id', user.id);
+      console.log("⭐ Actualizando a premium gratuito...");
+             const { error } = await supabase
+         .from('users')
+         .update({ 
+           is_premium: true
+         })
+         .eq('id', user.id);
 
       if (error) {
-        console.error('❌ Error actualizando usuario a premium:', error);
+        console.error('❌ Error actualizando a premium:', error);
         return false;
       }
 
-      console.log("✅ Usuario actualizado a premium en Supabase");
-
-      // Refrescar datos del usuario desde la base de datos
-      await refreshUser();
+             setUser(prev => prev ? { 
+         ...prev, 
+         isPremium: true
+       } : null);
       
-      console.log("✅ Estado actualizado - Usuario ahora es premium");
+      console.log("✅ Usuario actualizado a premium");
       return true;
     } catch (error) {
-      console.error('❌ Error en free upgrade:', error);
+      console.error('❌ Error actualizando a premium:', error);
       return false;
     }
   };
 
-  const refreshUser = async (): Promise<void> => {
-    if (!session?.user) return;
-    
-    try {
-      console.log("🔄 Refrescando datos del usuario...");
-      const updatedUser = await loadUserFromDatabase(session.user);
-      setUser(updatedUser);
-      console.log("✅ Usuario refrescado:", updatedUser);
-    } catch (error) {
-      console.error('Error refrescando usuario:', error);
-    }
-  };
+  const isAuthenticated = !!user && !!session;
 
   const value: AuthContextType = {
     user,
     session,
-    isAuthenticated: !!user,
+    isAuthenticated,
     isLoading,
     login,
     register,

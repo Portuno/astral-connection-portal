@@ -5,14 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown } from "lucide-react";
+import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Sparkles, MapPin, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import AuthModal from "@/components/AuthModal";
 import { mockProfiles, type Profile } from "@/data/mockProfiles";
 import { supabase } from "@/integrations/supabase/client";
-
-
 
 const Home = () => {
   const navigate = useNavigate();
@@ -22,81 +20,119 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authModalPaymentOnly, setAuthModalPaymentOnly] = useState(false);
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
+    const loadUserProfile = async () => {
       try {
-        // Obtener información del usuario desde localStorage
-        const onboardingData = localStorage.getItem("onboardingData");
-        if (onboardingData) {
-          setUserProfile(JSON.parse(onboardingData));
+        // Intentar cargar desde localStorage primero
+        const storedProfile = localStorage.getItem("userProfile");
+        if (storedProfile) {
+          const profile = JSON.parse(storedProfile);
+          setUserProfile(profile);
+          console.log("✅ Perfil cargado desde localStorage:", profile);
         }
-
-        // Simular un pequeño delay para mostrar el loading
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Usar mock data en lugar de cargar desde la base de datos
-        setCompatibleProfiles(mockProfiles);
-
+        
+        // Si hay usuario autenticado, intentar cargar desde BD
+        if (isAuthenticated && user) {
+          try {
+            const { data: profiles, error } = await supabase
+              .from('temporary_profiles')
+              .select('*')
+              .eq('session_id', user.id)
+              .limit(1);
+            
+            if (profiles && profiles.length > 0) {
+              setUserProfile(profiles[0]);
+              console.log("✅ Perfil cargado desde BD:", profiles[0]);
+            }
+          } catch (error) {
+            console.log("⚠️ Error cargando perfil desde BD:", error);
+          }
+        }
       } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error("Error cargando perfil:", error);
+      }
+    };
+
+    loadUserProfile();
+  }, [isAuthenticated, user]);
+
+  useEffect(() => {
+    const loadCompatibleProfiles = async () => {
+      try {
+        setLoading(true);
+        // Simular carga de perfiles compatibles
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Usar perfiles mock con compatibilidad calculada
+        let profilesWithCompatibility = mockProfiles.map(profile => ({
+          ...profile,
+          compatibility_score: Math.floor(Math.random() * 40) + 60 // 60-99%
+        })).sort((a, b) => b.compatibility_score - a.compatibility_score);
+
+        // Filtrar por género según interés del usuario
+        if (userProfile && userProfile.gender) {
+          // Si el usuario es hombre, mostrar mujeres; si es mujer, mostrar hombres
+          let targetGender = userProfile.gender === 'hombre' ? 'mujer' : 'hombre';
+          profilesWithCompatibility = profilesWithCompatibility.filter(p => p.gender === targetGender);
+        }
+        setCompatibleProfiles(profilesWithCompatibility);
+      } catch (error) {
+        console.error("Error loading profiles:", error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los perfiles compatibles",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
     };
+    loadCompatibleProfiles();
+  }, [toast, userProfile]);
 
-    loadData();
-  }, []);
-
-  const handleChatClick = (profileId: string, profileName: string) => {
-    // Verificar si el usuario está autenticado y tiene premium
+  const handleChatClick = async (profile: Profile) => {
     if (!isAuthenticated) {
-      // Usuario NO logueado - mostrar modal completo
-      setSelectedProfileForChat({ id: profileId, name: profileName });
-      setAuthModalPaymentOnly(false);
+      setSelectedProfileForChat({ id: profile.id, name: profile.name });
       setShowAuthModal(true);
-      
-      toast({
-        title: "🔐 Acceso Requerido",
-        description: "Inicia sesión para chatear con tu conexión cósmica",
-      });
       return;
     }
 
     if (!user?.isPremium) {
-      // Usuario logueado pero NO premium - mostrar solo pago
-      setSelectedProfileForChat({ id: profileId, name: profileName });
-      setAuthModalPaymentOnly(true);
-      setShowAuthModal(true);
-      
       toast({
-        title: "🔐 Acceso Premium Requerido",
-        description: `Suscríbete para chatear con ${profileName}`,
+        title: "🔓 Desbloquea el chat",
+        description: "Obtén acceso premium gratuito para chatear",
+        action: (
+          <Button
+            onClick={async () => {
+              const success = await upgradeToPremiumFree();
+              if (success) {
+                toast({
+                  title: "🎉 ¡Premium activado!",
+                  description: "Ya puedes chatear con todos los perfiles",
+                });
+                navigate(`/chat/${profile.id}`);
+              }
+            }}
+            className="bg-cosmic-magenta hover:bg-cosmic-magenta/80"
+          >
+            Activar Premium
+          </Button>
+        )
       });
       return;
     }
 
-    // Si está autenticado y tiene premium, navegar al chat
-    navigate(`/chat/${profileId}`);
-    
-    toast({
-      title: "💫 Chat iniciado",
-      description: `Conectando con ${profileName}...`,
-    });
+    navigate(`/chat/${profile.id}`);
   };
 
   const handleAuthSuccess = () => {
-    // Después del login/pago exitoso, navegar al chat si había uno seleccionado
     if (selectedProfileForChat) {
       toast({
-        title: "🎉 ¡Bienvenido a AstroTarot Premium!",
+        title: "🎉 ¡Bienvenido a AstroTarot!",
         description: `Ahora puedes chatear con ${selectedProfileForChat.name}`,
       });
       
-      // Navegar al chat después de un breve delay
       setTimeout(() => {
         navigate(`/chat/${selectedProfileForChat.id}`);
       }, 1000);
@@ -155,26 +191,30 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-cosmic-blue">
-      {/* Header mejorado */}
-      <div className="bg-white/10 backdrop-blur-md border-b border-white/20">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+      {/* Header mejorado para móvil */}
+      <div className="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">
-                ✨ AstroTarot
-              </h1>
-              {userProfile && (
-                <p className="text-gray-300">
-                  Hola {userProfile.full_name}, encuentra tu conexión cósmica perfecta
-                </p>
-              )}
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-cosmic-magenta to-cosmic-gold rounded-full">
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-2xl font-bold text-white">
+                  AstroTarot
+                </h1>
+                {userProfile && (
+                  <p className="text-xs sm:text-sm text-gray-300 hidden sm:block">
+                    Hola {userProfile.full_name}, encuentra tu conexión cósmica
+                  </p>
+                )}
+              </div>
             </div>
             
-            <div className="flex gap-3 items-center">
-              {/* Estado de usuario */}
+            <div className="flex gap-2 sm:gap-3 items-center">
               {isAuthenticated && user ? (
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
+                <>
+                  <div className="hidden sm:block text-right">
                     <p className="text-white text-sm font-medium flex items-center gap-1">
                       {user.isPremium && <Crown className="h-4 w-4 text-cosmic-gold" />}
                       {user.name}
@@ -187,38 +227,43 @@ const Home = () => {
                   <Button
                     onClick={handleViewChats}
                     variant="outline"
+                    size="sm"
                     className="border-white/20 text-white hover:bg-white/10"
                   >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Mis Chats
+                    <MessageCircle className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Mis Chats</span>
                   </Button>
                   
                   <Button
                     onClick={handleLogout}
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     className="text-white hover:bg-white/20"
                     title="Cerrar sesión"
                   >
                     <LogOut className="h-4 w-4" />
                   </Button>
-                </div>
+                </>
               ) : (
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <Button
                     onClick={() => setShowAuthModal(true)}
                     variant="outline"
+                    size="sm"
                     className="border-white/20 text-white hover:bg-white/10"
                   >
-                    Iniciar Sesión
+                    <span className="hidden sm:inline">Iniciar Sesión</span>
+                    <span className="sm:hidden">Login</span>
                   </Button>
                   
                   <Button
                     onClick={() => navigate('/onboarding')}
                     variant="ghost"
+                    size="sm"
                     className="text-white hover:bg-white/20"
                   >
-                    Crear Perfil
+                    <span className="hidden sm:inline">Crear Perfil</span>
+                    <span className="sm:hidden">Registro</span>
                   </Button>
                 </div>
               )}
@@ -228,248 +273,134 @@ const Home = () => {
       </div>
 
       {/* Contenido principal */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Información del usuario */}
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+        {/* Información del usuario móvil */}
         {userProfile && (
-          <Card className="bg-white/10 backdrop-blur-md border-white/20 mb-8">
-            <CardHeader>
-              <CardTitle className="text-cosmic-gold flex items-center gap-2">
-                🌟 Tu Perfil Cósmico
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-3 gap-4 text-white">
-                <div className="flex items-center gap-2">
-                  <Sun className="w-4 h-4 text-cosmic-gold" />
-                  <span>Nacimiento: {userProfile.birth_date}</span>
+          <div className="sm:hidden mb-6">
+            <Card className="bg-white/10 backdrop-blur-md border-white/20">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-cosmic-magenta to-cosmic-gold rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold">
+                      {userProfile.full_name?.charAt(0) || '?'}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-medium">{userProfile.full_name}</p>
+                    <div className="flex items-center gap-2 text-xs text-gray-300">
+                      <MapPin className="w-3 h-3" />
+                      <span>{userProfile.birth_place}</span>
+                    </div>
+                  </div>
+                  {user?.isPremium && (
+                    <Crown className="w-5 h-5 text-cosmic-gold" />
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Navigation className="w-4 h-4 text-cosmic-magenta" />
-                  <span>Lugar: {userProfile.birth_place}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Heart className="w-4 h-4 text-red-400" />
-                  <span>Buscando: {translateLookingFor(userProfile.looking_for || '')}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
-        {/* Mensaje premium para usuarios no autenticados */}
-        {(!isAuthenticated || !user?.isPremium) && (
-          <Card className="bg-gradient-to-r from-cosmic-magenta/20 to-purple-200/20 border-cosmic-magenta/30 mb-8">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <Crown className="h-8 w-8 text-cosmic-gold" />
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-1">
-                    ¡Desbloquea el poder del cosmos! ✨
-                  </h3>
-                  <p className="text-gray-300 text-sm">
-                    Suscríbete al plan premium por solo €29,90/mes y chatea con todas tus conexiones cósmicas
-                  </p>
-                </div>
-                <Button
-                  onClick={() => {
-                    if (isAuthenticated) {
-                      // Usuario logueado - mostrar solo pago
-                      setAuthModalPaymentOnly(true);
-                      setShowAuthModal(true);
-                    } else {
-                      // Usuario NO logueado - mostrar modal completo
-                      setAuthModalPaymentOnly(false);
-                      setShowAuthModal(true);
-                    }
-                  }}
-                  className="bg-cosmic-gold hover:bg-cosmic-gold/80 text-cosmic-blue font-semibold"
-                >
-                  Obtener Premium
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Título de perfiles compatibles */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            🔮 Tus Conexiones Cósmicas
+        {/* Título principal */}
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+            Tu Conexión Cósmica Perfecta
           </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto">
-            Hemos analizado la compatibilidad astrológica y encontrado estas almas gemelas que resuenan con tu energía
+          <p className="text-sm sm:text-base text-gray-300">
+            Perfiles seleccionados especialmente para ti basados en tu carta natal
           </p>
         </div>
 
-        {/* Grid de perfiles compatibles */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Grid de perfiles */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {compatibleProfiles.map((profile) => (
-            <Card 
-              key={profile.id} 
-              className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105"
+            <Card
+              key={profile.id}
+              className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all duration-300 overflow-hidden group cursor-pointer"
+              onClick={() => navigate(`/profile/${profile.id}`)}
             >
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage 
-                      src={profile.photo_url || undefined} 
-                      alt={profile.name}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="bg-cosmic-magenta text-white text-lg">
-                      {profile.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <CardTitle className="text-white text-xl mb-1">
-                      {profile.name}, {profile.age}
-                    </CardTitle>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="secondary" className="bg-cosmic-gold/20 text-cosmic-gold border-cosmic-gold/30">
-                        <Star className="w-3 h-3 mr-1" />
-                        {profile.compatibility_score}% compatible
-                      </Badge>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-400">📍 {profile.location}</p>
-                      <p className="text-xs text-gray-400">💫 Busca: {translateLookingFor(profile.lookingFor)}</p>
-                    </div>
+              <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${profile.compatibility_score >= 85 ? 'bg-green-400' : profile.compatibility_score >= 70 ? 'bg-yellow-400' : 'bg-orange-400'}`}></div>
+                    <Badge 
+                      variant="secondary" 
+                      className="bg-cosmic-gold/20 text-cosmic-gold text-xs"
+                    >
+                      {profile.compatibility_score}% compatible
+                    </Badge>
                   </div>
+                  <button
+                    onClick={e => { e.stopPropagation(); handleLikeClick(profile.name); }}
+                    className="text-gray-400 hover:text-red-400 transition-colors"
+                  >
+                    <Heart className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                <Avatar className="w-12 h-12 sm:w-16 sm:h-16 border-2 border-cosmic-gold/30">
+                  <AvatarImage src={profile.photo_url} alt={profile.name} />
+                  <AvatarFallback className="bg-cosmic-magenta text-white font-bold">
+                    {profile.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <CardTitle className="text-white text-base sm:text-lg">
+                    {profile.name}
+                  </CardTitle>
+                  <p className="text-xs sm:text-sm text-gray-300">
+                    {profile.age} años • {profile.location}
+                  </p>
                 </div>
               </CardHeader>
               
-              <CardContent className="pt-0">
-                {/* Signos astrológicos */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="flex items-center gap-1 text-sm text-gray-300">
-                    <Sun className="w-4 h-4 text-cosmic-gold" />
-                    <span>{profile.sign}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-sm text-gray-300">
-                    <Moon className="w-4 h-4 text-blue-300" />
-                    <span>{profile.moon_sign}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-sm text-gray-300">
-                    <Navigation className="w-4 h-4 text-purple-300" />
-                    <span>{profile.rising_sign}</span>
-                  </div>
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
+                  <Sun className="w-4 h-4 text-cosmic-gold" />
+                  <span>{profile.sign}</span>
                 </div>
-
-                {/* Descripción */}
-                <p className="text-gray-300 text-sm mb-6 line-clamp-3">
-                  {profile.description}
-                </p>
-
-                {/* Action Buttons */}
-                <div className="flex gap-3">
-                  <Button 
-                    className="flex-1 bg-cosmic-magenta hover:bg-cosmic-magenta/80 text-white relative"
-                    onClick={() => handleChatClick(profile.id, profile.name)}
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Chatear
-                    {(!isAuthenticated || !user?.isPremium) && (
-                      <Crown className="w-3 h-3 ml-1 text-cosmic-gold" />
-                    )}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    className="border-white/20 text-white hover:bg-white/10"
-                    onClick={() => handleLikeClick(profile.name)}
-                  >
-                    <Heart className="w-4 h-4" />
-                  </Button>
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
+                  <Heart className="w-4 h-4 text-cosmic-magenta" />
+                  <span>{translateLookingFor(profile.lookingFor)}</span>
                 </div>
-              </CardContent>
+              </div>
+              
+              <p className="text-xs sm:text-sm text-gray-300 mb-4 line-clamp-2">
+                {profile.description}
+              </p>
+              
+              <Button
+                onClick={e => { e.stopPropagation(); handleChatClick(profile); }}
+                className="w-full bg-cosmic-magenta hover:bg-cosmic-magenta/80 text-white text-sm py-2"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Iniciar Chat
+              </Button>
             </Card>
           ))}
         </div>
 
-        {/* Botones de Testing Premium */}
-        {isAuthenticated && (
-          <div className="text-center mt-8 space-y-4">
-            {!user?.isPremium ? (
-              <Button
-                onClick={async () => {
-                  const success = await upgradeToPremiumFree();
-                  if (success) {
-                    toast({
-                      title: "🎉 ¡Premium Gratis Activado!",
-                      description: "Ahora tienes acceso completo a todos los chats",
-                    });
-                  } else {
-                    toast({
-                      title: "Error",
-                      description: "No se pudo activar el premium gratis",
-                      variant: "destructive"
-                    });
-                  }
-                }}
-                variant="outline"
-                className="border-cosmic-gold text-cosmic-gold hover:bg-cosmic-gold hover:text-cosmic-blue mr-4"
-              >
-                🎁 Premium Gratis
-              </Button>
-            ) : (
-              <div className="space-y-2">
-                <p className="text-cosmic-gold font-medium">
-                  ✨ Ya tienes Premium activado
-                </p>
-                <Button
-                  onClick={async () => {
-                    try {
-                      // Quitar premium para testing
-                      const { error } = await supabase
-                        .from('users')
-                        .update({ is_premium: false })
-                        .eq('id', user.id);
-
-                      if (!error) {
-                        // Refrescar usuario usando el método del AuthProvider
-                        await refreshUser();
-                        
-                        toast({
-                          title: "🔄 Premium Removido",
-                          description: "Premium removido para testing",
-                        });
-                      } else {
-                        toast({
-                          title: "Error",
-                          description: "No se pudo remover el premium",
-                          variant: "destructive"
-                        });
-                      }
-                    } catch (error) {
-                      toast({
-                        title: "Error",
-                        description: "No se pudo remover el premium",
-                        variant: "destructive"
-                      });
-                    }
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                >
-                  🧪 Quitar Premium (Testing)
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
+        {/* CTA para más perfiles */}
+        <div className="text-center mt-8 sm:mt-12">
+          <p className="text-gray-300 mb-4 text-sm sm:text-base">
+            ¿Quieres ver más perfiles compatibles?
+          </p>
+          <Button
+            onClick={() => navigate('/onboarding')}
+            variant="outline"
+            className="border-white/20 text-white hover:bg-white/10"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Refinar mi búsqueda
+          </Button>
+        </div>
       </div>
 
       {/* Modal de autenticación */}
       <AuthModal
         isOpen={showAuthModal}
-        onClose={() => {
-          setShowAuthModal(false);
-          setSelectedProfileForChat(null);
-          setAuthModalPaymentOnly(false);
-        }}
+        onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
-        paymentOnly={authModalPaymentOnly}
       />
     </div>
   );

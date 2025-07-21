@@ -9,7 +9,7 @@ import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Spark
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import AuthModal from "@/components/AuthModal";
-import { mockProfiles, type Profile } from "@/data/mockProfiles";
+import type { Profile } from "@/data/mockProfiles";
 import { supabase } from "@/integrations/supabase/client";
 
 const Home = () => {
@@ -77,11 +77,7 @@ const Home = () => {
             compatibility_score: Math.floor(Math.random() * 40) + 60 // 60-99%
           }));
         } else {
-          // Fallback: usar mockProfiles
-          profilesWithCompatibility = mockProfiles.map(profile => ({
-            ...profile,
-            compatibility_score: Math.floor(Math.random() * 40) + 60
-          }));
+          profilesWithCompatibility = [];
         }
         // Filtrar por preferencia de género
         if (userProfile && userProfile.gender_preference) {

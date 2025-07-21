@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { getProfileById, type Profile } from "@/data/mockProfiles";
+import type { Profile } from "@/data/mockProfiles";
 import { Sparkles, MapPin, Calendar, Sun, Moon, Navigation, Heart } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 // Extender el tipo Profile para permitir hasta 4 fotos
 interface ProfileWithGallery extends Profile {
@@ -20,15 +21,20 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (!profileId) return;
-    // Buscar perfil en mockProfiles
-    const data = getProfileById(profileId);
-    if (data) {
-      // Simular galería: si no tiene, usar la foto principal hasta 4 veces
-      setProfile({
-        ...data,
-        gallery: data.photo_url ? [data.photo_url, data.photo_url, data.photo_url, data.photo_url] : [],
-      });
-    }
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', profileId)
+        .single();
+      if (data) {
+        setProfile({
+          ...data,
+          gallery: data.photo_url ? [data.photo_url, data.photo_url, data.photo_url, data.photo_url] : [],
+        });
+      }
+    };
+    fetchProfile();
   }, [profileId]);
 
   if (!profile) {

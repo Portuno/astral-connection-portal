@@ -9,7 +9,7 @@ import { ArrowLeft, Send, MoreVertical, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "./AuthProvider";
-import { getProfileById, type Profile } from "@/data/mockProfiles";
+import type { Profile } from "@/data/mockProfiles";
 
 interface Message {
   id: string;
@@ -72,9 +72,12 @@ const ChatInterface = () => {
       
       setLoading(true);
       try {
-        // Cargar perfil desde mock data
-        const profileData = getProfileById(profileId);
-        
+        // Cargar perfil desde Supabase
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', profileId)
+          .single();
         if (!profileData) {
           console.error('Profile not found:', profileId);
           toast({
@@ -85,8 +88,6 @@ const ChatInterface = () => {
           navigate('/home');
           return;
         }
-
-        console.log("✅ Perfil cargado:", profileData);
         setProfile(profileData);
 
         // Usar el ID del usuario autenticado

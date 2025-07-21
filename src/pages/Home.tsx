@@ -223,7 +223,16 @@ const Home = () => {
                       {user.isPremium ? "Premium" : "Usuario gratuito"}
                     </p>
                   </div>
-                  
+                  <Button
+                    onClick={() => navigate('/profile-edit')}
+                    size="sm"
+                    variant="secondary"
+                    className="bg-cosmic-magenta text-white font-semibold hover:bg-cosmic-magenta/80"
+                    aria-label="Editar perfil"
+                    tabIndex={0}
+                  >
+                    Editar Perfil
+                  </Button>
                   {!user.isPremium && (
                     <Button
                       onClick={() => navigate('/premium')}

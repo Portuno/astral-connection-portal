@@ -224,6 +224,17 @@ const Home = () => {
                     </p>
                   </div>
                   
+                  {!user.isPremium && (
+                    <Button
+                      onClick={() => navigate('/premium')}
+                      size="sm"
+                      className="bg-gradient-to-r from-cosmic-gold to-yellow-500 text-black font-semibold hover:from-yellow-400 hover:to-cosmic-gold"
+                    >
+                      <Crown className="w-4 h-4 mr-1" />
+                      Activar Premium
+                    </Button>
+                  )}
+                  
                   <Button
                     onClick={handleViewChats}
                     variant="outline"
@@ -292,8 +303,17 @@ const Home = () => {
                       <span>{userProfile.birth_place}</span>
                     </div>
                   </div>
-                  {user?.isPremium && (
+                  {user?.isPremium ? (
                     <Crown className="w-5 h-5 text-cosmic-gold" />
+                  ) : (
+                    <Button
+                      onClick={() => navigate('/premium')}
+                      size="sm"
+                      className="bg-gradient-to-r from-cosmic-gold to-yellow-500 text-black font-semibold hover:from-yellow-400 hover:to-cosmic-gold text-xs px-2 py-1"
+                    >
+                      <Crown className="w-3 h-3 mr-1" />
+                      Premium
+                    </Button>
                   )}
                 </div>
               </CardContent>

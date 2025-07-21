@@ -13,6 +13,9 @@ import Chats from "./pages/Chats";
 import ChatInterface from "./components/ChatInterface";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
+import PremiumCheckout from "./components/PremiumCheckout";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancelled from "./pages/PaymentCancelled";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +34,9 @@ const App = () => (
             <Route path="/chats" element={<Chats />} />
             <Route path="/chat/:profileId" element={<ChatInterface />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/premium" element={<PremiumCheckout />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

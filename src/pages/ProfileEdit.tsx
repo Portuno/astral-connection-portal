@@ -23,6 +23,7 @@ const ProfileEdit = () => {
     photo_url: '',
     photo_url_2: '',
     photo_url_3: '',
+    gender_preference: 'ambos',
   });
   const [photoFiles, setPhotoFiles] = useState<(File | null)[]>([null, null, null]);
 
@@ -46,6 +47,7 @@ const ProfileEdit = () => {
           photo_url: data.photo_url || '',
           photo_url_2: data.photo_url_2 || '',
           photo_url_3: data.photo_url_3 || '',
+          gender_preference: data.gender_preference || 'ambos',
         });
       }
       setLoading(false);
@@ -53,7 +55,7 @@ const ProfileEdit = () => {
     fetchProfile();
   }, [user]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -154,6 +156,19 @@ const ProfileEdit = () => {
                 placeholder="Ascendente"
                 required
               />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">¿A quién quieres ver?</label>
+              <select
+                name="gender_preference"
+                value={form.gender_preference}
+                onChange={handleChange}
+                className="w-full rounded border border-gray-300 p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+              >
+                <option value="mujer">Solo mujeres</option>
+                <option value="hombre">Solo hombres</option>
+                <option value="ambos">Ambos</option>
+              </select>
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium">Foto principal (avatar)</label>

@@ -283,6 +283,7 @@ const ChatInterface = () => {
     }
   };
 
+  // Cambiar onKeyPress por onKeyDown
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -365,7 +366,7 @@ const ChatInterface = () => {
       </div>
 
       {/* Área de mensajes */}
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-cosmic-blue via-indigo-900 to-purple-900">
         <div className="space-y-4 max-w-2xl mx-auto">
           {messages.length === 0 ? (
             <div className="text-center py-12">
@@ -381,24 +382,20 @@ const ChatInterface = () => {
             messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${
-                  message.sender_id === user.id ? 'justify-end' : 'justify-start'
-                }`}
+                className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
               >
-                <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                    message.sender_id === user.id
-                      ? 'bg-cosmic-magenta text-white'
-                      : 'bg-white/20 text-white'
-                  }`}
-                >
-                  <p className="text-sm">{message.content}</p>
-                  <p className="text-xs opacity-70 mt-1">
+                <div className={`relative max-w-xs lg:max-w-md px-5 py-3 rounded-2xl shadow-md transition-all duration-200
+                  ${message.sender_id === user.id
+                    ? 'bg-gradient-to-r from-cosmic-magenta to-purple-600 text-white rounded-br-none'
+                    : 'bg-white/30 text-white rounded-bl-none border border-white/20 backdrop-blur-sm'}
+                `}>
+                  <p className="text-base leading-relaxed break-words">{message.content}</p>
+                  <span className="absolute -bottom-5 right-2 text-xs opacity-60 mt-1">
                     {new Date(message.created_at).toLocaleTimeString('es-ES', {
                       hour: '2-digit',
                       minute: '2-digit'
                     })}
-                  </p>
+                  </span>
                 </div>
               </div>
             ))
@@ -408,29 +405,32 @@ const ChatInterface = () => {
       </ScrollArea>
 
       {/* Input de mensaje */}
-      <div className="bg-white/10 backdrop-blur-md border-t border-white/20 p-4">
+      <div className="bg-white/10 backdrop-blur-md border-t border-white/20 p-4 sticky bottom-0 z-10">
         <div className="max-w-2xl mx-auto">
-          <div className="flex gap-2">
+          <form className="flex gap-2" onSubmit={e => { e.preventDefault(); handleSendMessage(); }}>
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               placeholder="Escribe tu mensaje..."
-              className="flex-1 bg-white/20 border-white/20 text-white placeholder-gray-400 focus:border-cosmic-magenta"
+              className="flex-1 bg-white/30 border-white/20 text-white placeholder-gray-300 focus:border-cosmic-magenta text-base px-4 py-3 rounded-full shadow-md"
               disabled={sending}
+              autoFocus
+              aria-label="Escribe tu mensaje"
             />
             <Button
-              onClick={handleSendMessage}
+              type="submit"
               disabled={!newMessage.trim() || sending}
-              className="bg-cosmic-magenta hover:bg-cosmic-magenta/80 text-white"
+              className="bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white rounded-full px-5 py-3 text-lg shadow-lg"
+              aria-label="Enviar mensaje"
             >
               {sending ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
               ) : (
-                <Send className="h-4 w-4" />
+                <Send className="h-5 w-5" />
               )}
             </Button>
-          </div>
+          </form>
         </div>
       </div>
     </div>

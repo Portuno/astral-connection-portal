@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import PremiumCheckout from "./components/PremiumCheckout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
+import ProfileEdit from "./pages/ProfileEdit";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/premium" element={<PremiumCheckout />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+            <Route path="/profile-edit" element={<ProfileEdit />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

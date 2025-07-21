@@ -112,19 +112,20 @@ const ProfileEdit = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cosmic-blue p-4">
-      <Card className="w-full max-w-lg bg-white/90">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cosmic-blue via-indigo-900 to-purple-900 p-4">
+      <Card className="w-full max-w-lg bg-white/95 shadow-2xl border-0">
         <CardHeader>
-          <CardTitle>Editar Perfil</CardTitle>
+          <CardTitle className="text-2xl font-bold text-cosmic-magenta mb-2">Editar Perfil</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <Input
               name="full_name"
               value={form.full_name}
               onChange={handleChange}
               placeholder="Nombre completo"
               required
+              className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
             />
             <Textarea
               name="description"
@@ -133,6 +134,7 @@ const ProfileEdit = () => {
               placeholder="Descripción personal"
               rows={3}
               required
+              className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
             />
             <div className="flex gap-2">
               <Input
@@ -141,6 +143,7 @@ const ProfileEdit = () => {
                 onChange={handleChange}
                 placeholder="Signo solar"
                 required
+                className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
               />
               <Input
                 name="moon_sign"
@@ -148,6 +151,7 @@ const ProfileEdit = () => {
                 onChange={handleChange}
                 placeholder="Signo lunar"
                 required
+                className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
               />
               <Input
                 name="rising_sign"
@@ -155,15 +159,16 @@ const ProfileEdit = () => {
                 onChange={handleChange}
                 placeholder="Ascendente"
                 required
+                className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium">¿A quién quieres ver?</label>
+              <label className="block text-sm font-medium text-cosmic-magenta">¿A quién quieres ver?</label>
               <select
                 name="gender_preference"
                 value={form.gender_preference}
                 onChange={handleChange}
-                className="w-full rounded border border-gray-300 p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+                className="w-full rounded-lg border border-cosmic-magenta p-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta bg-white/90"
               >
                 <option value="mujer">Solo mujeres</option>
                 <option value="hombre">Solo hombres</option>
@@ -171,23 +176,28 @@ const ProfileEdit = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium">Foto principal (avatar)</label>
-              <Input type="file" accept="image/*" onChange={e => handlePhotoChange(0, e)} />
-              {form.photo_url && <img src={form.photo_url} alt="avatar" className="w-20 h-20 rounded-full mt-2" />}
+              <label className="block text-sm font-medium text-cosmic-magenta">Foto principal (avatar)</label>
+              <Input type="file" accept="image/*" onChange={e => handlePhotoChange(0, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
+              {form.photo_url && <img src={form.photo_url} alt="avatar" className="w-20 h-20 rounded-full mt-2 border-2 border-cosmic-magenta" />}
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium">Foto adicional 2</label>
-              <Input type="file" accept="image/*" onChange={e => handlePhotoChange(1, e)} />
-              {form.photo_url_2 && <img src={form.photo_url_2} alt="foto2" className="w-20 h-20 rounded mt-2" />}
+              <label className="block text-sm font-medium text-cosmic-magenta">Foto adicional 2</label>
+              <Input type="file" accept="image/*" onChange={e => handlePhotoChange(1, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
+              {form.photo_url_2 && <img src={form.photo_url_2} alt="foto2" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />}
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium">Foto adicional 3</label>
-              <Input type="file" accept="image/*" onChange={e => handlePhotoChange(2, e)} />
-              {form.photo_url_3 && <img src={form.photo_url_3} alt="foto3" className="w-20 h-20 rounded mt-2" />}
+              <label className="block text-sm font-medium text-cosmic-magenta">Foto adicional 3</label>
+              <Input type="file" accept="image/*" onChange={e => handlePhotoChange(2, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
+              {form.photo_url_3 && <img src={form.photo_url_3} alt="foto3" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />}
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar Cambios'}
-            </Button>
+            <div className="flex flex-col gap-3 pt-2">
+              <Button type="submit" className="w-full bg-cosmic-magenta hover:bg-cosmic-magenta/90 text-white font-semibold text-lg py-3 rounded-lg shadow-lg" disabled={loading}>
+                {loading ? 'Guardando...' : 'Guardar Cambios'}
+              </Button>
+              <Button type="button" variant="outline" className="w-full" onClick={() => navigate('/home')}>
+                Volver al inicio
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

@@ -70,9 +70,14 @@ const Home = () => {
           compatibility_score: Math.floor(Math.random() * 40) + 60 // 60-99%
         })).sort((a, b) => b.compatibility_score - a.compatibility_score);
 
-        // Filtrar por género según interés del usuario
-        if (userProfile && userProfile.gender) {
-          // Si el usuario es hombre, mostrar mujeres; si es mujer, mostrar hombres
+        // Filtrar por preferencia de género
+        if (userProfile && userProfile.gender_preference) {
+          if (userProfile.gender_preference === 'hombre' || userProfile.gender_preference === 'mujer') {
+            profilesWithCompatibility = profilesWithCompatibility.filter(p => p.gender === userProfile.gender_preference);
+          }
+          // Si es 'ambos', no filtrar
+        } else if (userProfile && userProfile.gender) {
+          // Fallback: Si el usuario es hombre, mostrar mujeres; si es mujer, mostrar hombres
           let targetGender = userProfile.gender === 'hombre' ? 'mujer' : 'hombre';
           profilesWithCompatibility = profilesWithCompatibility.filter(p => p.gender === targetGender);
         }
@@ -100,23 +105,14 @@ const Home = () => {
 
     if (!user?.isPremium) {
       toast({
-        title: "🔓 Desbloquea el chat",
-        description: "Obtén acceso premium gratuito para chatear",
+        title: "�� Desbloquea el chat premium",
+        description: "Debes activar tu suscripción premium para chatear.",
         action: (
           <Button
-            onClick={async () => {
-              const success = await upgradeToPremiumFree();
-              if (success) {
-                toast({
-                  title: "🎉 ¡Premium activado!",
-                  description: "Ya puedes chatear con todos los perfiles",
-                });
-                navigate(`/chat/${profile.id}`);
-              }
-            }}
+            onClick={() => navigate('/premium')}
             className="bg-cosmic-magenta hover:bg-cosmic-magenta/80"
           >
-            Activar Premium
+            Ir a Pago Premium
           </Button>
         )
       });

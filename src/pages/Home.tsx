@@ -63,11 +63,11 @@ const Home = () => {
       try {
         setLoading(true);
         let profilesWithCompatibility = [];
-        // Traer perfiles reales premium de Supabase
+        // Traer perfiles premium de Supabase
         const { data: realProfiles, error } = await supabase
           .from('profiles')
-          .select('*, users!inner(is_premium)')
-          .eq('users.is_premium', true);
+          .select('*')
+          .eq('is_premium', true);
         if (error) {
           console.error('Error loading real profiles:', error);
         }

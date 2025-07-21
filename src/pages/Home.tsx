@@ -62,14 +62,27 @@ const Home = () => {
     const loadCompatibleProfiles = async () => {
       try {
         setLoading(true);
-        // Simular carga de perfiles compatibles
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // Usar perfiles mock con compatibilidad calculada
-        let profilesWithCompatibility = mockProfiles.map(profile => ({
-          ...profile,
-          compatibility_score: Math.floor(Math.random() * 40) + 60 // 60-99%
-        })).sort((a, b) => b.compatibility_score - a.compatibility_score);
-
+        let profilesWithCompatibility = [];
+        // Traer perfiles reales premium de Supabase
+        const { data: realProfiles, error } = await supabase
+          .from('profiles')
+          .select('*, users!inner(is_premium)')
+          .eq('users.is_premium', true);
+        if (error) {
+          console.error('Error loading real profiles:', error);
+        }
+        if (realProfiles && realProfiles.length > 0) {
+          profilesWithCompatibility = realProfiles.map(profile => ({
+            ...profile,
+            compatibility_score: Math.floor(Math.random() * 40) + 60 // 60-99%
+          }));
+        } else {
+          // Fallback: usar mockProfiles
+          profilesWithCompatibility = mockProfiles.map(profile => ({
+            ...profile,
+            compatibility_score: Math.floor(Math.random() * 40) + 60
+          }));
+        }
         // Filtrar por preferencia de género
         if (userProfile && userProfile.gender_preference) {
           if (userProfile.gender_preference === 'hombre' || userProfile.gender_preference === 'mujer') {
@@ -77,7 +90,6 @@ const Home = () => {
           }
           // Si es 'ambos', no filtrar
         } else if (userProfile && userProfile.gender) {
-          // Fallback: Si el usuario es hombre, mostrar mujeres; si es mujer, mostrar hombres
           let targetGender = userProfile.gender === 'hombre' ? 'mujer' : 'hombre';
           profilesWithCompatibility = profilesWithCompatibility.filter(p => p.gender === targetGender);
         }

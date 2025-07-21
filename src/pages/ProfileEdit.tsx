@@ -136,32 +136,6 @@ const ProfileEdit = () => {
               required
               className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
             />
-            <div className="flex gap-2">
-              <Input
-                name="sign"
-                value={form.sign}
-                onChange={handleChange}
-                placeholder="Signo solar"
-                required
-                className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
-              />
-              <Input
-                name="moon_sign"
-                value={form.moon_sign}
-                onChange={handleChange}
-                placeholder="Signo lunar"
-                required
-                className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
-              />
-              <Input
-                name="rising_sign"
-                value={form.rising_sign}
-                onChange={handleChange}
-                placeholder="Ascendente"
-                required
-                className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
-              />
-            </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium text-cosmic-magenta">¿A quién quieres ver?</label>
               <select

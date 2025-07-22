@@ -19,6 +19,8 @@ import PaymentCancelled from "./pages/PaymentCancelled";
 import ProfileEdit from "./pages/ProfileEdit";
 import ProfilePage from "./pages/Profile";
 import { useAuth } from "./components/AuthProvider";
+import PreHome from "./pages/PreHome";
+import Preloading from "./pages/Preloading";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/prehome" element={<PreHome />} />
+            <Route path="/preloading" element={<Preloading />} />
             <Route path="/onboarding" element={<OnboardingWrapper />} />
             <Route path="/loading" element={<Loading />} />
             <Route path="/home" element={<Home />} />

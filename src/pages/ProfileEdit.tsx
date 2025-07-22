@@ -162,9 +162,9 @@ const ProfileEdit = () => {
     };
     let result;
     if (profile) {
-      result = await supabase.from('profiles').update(updateData).eq('user_id', user.id);
+      result = await (supabase.from('profiles').update(updateData).eq('user_id', user.id) as any);
     } else {
-      result = await supabase.from('profiles').insert({ ...updateData, id: crypto.randomUUID(), user_id: user.id });
+      result = await (supabase.from('profiles').insert({ ...updateData, id: crypto.randomUUID(), user_id: user.id }) as any);
     }
     if (result.error) {
       toast({ title: 'Error', description: result.error.message, variant: 'destructive' });

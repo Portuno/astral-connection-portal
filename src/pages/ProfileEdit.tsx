@@ -40,6 +40,7 @@ const ProfileEdit = () => {
     rising_sign: '',
   });
   const [photoFiles, setPhotoFiles] = useState<(File | null)[]>([null, null, null]);
+  const [photoPreviews, setPhotoPreviews] = useState<(string | null)[]>([null, null, null]);
 
   useEffect(() => {
     if (!user) return;
@@ -89,8 +90,23 @@ const ProfileEdit = () => {
 
   const handlePhotoChange = (idx: number, e: ChangeEvent<HTMLInputElement>) => {
     const files = [...photoFiles];
-    files[idx] = e.target.files?.[0] || null;
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({ title: 'Archivo inválido', description: 'Solo puedes subir imágenes.', variant: 'destructive' });
+        return;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        toast({ title: 'Archivo demasiado grande', description: 'La imagen debe pesar menos de 8MB.', variant: 'destructive' });
+        return;
+      }
+    }
+    files[idx] = file;
     setPhotoFiles(files);
+    // Previsualización
+    const previews = [...photoPreviews];
+    previews[idx] = file ? URL.createObjectURL(file) : null;
+    setPhotoPreviews(previews);
   };
 
   const uploadPhoto = async (file: File, idx: number) => {
@@ -145,9 +161,9 @@ const ProfileEdit = () => {
     };
     let result;
     if (profile) {
-      result = await (supabase.from('profiles').update(updateData).eq('user_id', user.id) as any);
+      result = await supabase.from('profiles').update(updateData).eq('user_id', user.id);
     } else {
-      result = await (supabase.from('profiles').insert({ ...updateData, id: crypto.randomUUID(), user_id: user.id }) as any);
+      result = await supabase.from('profiles').insert({ ...updateData, id: crypto.randomUUID(), user_id: user.id });
     }
     if (result.error) {
       toast({ title: 'Error', description: result.error.message, variant: 'destructive' });
@@ -192,17 +208,29 @@ const ProfileEdit = () => {
             <div className="space-y-2">
               <label className="block text-base font-semibold text-cosmic-magenta">Foto principal (avatar)</label>
               <Input type="file" accept="image/*" onChange={e => handlePhotoChange(0, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
-              {form.photo_url && <img src={form.photo_url} alt="avatar" className="w-20 h-20 rounded-full mt-2 border-2 border-cosmic-magenta" />}
+              {photoPreviews[0] ? (
+                <img src={photoPreviews[0]} alt="preview avatar" className="w-20 h-20 rounded-full mt-2 border-2 border-cosmic-magenta" />
+              ) : form.photo_url && (
+                <img src={form.photo_url} alt="avatar" className="w-20 h-20 rounded-full mt-2 border-2 border-cosmic-magenta" />
+              )}
             </div>
             <div className="space-y-2">
               <label className="block text-base font-semibold text-cosmic-magenta">Foto adicional 2</label>
               <Input type="file" accept="image/*" onChange={e => handlePhotoChange(1, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
-              {form.photo_url_2 && <img src={form.photo_url_2} alt="foto2" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />}
+              {photoPreviews[1] ? (
+                <img src={photoPreviews[1]} alt="preview foto2" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />
+              ) : form.photo_url_2 && (
+                <img src={form.photo_url_2} alt="foto2" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />
+              )}
             </div>
             <div className="space-y-2">
               <label className="block text-base font-semibold text-cosmic-magenta">Foto adicional 3</label>
               <Input type="file" accept="image/*" onChange={e => handlePhotoChange(2, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
-              {form.photo_url_3 && <img src={form.photo_url_3} alt="foto3" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />}
+              {photoPreviews[2] ? (
+                <img src={photoPreviews[2]} alt="preview foto3" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />
+              ) : form.photo_url_3 && (
+                <img src={form.photo_url_3} alt="foto3" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />
+              )}
             </div>
             <div className="flex flex-col gap-3 pt-2">
               <Button type="submit" className="w-full bg-cosmic-magenta hover:bg-cosmic-magenta/90 text-white font-semibold text-lg py-3 rounded-lg shadow-lg" disabled={loading}>

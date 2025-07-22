@@ -285,7 +285,15 @@ const ChatInterface = () => {
         });
 
       if (error) {
-        console.error('Error sending message:', error);
+        if (error && error.message) {
+          console.error('Error sending message:', error.message);
+        } else {
+          try {
+            console.error('Error sending message:', JSON.stringify(error, null, 2));
+          } catch (e) {
+            console.error('Error sending message:', error);
+          }
+        }
         toast({
           title: "Error",
           description: "No se pudo enviar el mensaje",

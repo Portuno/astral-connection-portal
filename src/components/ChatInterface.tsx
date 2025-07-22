@@ -208,7 +208,6 @@ const ChatInterface = () => {
         .insert({
           chat_id: chatId,
           sender_id: profileId,
-          sender_auth_id: profileId,
           content: randomReply
         });
 
@@ -282,7 +281,6 @@ const ChatInterface = () => {
         .insert({
           chat_id: chat.id,
           sender_id: user.id,
-          sender_auth_id: user.id,
           content: newMessage.trim()
         });
 

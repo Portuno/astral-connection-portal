@@ -222,6 +222,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
+  // Refrescar usuario al montar y periódicamente
+  useEffect(() => {
+    refreshUser(); // Refrescar al montar
+    const interval = setInterval(() => {
+      refreshUser();
+    }, 2 * 60 * 1000); // Cada 2 minutos
+    return () => clearInterval(interval);
+  }, []);
+
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       console.log("🔐 Intentando login con email:", email);

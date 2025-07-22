@@ -113,7 +113,7 @@ const ProfileEdit = () => {
     if (!user) return '';
     console.log('Archivo a subir:', file, 'Tamaño:', file.size, 'Tipo:', file.type);
     const ext = file.name.split('.').pop();
-    const filePath = `${user.id}_${idx}.${ext}`;
+    const filePath = `${user.id}_${idx}_${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
     if (error) {
       toast({ title: 'Error subiendo foto', description: error.message, variant: 'destructive' });

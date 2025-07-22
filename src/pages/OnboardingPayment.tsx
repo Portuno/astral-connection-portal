@@ -73,20 +73,20 @@ const OnboardingPayment = () => {
         }
       }
       const profileData = {
-        full_name: form.full_name,
-        gender: form.gender,
-        birth_date: form.birth_date,
-        birth_time: form.birth_time,
-        birth_place: form.birth_place,
-        description: form.description,
+        id: crypto.randomUUID(),
+        name: form.full_name,
+        age: form.birth_date ? new Date().getFullYear() - new Date(form.birth_date).getFullYear() : null,
         sign: form.sign,
         moon_sign: form.moon_sign,
         rising_sign: form.rising_sign,
+        description: form.description,
         photo_url: photoUrls[0],
-        // Add other allowed fields as needed
+        photo_url_2: photoUrls[1],
+        photo_url_3: photoUrls[2],
+        // Puedes agregar otros campos opcionales aquí si tu tabla los permite
       };
       // Guardar perfil
-      const { error: profileError } = await supabase.from('profiles').upsert(profileData, { onConflict: 'user_id' });
+      const { error: profileError } = await supabase.from('profiles').insert(profileData);
       // Marcar usuario como premium
       const { error: userError } = await supabase.from('users').update({ is_premium: true }).eq('id', user.id);
       setLoading(false);

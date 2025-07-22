@@ -111,6 +111,7 @@ const ProfileEdit = () => {
 
   const uploadPhoto = async (file: File, idx: number) => {
     if (!user) return '';
+    console.log('Archivo a subir:', file, 'Tamaño:', file.size, 'Tipo:', file.type);
     const ext = file.name.split('.').pop();
     const filePath = `${user.id}_${idx}.${ext}`;
     const { error } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });

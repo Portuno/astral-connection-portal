@@ -1,344 +1,187 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import CityAutocomplete from "@/components/CityAutocomplete";
-import { ArrowLeft, User, Calendar, Clock, MapPin, Heart, Sparkles } from "lucide-react";
 
-const Onboarding = () => {
+const steps = [
+  "Fotos",
+  "Datos personales",
+  "Signos",
+  "Descripción",
+  "Username"
+];
+
+export default function Onboarding({ userId }: { userId: string }) {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: "",
-    gender: "",
-    birthDate: "",
-    birthTime: "",
-    birthPlace: "",
-    lookingFor: "conexion-especial" // Valor por defecto
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState({
+    photo_url: "",
+    photo_url_2: "",
+    photo_url_3: "",
+    name: "",
+    age: "",
+    sign: "",
+    moon_sign: "",
+    rising_sign: "",
+    description: "",
+    username: ""
   });
+  const [photoFiles, setPhotoFiles] = useState<(File | null)[]>([null, null, null]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validar que todos los campos requeridos estén completos
-    console.log("🔍 Validando campos:", formData);
-    const requiredFields = [formData.fullName, formData.gender, formData.birthDate, formData.birthTime, formData.birthPlace];
-    const emptyFields = requiredFields.filter(field => !field || !field.toString().trim());
-    
-    if (emptyFields.length > 0) {
-      console.log("❌ Campos vacíos detectados:", emptyFields);
-      toast({
-        title: "Campos incompletos",
-        description: "Por favor, completa todos los campos",
-        variant: "destructive"
-      });
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+    const file = e.target.files?.[0] || null;
+    setPhotoFiles((prev) => {
+      const updated = [...prev];
+      updated[idx] = file;
+      return updated;
+    });
+  };
+
+  const uploadPhoto = async (file: File, idx: number) => {
+    if (!userId) return '';
+    const ext = file.name.split('.').pop();
+    const filePath = `avatars/${userId}_${idx}.${ext}`;
+    const { error } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+    if (error) {
+      setError('Error subiendo foto: ' + error.message);
+      return '';
+    }
+    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+    return urlData.publicUrl;
+  };
+
+  const validateStep = () => {
+    if (step === 0 && !form.photo_url && !photoFiles[0]) return "Sube al menos una foto";
+    if (step === 1 && (!form.name || !form.age)) return "Completa tu nombre y edad";
+    if (step === 2 && (!form.sign || !form.moon_sign || !form.rising_sign)) return "Completa tus signos";
+    if (step === 3 && !form.description) return "Agrega una descripción";
+    if (step === 4 && !form.username) return "Elige un username";
+    return null;
+  };
+
+  const checkUsernameUnique = async () => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", form.username)
+      .neq("user_id", userId);
+    return !data?.length;
+  };
+
+  const handleNext = async () => {
+    setError(null);
+    const err = validateStep();
+    if (err) return setError(err);
+
+    if (step === 4) {
+      setLoading(true);
+      if (!(await checkUsernameUnique())) {
+        setError("Ese username ya está en uso");
+        setLoading(false);
+        return;
+      }
+      // Subir fotos si hay archivos nuevos
+      let photoUrls = [form.photo_url, form.photo_url_2, form.photo_url_3];
+      for (let i = 0; i < 3; i++) {
+        if (photoFiles[i]) {
+          const url = await uploadPhoto(photoFiles[i] as File, i + 1);
+          photoUrls[i] = url;
+        }
+      }
+      // Guardar perfil
+      const { error } = await supabase.from("profiles").update({
+        name: form.name,
+        age: form.age ? Number(form.age) : undefined,
+        sign: form.sign,
+        moon_sign: form.moon_sign,
+        rising_sign: form.rising_sign,
+        description: form.description,
+        photo_url: photoUrls[0],
+        // Add other allowed fields as needed
+      }).eq("user_id", userId);
+      setLoading(false);
+      if (error) return setError("Error guardando perfil: " + error.message);
+      navigate("/home");
       return;
     }
-    
-    console.log("✅ Validación de campos exitosa");
-
-    console.log("🔄 Iniciando proceso de guardado...");
-    setLoading(true);
-
-    try {
-      // Generar un ID único para la sesión
-      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      console.log("🆔 ID de sesión generado:", sessionId);
-
-      // Crear objeto de perfil
-      const profileData = {
-        id: sessionId,
-        full_name: formData.fullName,
-        gender: formData.gender,
-        birth_date: formData.birthDate,
-        birth_time: formData.birthTime,
-        birth_place: formData.birthPlace,
-        looking_for: formData.lookingFor,
-        created_at: new Date().toISOString()
-      };
-
-      console.log("📋 Datos del perfil a guardar:", profileData);
-
-      // Guardar en localStorage como respaldo
-      localStorage.setItem("sessionId", sessionId);
-      localStorage.setItem("userProfile", JSON.stringify(profileData));
-      console.log("💾 Datos guardados en localStorage");
-
-             // Intentar guardar en Supabase (opcional, continúa sin él si falla)
-       try {
-         console.log("🔄 Intentando guardar en Supabase...");
-         const supabaseData = {
-           session_id: sessionId,
-           full_name: formData.fullName,
-           gender: formData.gender,
-           birth_date: formData.birthDate,
-           birth_time: formData.birthTime,
-           birth_place: formData.birthPlace,
-           looking_for: formData.lookingFor,
-           created_at: new Date().toISOString()
-         };
-         
-         const { data, error } = await supabase
-           .from('temporary_profiles')
-           .insert([supabaseData])
-           .select();
-
-         if (error) {
-           console.error("❌ Error de Supabase:", error);
-           console.log("⚠️ Continuando sin Supabase, usando localStorage");
-         } else {
-           console.log("✅ Guardado exitoso en Supabase:", data);
-         }
-       } catch (supabaseError) {
-         console.error("❌ Error de conexión con Supabase:", supabaseError);
-         console.log("⚠️ Continuando sin Supabase, usando localStorage");
-       }
-
-      console.log("🌟 Mostrando toast de éxito...");
-      toast({
-        title: "🌟 Perfil creado exitosamente",
-        description: "¡Tu información astrológica está lista!",
-      });
-      
-      console.log("⏱️ Iniciando navegación a loading screen...");
-      // Breve delay para mostrar el success y luego ir a loading
-      setTimeout(() => {
-        console.log("🔮 Navegando a loading screen para análisis...");
-        setLoading(false);
-        navigate("/loading");
-      }, 1500);
-    } catch (error) {
-      console.error('❌ Error inesperado en onboarding:', error);
-      toast({
-        title: "Error inesperado", 
-        description: "Ocurrió un error. Inténtalo de nuevo.",
-        variant: "destructive"
-      });
-      setLoading(false);
-    }
+    setStep(step + 1);
   };
 
   return (
-    <div className="min-h-screen bg-cosmic-blue">
-      <div className="container mx-auto px-4 py-6 sm:py-8">
-        {/* Header */}
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-cosmic-magenta to-cosmic-gold rounded-full">
-              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-            </div>
-          </div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-4">
-            ✨ Crear tu Perfil Cósmico
-          </h1>
-          <p className="text-sm sm:text-base lg:text-lg text-gray-300 max-w-2xl mx-auto px-2">
-            Necesitamos algunos datos para calcular tu carta natal y encontrar tu conexión perfecta
-          </p>
+    <div className="max-w-md mx-auto mt-10 bg-white/10 p-6 rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold mb-4 text-white">Onboarding: {steps[step]}</h2>
+      {error && <div className="mb-2 text-red-400">{error}</div>}
+
+      {step === 0 && (
+        <div>
+          <label className="block text-white mb-2">Foto principal</label>
+          <input type="file" accept="image/*" onChange={e => handleFileChange(e, 0)} className="mb-2 w-full" />
+          <label className="block text-white mb-2">Foto 2 (opcional)</label>
+          <input type="file" accept="image/*" onChange={e => handleFileChange(e, 1)} className="mb-2 w-full" />
+          <label className="block text-white mb-2">Foto 3 (opcional)</label>
+          <input type="file" accept="image/*" onChange={e => handleFileChange(e, 2)} className="mb-2 w-full" />
         </div>
+      )}
 
-        {/* Formulario */}
-        <div className="max-w-2xl mx-auto">
-          <Card className="bg-white/10 backdrop-blur-md border-white/20 shadow-2xl">
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-xl sm:text-2xl text-cosmic-gold flex items-center justify-center gap-2">
-                <User className="w-5 h-5 sm:w-6 sm:h-6" />
-                Tu Información Natal
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Nombre Completo */}
-                <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-white text-sm font-medium flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Nombre Completo
-                  </Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    value={formData.fullName}
-                    onChange={(e) => handleInputChange("fullName", e.target.value)}
-                    placeholder="Tu nombre completo"
-                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-cosmic-magenta h-12 text-base"
-                    required
-                  />
-                </div>
-
-                {/* Género */}
-                <div className="space-y-3">
-                  <Label className="text-white text-sm font-medium flex items-center gap-2">
-                    <Heart className="w-4 h-4" />
-                    Género
-                  </Label>
-                  <RadioGroup 
-                    value={formData.gender} 
-                    onValueChange={(value) => handleInputChange("gender", value)}
-                    className="grid grid-cols-1 sm:grid-cols-3 gap-3"
-                  >
-                    <div className="flex items-center space-x-2 bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
-                      <RadioGroupItem value="masculino" id="masculino" className="text-cosmic-magenta" />
-                      <Label htmlFor="masculino" className="text-white text-sm font-medium cursor-pointer flex-1">
-                        Masculino
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2 bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
-                      <RadioGroupItem value="femenino" id="femenino" className="text-cosmic-magenta" />
-                      <Label htmlFor="femenino" className="text-white text-sm font-medium cursor-pointer flex-1">
-                        Femenino
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2 bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
-                      <RadioGroupItem value="otro" id="otro" className="text-cosmic-magenta" />
-                      <Label htmlFor="otro" className="text-white text-sm font-medium cursor-pointer flex-1">
-                        Otro
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* Fecha y Hora de Nacimiento */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="birthDate" className="text-white text-sm font-medium flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Fecha de Nacimiento
-                    </Label>
-                    <Input
-                      id="birthDate"
-                      type="date"
-                      value={formData.birthDate}
-                      onChange={(e) => handleInputChange("birthDate", e.target.value)}
-                      className="bg-white/10 border-white/20 text-white focus:border-cosmic-magenta h-12 text-base"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="birthTime" className="text-white text-sm font-medium flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Hora de Nacimiento
-                    </Label>
-                    <Input
-                      id="birthTime"
-                      type="time"
-                      value={formData.birthTime}
-                      onChange={(e) => handleInputChange("birthTime", e.target.value)}
-                      className="bg-white/10 border-white/20 text-white focus:border-cosmic-magenta h-12 text-base"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Qué Buscas */}
-                <div className="space-y-3">
-                  <Label className="text-white text-sm font-medium flex items-center gap-2">
-                    <Heart className="w-4 h-4" />
-                    ¿Qué buscas?
-                  </Label>
-                  <RadioGroup 
-                    value={formData.lookingFor} 
-                    onValueChange={(value) => handleInputChange("lookingFor", value)}
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-                  >
-                    <div className="flex items-center space-x-2 bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
-                      <RadioGroupItem value="relacion-seria" id="relacion-seria" className="text-cosmic-magenta" />
-                      <Label htmlFor="relacion-seria" className="text-white text-sm font-medium cursor-pointer flex-1">
-                        Relación seria
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2 bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
-                      <RadioGroupItem value="conexion-especial" id="conexion-especial" className="text-cosmic-magenta" />
-                      <Label htmlFor="conexion-especial" className="text-white text-sm font-medium cursor-pointer flex-1">
-                        Conexión especial
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2 bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
-                      <RadioGroupItem value="amistad-profunda" id="amistad-profunda" className="text-cosmic-magenta" />
-                      <Label htmlFor="amistad-profunda" className="text-white text-sm font-medium cursor-pointer flex-1">
-                        Amistad profunda
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2 bg-white/5 p-3 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
-                      <RadioGroupItem value="explorar" id="explorar" className="text-cosmic-magenta" />
-                      <Label htmlFor="explorar" className="text-white text-sm font-medium cursor-pointer flex-1">
-                        Explorar
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* Lugar de Nacimiento */}
-                <div className="space-y-2">
-                  <Label htmlFor="birthPlace" className="text-white text-sm font-medium flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    Lugar de Nacimiento
-                  </Label>
-                  <CityAutocomplete
-                    value={formData.birthPlace}
-                    onChange={(value) => handleInputChange("birthPlace", value)}
-                    placeholder="Escribe al menos 2 letras..."
-                    className="bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-cosmic-magenta h-12 text-base"
-                  />
-                  <p className="text-xs text-gray-400 flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    Comienza a escribir y selecciona tu ciudad de la lista
-                  </p>
-                </div>
-
-                {/* Botón de Submit */}
-                <div className="pt-6 space-y-4">
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white py-4 sm:py-5 text-base sm:text-lg font-semibold rounded-full shadow-2xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                        Guardando...
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5" />
-                        Calcular mi Carta Natal
-                      </div>
-                    )}
-                  </Button>
-                  
-                  <p className="text-xs text-center text-gray-400 px-4">
-                    Al continuar, aceptas nuestros términos y condiciones
-                  </p>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Botón para volver */}
-          <div className="text-center mt-6">
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/")}
-              className="text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-              disabled={loading}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Volver al inicio
-            </Button>
-          </div>
+      {step === 1 && (
+        <div>
+          <label className="block text-white mb-2">Nombre</label>
+          <input type="text" name="name" value={form.name} onChange={handleChange} className="mb-2 w-full" />
+          <label className="block text-white mb-2">Edad</label>
+          <input type="number" name="age" value={form.age} onChange={handleChange} className="mb-2 w-full" />
         </div>
+      )}
+
+      {step === 2 && (
+        <div>
+          <label className="block text-white mb-2">Signo solar</label>
+          <input type="text" name="sign" value={form.sign} onChange={handleChange} className="mb-2 w-full" />
+          <label className="block text-white mb-2">Signo lunar</label>
+          <input type="text" name="moon_sign" value={form.moon_sign} onChange={handleChange} className="mb-2 w-full" />
+          <label className="block text-white mb-2">Ascendente</label>
+          <input type="text" name="rising_sign" value={form.rising_sign} onChange={handleChange} className="mb-2 w-full" />
+        </div>
+      )}
+
+      {step === 3 && (
+        <div>
+          <label className="block text-white mb-2">Descripción</label>
+          <textarea name="description" value={form.description} onChange={handleChange} className="mb-2 w-full" />
+        </div>
+      )}
+
+      {step === 4 && (
+        <div>
+          <label className="block text-white mb-2">Username</label>
+          <input type="text" name="username" value={form.username} onChange={handleChange} className="mb-2 w-full" />
+        </div>
+      )}
+
+      <div className="flex justify-between mt-4">
+        {step > 0 && (
+          <button
+            onClick={() => setStep(step - 1)}
+            className="bg-gray-500 text-white px-4 py-2 rounded"
+            type="button"
+          >
+            Anterior
+          </button>
+        )}
+        <button
+          onClick={handleNext}
+          className="bg-cosmic-magenta text-white px-4 py-2 rounded"
+          disabled={loading}
+          type="button"
+        >
+          {step === steps.length - 1 ? "Finalizar" : "Siguiente"}
+        </button>
       </div>
     </div>
   );
-};
-
-export default Onboarding;
+}

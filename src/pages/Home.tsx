@@ -22,6 +22,21 @@ const Home = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
 
+  // Filtros
+  const [genderFilter, setGenderFilter] = useState<'hombre' | 'mujer' | 'ambos'>(
+    userProfile?.gender_preference || 'ambos'
+  );
+  const [minCompatibility, setMinCompatibility] = useState(60);
+  // Estructura para lejanía (no implementada la lógica real)
+  const [distance, setDistance] = useState(50); // km
+
+  // Actualizar filtro de género si cambia el perfil del usuario
+  useEffect(() => {
+    if (userProfile?.gender_preference) {
+      setGenderFilter(userProfile.gender_preference);
+    }
+  }, [userProfile]);
+
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
@@ -62,32 +77,27 @@ const Home = () => {
     const loadCompatibleProfiles = async () => {
       try {
         setLoading(true);
-        let profilesWithCompatibility = [];
-        // Traer perfiles premium de Supabase
-        const { data: realProfiles, error } = await supabase
+        let query = supabase
           .from('profiles')
-          .select('*')
-          .eq('is_premium', true);
+          .select('id, name, age, sign, description, photo_url, compatibility_score, location, lookingFor, gender')
+          .eq('is_premium', true)
+          .gte('compatibility_score', minCompatibility);
+        // Aplica el filtro de género solo si corresponde
+        let realProfiles, error;
+        if (genderFilter !== 'ambos') {
+          // @ts-expect-error: Suppress deep type instantiation error
+          ({ data: realProfiles, error } = await query.eq('gender', genderFilter));
+        } else {
+          ({ data: realProfiles, error } = await query);
+        }
+        let profilesWithCompatibility = [];
         if (error) {
           console.error('Error loading real profiles:', error);
         }
         if (realProfiles && realProfiles.length > 0) {
-          profilesWithCompatibility = realProfiles.map(profile => ({
-            ...profile,
-            compatibility_score: Math.floor(Math.random() * 40) + 60 // 60-99%
-          }));
+          profilesWithCompatibility = realProfiles;
         } else {
           profilesWithCompatibility = [];
-        }
-        // Filtrar por preferencia de género
-        if (userProfile && userProfile.gender_preference) {
-          if (userProfile.gender_preference === 'hombre' || userProfile.gender_preference === 'mujer') {
-            profilesWithCompatibility = profilesWithCompatibility.filter(p => p.gender === userProfile.gender_preference);
-          }
-          // Si es 'ambos', no filtrar
-        } else if (userProfile && userProfile.gender) {
-          let targetGender = userProfile.gender === 'hombre' ? 'mujer' : 'hombre';
-          profilesWithCompatibility = profilesWithCompatibility.filter(p => p.gender === targetGender);
         }
         setCompatibleProfiles(profilesWithCompatibility);
       } catch (error) {
@@ -102,7 +112,7 @@ const Home = () => {
       }
     };
     loadCompatibleProfiles();
-  }, [toast, userProfile]);
+  }, [toast, genderFilter, minCompatibility, userProfile]);
 
   const handleChatClick = async (profile: Profile) => {
     if (!isAuthenticated) {
@@ -298,6 +308,46 @@ const Home = () => {
 
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+        {/* Filtros */}
+        <div className="mb-8 flex flex-wrap gap-6 items-center justify-center bg-white/10 p-4 rounded-lg">
+          <div className="flex flex-col items-start">
+            <label className="text-white font-semibold mb-1">Ver:</label>
+            <select
+              value={genderFilter}
+              onChange={e => setGenderFilter(e.target.value as any)}
+              className="rounded px-2 py-1"
+            >
+              <option value="ambos">Ambos</option>
+              <option value="hombre">Hombres</option>
+              <option value="mujer">Mujeres</option>
+            </select>
+          </div>
+          <div className="flex flex-col items-start">
+            <label className="text-white font-semibold mb-1">% Compatibilidad mínima:</label>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={minCompatibility}
+              onChange={e => setMinCompatibility(Number(e.target.value))}
+              className="w-40"
+            />
+            <span className="text-white mt-1">{minCompatibility}%</span>
+          </div>
+          <div className="flex flex-col items-start">
+            <label className="text-white font-semibold mb-1">Distancia máxima (próximamente):</label>
+            <input
+              type="range"
+              min={1}
+              max={500}
+              value={distance}
+              onChange={e => setDistance(Number(e.target.value))}
+              className="w-40"
+              disabled
+            />
+            <span className="text-white mt-1">{distance} km</span>
+          </div>
+        </div>
         {/* Información del usuario móvil */}
         {userProfile && (
           <div className="sm:hidden mb-6">

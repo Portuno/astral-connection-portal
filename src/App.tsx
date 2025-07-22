@@ -17,8 +17,15 @@ import PremiumCheckout from "./components/PremiumCheckout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import ProfileEdit from "./pages/ProfileEdit";
+import ProfilePage from "./pages/Profile";
+import { useAuth } from "./components/AuthProvider";
 
 const queryClient = new QueryClient();
+
+const OnboardingWrapper = () => {
+  const { user } = useAuth();
+  return <Onboarding userId={user?.id} />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -29,7 +36,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Landing />} />
-            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/onboarding" element={<OnboardingWrapper />} />
             <Route path="/loading" element={<Loading />} />
             <Route path="/home" element={<Home />} />
             <Route path="/chats" element={<Chats />} />
@@ -39,6 +46,7 @@ const App = () => (
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             <Route path="/profile-edit" element={<ProfileEdit />} />
+            <Route path="/profile/:profileId" element={<ProfilePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

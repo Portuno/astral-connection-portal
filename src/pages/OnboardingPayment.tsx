@@ -73,12 +73,17 @@ const OnboardingPayment = () => {
         }
       }
       const profileData = {
-        ...form,
+        full_name: form.full_name,
+        gender: form.gender,
+        birth_date: form.birth_date,
+        birth_time: form.birth_time,
+        birth_place: form.birth_place,
+        description: form.description,
+        sign: form.sign,
+        moon_sign: form.moon_sign,
+        rising_sign: form.rising_sign,
         photo_url: photoUrls[0],
-        photo_url_2: photoUrls[1],
-        photo_url_3: photoUrls[2],
-        user_id: user.id,
-        updated_at: new Date().toISOString(),
+        // Add other allowed fields as needed
       };
       // Guardar perfil
       const { error: profileError } = await supabase.from('profiles').upsert(profileData, { onConflict: 'user_id' });
@@ -211,6 +216,12 @@ const OnboardingPayment = () => {
           </form>
         </CardContent>
       </Card>
+      <button
+        onClick={() => { console.log('Click fuera del Card'); navigate('/home'); }}
+        style={{ position: 'fixed', bottom: 40, left: 40, background: 'green', color: 'white', fontSize: 24, zIndex: 9999 }}
+      >
+        Botón de prueba
+      </button>
     </div>
   );
 };

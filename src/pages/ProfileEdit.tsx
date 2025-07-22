@@ -15,11 +15,8 @@ const ProfileEdit = () => {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [form, setForm] = useState({
-    full_name: '',
+    name: '',
     description: '',
-    sign: '',
-    moon_sign: '',
-    rising_sign: '',
     photo_url: '',
     photo_url_2: '',
     photo_url_3: '',
@@ -39,11 +36,8 @@ const ProfileEdit = () => {
       if (data) {
         setProfile(data);
         setForm({
-          full_name: data.full_name || '',
+          name: data.name || '',
           description: data.description || '',
-          sign: data.sign || '',
-          moon_sign: data.moon_sign || '',
-          rising_sign: data.rising_sign || '',
           photo_url: data.photo_url || '',
           photo_url_2: data.photo_url_2 || '',
           photo_url_3: data.photo_url_3 || '',
@@ -69,7 +63,7 @@ const ProfileEdit = () => {
     if (!user) return '';
     const ext = file.name.split('.').pop();
     const filePath = `avatars/${user.id}_${idx}.${ext}`;
-    const { data, error } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+    const { error } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
     if (error) {
       toast({ title: 'Error subiendo foto', description: error.message, variant: 'destructive' });
       return '';
@@ -78,23 +72,41 @@ const ProfileEdit = () => {
     return urlData.publicUrl;
   };
 
+  const validateForm = () => {
+    if (!form.name) return 'El nombre es obligatorio';
+    if (!form.description) return 'La descripción es obligatoria';
+    if (!form.photo_url && !photoFiles[0]) return 'La foto principal es obligatoria';
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const err = validateForm();
+    if (err) {
+      toast({ title: 'Error', description: err, variant: 'destructive' });
+      return;
+    }
     setLoading(true);
     let photoUrls = [form.photo_url, form.photo_url_2, form.photo_url_3];
     for (let i = 0; i < 3; i++) {
       if (photoFiles[i]) {
         const url = await uploadPhoto(photoFiles[i] as File, i + 1);
+        if (!url) {
+          setLoading(false);
+          return;
+        }
         photoUrls[i] = url;
       }
     }
     const updateData = {
-      ...form,
+      name: form.name,
+      description: form.description,
       photo_url: photoUrls[0],
-      photo_url_2: photoUrls[1],
-      photo_url_3: photoUrls[2],
-      updated_at: new Date().toISOString(),
-      user_id: user.id,
+      age: form.age ? Number(form.age) : undefined,
+      sign: form.sign,
+      moon_sign: form.moon_sign,
+      rising_sign: form.rising_sign,
+      // Add other allowed fields as needed
     };
     let result;
     if (profile) {
@@ -118,26 +130,32 @@ const ProfileEdit = () => {
           <CardTitle className="text-2xl font-bold text-cosmic-magenta mb-2">Editar Perfil</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <Input
-              name="full_name"
-              value={form.full_name}
-              onChange={handleChange}
-              placeholder="Nombre completo"
-              required
-              className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
-            />
-            <Textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Descripción personal"
-              rows={3}
-              required
-              className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
-            />
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-cosmic-magenta">¿A quién quieres ver?</label>
+              <label className="block text-base font-semibold text-cosmic-magenta">Nombre</label>
+              <Input
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Nombre completo"
+                required
+                className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-base font-semibold text-cosmic-magenta">Descripción</label>
+              <Textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="Descripción personal"
+                rows={3}
+                required
+                className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-base font-semibold text-cosmic-magenta">¿A quién quieres ver?</label>
               <select
                 name="gender_preference"
                 value={form.gender_preference}
@@ -150,17 +168,17 @@ const ProfileEdit = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-cosmic-magenta">Foto principal (avatar)</label>
+              <label className="block text-base font-semibold text-cosmic-magenta">Foto principal (avatar)</label>
               <Input type="file" accept="image/*" onChange={e => handlePhotoChange(0, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
               {form.photo_url && <img src={form.photo_url} alt="avatar" className="w-20 h-20 rounded-full mt-2 border-2 border-cosmic-magenta" />}
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-cosmic-magenta">Foto adicional 2</label>
+              <label className="block text-base font-semibold text-cosmic-magenta">Foto adicional 2</label>
               <Input type="file" accept="image/*" onChange={e => handlePhotoChange(1, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
               {form.photo_url_2 && <img src={form.photo_url_2} alt="foto2" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />}
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-cosmic-magenta">Foto adicional 3</label>
+              <label className="block text-base font-semibold text-cosmic-magenta">Foto adicional 3</label>
               <Input type="file" accept="image/*" onChange={e => handlePhotoChange(2, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
               {form.photo_url_3 && <img src={form.photo_url_3} alt="foto3" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />}
             </div>

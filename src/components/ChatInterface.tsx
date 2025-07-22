@@ -69,7 +69,6 @@ const ChatInterface = () => {
   useEffect(() => {
     const loadChatData = async () => {
       if (!profileId || !isAuthenticated || !user?.isPremium) return;
-      
       setLoading(true);
       try {
         // Cargar perfil desde Supabase
@@ -90,29 +89,26 @@ const ChatInterface = () => {
         }
         setProfile(profileData);
 
-        // Usar el ID del usuario autenticado
+        // Usar el ID del usuario autenticado y el id del perfil destino (real o artificial)
         const authenticatedUserId = user.id;
+        const otherId = profileData.id; // Puede ser real o artificial
 
         // Buscar o crear chat existente
         const { data: existingChat, error: chatError } = await supabase
           .from('chats')
           .select('*')
-          .or(`and(user1_id.eq.${authenticatedUserId},user2_id.eq.${profileId}),and(user1_id.eq.${profileId},user2_id.eq.${authenticatedUserId})`)
+          .or(`and(user1_id.eq.${authenticatedUserId},user2_id.eq.${otherId}),and(user1_id.eq.${otherId},user2_id.eq.${authenticatedUserId})`)
           .single();
 
         let chatData = existingChat;
 
         // Si no existe el chat, crearlo
         if (chatError && chatError.code === 'PGRST116') {
-          console.log("💬 Creando nuevo chat entre:", authenticatedUserId, "y", profileId);
-          
           const { data: newChat, error: createError } = await supabase
             .from('chats')
             .insert({
               user1_id: authenticatedUserId,
-              user2_id: profileId,
-              user1_auth_id: authenticatedUserId,
-              user2_auth_id: profileId // En este caso es el mock profile ID
+              user2_id: otherId
             })
             .select()
             .single();
@@ -126,7 +122,6 @@ const ChatInterface = () => {
             });
             return;
           }
-
           chatData = newChat;
         } else if (chatError) {
           console.error('Error loading chat:', chatError);
@@ -161,7 +156,6 @@ const ChatInterface = () => {
         setLoading(false);
       }
     };
-
     loadChatData();
   }, [profileId, isAuthenticated, user, navigate, toast]);
 

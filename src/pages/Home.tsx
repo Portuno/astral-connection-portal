@@ -73,10 +73,10 @@ const Home = () => {
         setLoading(true);
 
         // 1. Perfiles artificiales SIEMPRE visibles
-        const { data: artificialProfiles } = await supabase
+        const { data: artificialProfiles } = await (supabase
           .from('profiles')
           .select('id, user_id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender, is_artificial')
-          .eq('is_artificial', true);
+          .eq('is_artificial', true) as any);
 
         // 2. Perfiles reales premium con filtro de género
         let query = supabase

@@ -149,6 +149,10 @@ const ProfileEdit = () => {
         photoUrls[i] = url;
       }
     }
+    // Sincronizar avatar principal en users si cambió
+    if (photoFiles[0] && user) {
+      await supabase.from('users').update({ avatar_url: photoUrls[0] }).eq('id', user.id);
+    }
     const updateData = {
       name: form.name,
       description: form.description,

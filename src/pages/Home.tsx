@@ -22,12 +22,7 @@ const Home = () => {
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
 
   // Filtros
-  const [genderFilter, setGenderFilter] = useState<'hombre' | 'mujer' | 'ambos'>(
-    userProfile?.gender_preference || 'ambos'
-  );
-  const [minCompatibility, setMinCompatibility] = useState(60);
-  // Estructura para lejanía (no implementada la lógica real)
-  const [distance, setDistance] = useState(50); // km
+  const [genderFilter, setGenderFilter] = useState<'hombre' | 'mujer' | 'ambos'>('ambos');
 
   // Actualizar filtro de género si cambia el perfil del usuario
   useEffect(() => {
@@ -78,12 +73,12 @@ const Home = () => {
         setLoading(true);
 
         // 1. Perfiles artificiales SIEMPRE visibles
-        const { data: artificialProfiles, error: artificialError } = await supabase
+        const { data: artificialProfiles } = await supabase
           .from('profiles')
           .select('id, user_id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender, is_artificial')
           .eq('is_artificial', true);
 
-        // 2. Perfiles reales premium con filtros
+        // 2. Perfiles reales premium con filtro de género
         let query = supabase
           .from('profiles')
           .select('id, user_id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender, is_premium')
@@ -95,23 +90,20 @@ const Home = () => {
         if (genderFilter !== 'ambos') {
           query = query.eq('gender', genderFilter);
         }
-        if (minCompatibility > 0) {
-          query = query.gte('compatibility_score', minCompatibility);
-        }
 
-        const { data: realProfiles, error: realError } = await (query as any);
+        const { data: realProfiles } = await (query as any);
 
-        // 3. Unir ambos arrays
+        // Unir ambos arrays y filtrar por género
         let allProfiles = [
           ...(artificialProfiles || []),
           ...(realProfiles || [])
         ];
-
-        // 4. Filtrar el propio perfil por user_id (por si acaso)
+        if (genderFilter !== 'ambos') {
+          allProfiles = allProfiles.filter(p => p.gender === genderFilter);
+        }
         if (user && user.id) {
           allProfiles = allProfiles.filter(p => p.user_id !== user.id);
         }
-
         setCompatibleProfiles(allProfiles);
       } catch (error) {
         console.error("Error loading profiles:", error);
@@ -125,7 +117,7 @@ const Home = () => {
       }
     };
     loadCompatibleProfiles();
-  }, [toast, genderFilter, minCompatibility, userProfile]);
+  }, [toast, genderFilter, userProfile]);
 
   const handleChatClick = async (profile: any) => {
     if (!isAuthenticated) {
@@ -334,31 +326,6 @@ const Home = () => {
               <option value="hombre">Hombres</option>
               <option value="mujer">Mujeres</option>
             </select>
-          </div>
-          <div className="flex flex-col items-start">
-            <label className="text-white font-semibold mb-1">% Compatibilidad mínima:</label>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={minCompatibility}
-              onChange={e => setMinCompatibility(Number(e.target.value))}
-              className="w-40"
-            />
-            <span className="text-white mt-1">{minCompatibility}%</span>
-          </div>
-          <div className="flex flex-col items-start">
-            <label className="text-white font-semibold mb-1">Distancia máxima (próximamente):</label>
-            <input
-              type="range"
-              min={1}
-              max={500}
-              value={distance}
-              onChange={e => setDistance(Number(e.target.value))}
-              className="w-40"
-              disabled
-            />
-            <span className="text-white mt-1">{distance} km</span>
           </div>
         </div>
         {/* Información del usuario móvil */}

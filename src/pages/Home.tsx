@@ -76,31 +76,43 @@ const Home = () => {
     const loadCompatibleProfiles = async () => {
       try {
         setLoading(true);
+
+        // 1. Perfiles artificiales SIEMPRE visibles
+        const { data: artificialProfiles, error: artificialError } = await supabase
+          .from('profiles')
+          .select('id, user_id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender, is_artificial')
+          .eq('is_artificial', true);
+
+        // 2. Perfiles reales premium con filtros
         let query = supabase
           .from('profiles')
           .select('id, user_id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender, is_premium')
           .eq('is_premium', true);
+
         if (user && user.id) {
           query = query.neq('user_id', user.id);
         }
-        // Aplica el filtro de género solo si corresponde
-        let realProfiles, error;
         if (genderFilter !== 'ambos') {
-          // @ts-expect-error: Suppress deep type instantiation error
-          ({ data: realProfiles, error } = await (query.eq('gender', genderFilter) as any));
-        } else {
-          ({ data: realProfiles, error } = await (query as any));
+          query = query.eq('gender', genderFilter);
         }
-        let profilesWithCompatibility = [];
-        if (error) {
-          console.error('Error loading real profiles:', error);
+        if (minCompatibility > 0) {
+          query = query.gte('compatibility_score', minCompatibility);
         }
-        if (realProfiles && realProfiles.length > 0) {
-          profilesWithCompatibility = realProfiles;
-        } else {
-          profilesWithCompatibility = [];
+
+        const { data: realProfiles, error: realError } = await (query as any);
+
+        // 3. Unir ambos arrays
+        let allProfiles = [
+          ...(artificialProfiles || []),
+          ...(realProfiles || [])
+        ];
+
+        // 4. Filtrar el propio perfil por user_id (por si acaso)
+        if (user && user.id) {
+          allProfiles = allProfiles.filter(p => p.user_id !== user.id);
         }
-        setCompatibleProfiles(profilesWithCompatibility);
+
+        setCompatibleProfiles(allProfiles);
       } catch (error) {
         console.error("Error loading profiles:", error);
         toast({

@@ -9,7 +9,7 @@ import { ArrowLeft, Send, MoreVertical, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "./AuthProvider";
-import type { Profile } from "@/data/mockProfiles";
+import { v4 as uuidv4 } from 'uuid';
 
 interface Message {
   id: string;
@@ -34,7 +34,7 @@ const ChatInterface = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<any | null>(null); // Changed type to any as Profile is removed
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [chat, setChat] = useState<Chat | null>(null);
@@ -42,6 +42,7 @@ const ChatInterface = () => {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentUserId = localStorage.getItem("sessionId") || "temp_user";
+  const [isArtificial, setIsArtificial] = useState(false);
 
   // Verificar autenticación al cargar
   useEffect(() => {
@@ -89,69 +90,92 @@ const ChatInterface = () => {
         }
         setProfile(profileData);
 
-        // Usar el ID del usuario autenticado y el id del perfil destino (real o artificial)
-        const authenticatedUserId = user.id;
-        const otherId = profileData.id; // Puede ser real o artificial
-
-        // Buscar o crear chat existente
-        const { data: existingChat, error: chatError } = await supabase
-          .from('chats')
-          .select('*')
-          .or(`and(user1_id.eq.${authenticatedUserId},user2_id.eq.${otherId}),and(user1_id.eq.${otherId},user2_id.eq.${authenticatedUserId})`)
-          .single();
-
-        let chatData = existingChat;
-
-        // Si no existe el chat, crearlo
-        if (chatError && chatError.code === 'PGRST116') {
-          const { data: newChat, error: createError } = await supabase
-            .from('chats')
-            .insert({
-              user1_id: authenticatedUserId,
-              user2_id: otherId
-            })
-            .select()
+        // Verificar si el perfil es artificial (no tiene user_id en users)
+        let artificial = false;
+        if (!profileData.user_id) {
+          artificial = true;
+        } else {
+          const { data: userExists } = await supabase
+            .from('users')
+            .select('id')
+            .eq('id', profileData.user_id)
             .single();
+          if (!userExists) artificial = true;
+        }
+        setIsArtificial(artificial);
 
-          if (createError) {
-            console.error('Error creating chat:', createError);
-            toast({
-              title: "Error",
-              description: "No se pudo crear el chat",
-              variant: "destructive"
-            });
+        if (artificial) {
+          // Buscar o crear chat artificial en ai_chats
+          let aiChat = null;
+          const { data: existingAiChat } = await supabase
+            .from('ai_chats')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('profile_id', profileId)
+            .single();
+          if (existingAiChat) {
+            aiChat = existingAiChat;
+          } else {
+            const { data: newAiChat, error: aiChatError } = await supabase
+              .from('ai_chats')
+              .insert({ user_id: user.id, profile_id: profileId, messages: [] })
+              .select()
+              .single();
+            if (aiChatError) {
+              toast({ title: 'Error', description: 'No se pudo crear el chat', variant: 'destructive' });
+              setLoading(false);
+              return;
+            }
+            aiChat = newAiChat;
+          }
+          setChat(aiChat); // chat artificial
+          setMessages((aiChat.messages || []).map((msg: any, idx: number) => ({
+            id: msg.id || uuidv4(),
+            chat_id: aiChat.id,
+            sender_id: msg.sender_id,
+            content: msg.content,
+            created_at: msg.created_at,
+            read_at: null
+          })));
+        } else {
+          // Chat real (lógica actual)
+          const authenticatedUserId = user.id;
+          const otherId = profileData.id;
+          const { data: existingChat, error: chatError } = await supabase
+            .from('chats')
+            .select('*')
+            .or(`and(user1_id.eq.${authenticatedUserId},user2_id.eq.${otherId}),and(user1_id.eq.${otherId},user2_id.eq.${authenticatedUserId})`)
+            .single();
+          let chatData = existingChat;
+          if (chatError && chatError.code === 'PGRST116') {
+            const { data: newChat, error: createError } = await supabase
+              .from('chats')
+              .insert({ user1_id: authenticatedUserId, user2_id: otherId })
+              .select()
+              .single();
+            if (createError) {
+              toast({ title: 'Error', description: 'No se pudo crear el chat', variant: 'destructive' });
+              setLoading(false);
+              return;
+            }
+            chatData = newChat;
+          } else if (chatError) {
+            toast({ title: 'Error', description: 'No se pudo cargar el chat', variant: 'destructive' });
+            setLoading(false);
             return;
           }
-          chatData = newChat;
-        } else if (chatError) {
-          console.error('Error loading chat:', chatError);
-          return;
-        }
-
-        setChat(chatData);
-
-        // Cargar mensajes del chat
-        if (chatData) {
-          const { data: messagesData, error: messagesError } = await supabase
-            .from('messages')
-            .select('*')
-            .eq('chat_id', chatData.id)
-            .order('created_at', { ascending: true });
-
-          if (messagesError) {
-            console.error('Error loading messages:', messagesError);
-          } else {
+          setChat(chatData);
+          if (chatData) {
+            const { data: messagesData, error: messagesError } = await supabase
+              .from('messages')
+              .select('*')
+              .eq('chat_id', chatData.id)
+              .order('created_at', { ascending: true });
             setMessages(messagesData || []);
           }
         }
-
       } catch (error) {
-        console.error('Unexpected error:', error);
-        toast({
-          title: "Error",
-          description: "Ocurrió un error inesperado",
-          variant: "destructive"
-        });
+        toast({ title: 'Error', description: 'Ocurrió un error inesperado', variant: 'destructive' });
       } finally {
         setLoading(false);
       }
@@ -217,10 +241,40 @@ const ChatInterface = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !chat || sending || !user) return;
-
+    if (!newMessage.trim() || sending || !user) return;
     setSending(true);
     try {
+      if (isArtificial && chat) {
+        // Guardar mensaje en ai_chats
+        const newMsg = {
+          id: uuidv4(),
+          sender_id: user.id,
+          content: newMessage.trim(),
+          created_at: new Date().toISOString()
+        };
+        const updatedMessages = [...(messages || []), newMsg];
+        setMessages(updatedMessages);
+        setNewMessage("");
+        // Actualizar en Supabase
+        await supabase
+          .from('ai_chats')
+          .update({ messages: updatedMessages })
+          .eq('id', chat.id);
+        // Simular respuesta automática
+        setTimeout(() => {
+          const autoMsg = {
+            id: uuidv4(),
+            sender_id: profileId,
+            content: getAutoReply(profile),
+            created_at: new Date().toISOString()
+          };
+          const updatedWithAuto = [...updatedMessages, autoMsg];
+          setMessages(updatedWithAuto);
+          supabase.from('ai_chats').update({ messages: updatedWithAuto }).eq('id', chat.id);
+        }, Math.random() * 2000 + 2000);
+        setSending(false);
+        return;
+      }
       console.log("📤 Enviando mensaje del usuario:", user.email);
       
       const { error } = await supabase

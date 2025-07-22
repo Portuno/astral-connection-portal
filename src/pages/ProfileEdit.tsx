@@ -34,7 +34,6 @@ const ProfileEdit = () => {
     photo_url: '',
     photo_url_2: '',
     photo_url_3: '',
-    gender_preference: 'ambos',
     age: '',
     sign: '',
     moon_sign: '',
@@ -73,7 +72,6 @@ const ProfileEdit = () => {
           photo_url: data.photo_url || '',
           photo_url_2: data.photo_url_2 || '',
           photo_url_3: data.photo_url_3 || '',
-          gender_preference: data.gender_preference || 'ambos',
           age: data.age ? String(data.age) : '',
           sign: data.sign || '',
           moon_sign: data.moon_sign || '',
@@ -140,7 +138,6 @@ const ProfileEdit = () => {
       photo_url: photoUrls[0],
       photo_url_2: photoUrls[1],
       photo_url_3: photoUrls[2],
-      gender_preference: form.gender_preference,
       age: form.age ? Number(form.age) : undefined,
       sign: form.sign,
       moon_sign: form.moon_sign,
@@ -191,19 +188,6 @@ const ProfileEdit = () => {
                 required
                 className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
               />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-base font-semibold text-cosmic-magenta">¿A quién quieres ver?</label>
-              <select
-                name="gender_preference"
-                value={form.gender_preference}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-cosmic-magenta p-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta bg-white/90"
-              >
-                <option value="mujer">Solo mujeres</option>
-                <option value="hombre">Solo hombres</option>
-                <option value="ambos">Ambos</option>
-              </select>
             </div>
             <div className="space-y-2">
               <label className="block text-base font-semibold text-cosmic-magenta">Foto principal (avatar)</label>

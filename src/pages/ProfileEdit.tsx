@@ -13,7 +13,21 @@ const ProfileEdit = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<{
+    id: string;
+    name: string;
+    age?: number | string;
+    sign?: string;
+    moon_sign?: string;
+    rising_sign?: string;
+    description: string;
+    photo_url: string;
+    photo_url_2?: string;
+    photo_url_3?: string;
+    gender_preference?: string;
+    compatibility_score?: number;
+    created_at: string;
+  } | null>(null);
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -21,6 +35,10 @@ const ProfileEdit = () => {
     photo_url_2: '',
     photo_url_3: '',
     gender_preference: 'ambos',
+    age: '',
+    sign: '',
+    moon_sign: '',
+    rising_sign: '',
   });
   const [photoFiles, setPhotoFiles] = useState<(File | null)[]>([null, null, null]);
 
@@ -32,7 +50,21 @@ const ProfileEdit = () => {
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .single<{
+          id: string;
+          name: string;
+          age: number;
+          sign: string;
+          moon_sign: string;
+          rising_sign: string;
+          description: string;
+          photo_url: string;
+          photo_url_2?: string;
+          photo_url_3?: string;
+          gender_preference?: string;
+          compatibility_score: number;
+          created_at: string;
+        }>();
       if (data) {
         setProfile(data);
         setForm({
@@ -42,6 +74,10 @@ const ProfileEdit = () => {
           photo_url_2: data.photo_url_2 || '',
           photo_url_3: data.photo_url_3 || '',
           gender_preference: data.gender_preference || 'ambos',
+          age: data.age ? String(data.age) : '',
+          sign: data.sign || '',
+          moon_sign: data.moon_sign || '',
+          rising_sign: data.rising_sign || '',
         });
       }
       setLoading(false);
@@ -102,17 +138,19 @@ const ProfileEdit = () => {
       name: form.name,
       description: form.description,
       photo_url: photoUrls[0],
+      photo_url_2: photoUrls[1],
+      photo_url_3: photoUrls[2],
+      gender_preference: form.gender_preference,
       age: form.age ? Number(form.age) : undefined,
       sign: form.sign,
       moon_sign: form.moon_sign,
       rising_sign: form.rising_sign,
-      // Add other allowed fields as needed
     };
     let result;
     if (profile) {
-      result = await supabase.from('profiles').update(updateData).eq('user_id', user.id);
+      result = await (supabase.from('profiles').update(updateData).eq('user_id', user.id) as any);
     } else {
-      result = await supabase.from('profiles').insert(updateData);
+      result = await (supabase.from('profiles').insert({ ...updateData, id: crypto.randomUUID(), user_id: user.id }) as any);
     }
     if (result.error) {
       toast({ title: 'Error', description: result.error.message, variant: 'destructive' });

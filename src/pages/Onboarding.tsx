@@ -66,11 +66,11 @@ export default function Onboarding({ userId }: { userId: string }) {
   };
 
   const checkUsernameUnique = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase
       .from("profiles")
       .select("id")
       .eq("username", form.username)
-      .neq("user_id", userId);
+      .neq("user_id", userId) as any);
     return !data?.length;
   };
 

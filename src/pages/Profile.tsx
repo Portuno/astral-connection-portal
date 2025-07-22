@@ -5,13 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import type { Profile } from "@/data/mockProfiles";
 import { Sparkles, MapPin, Calendar, Sun, Moon, Navigation, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 // Extender el tipo Profile para permitir hasta 4 fotos
-interface ProfileWithGallery extends Profile {
-  gallery?: string[]; // URLs de fotos adicionales
+interface ProfileWithGallery {
+  id: string;
+  name: string;
+  age: number;
+  sign: string;
+  moon_sign: string;
+  rising_sign: string;
+  description: string;
+  photo_url: string;
+  photo_url_2?: string;
+  photo_url_3?: string;
+  location?: string;
+  compatibility_score?: number;
+  lookingFor?: string;
+  gallery?: string[];
 }
 
 const ProfilePage = () => {

@@ -9,14 +9,13 @@ import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Spark
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import AuthModal from "@/components/AuthModal";
-import type { Profile } from "@/data/mockProfiles";
 import { supabase } from "@/integrations/supabase/client";
 
 const Home = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isAuthenticated, logout, upgradeToPremiumFree, refreshUser } = useAuth();
-  const [compatibleProfiles, setCompatibleProfiles] = useState<Profile[]>([]);
+  const [compatibleProfiles, setCompatibleProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -79,16 +78,14 @@ const Home = () => {
         setLoading(true);
         let query = supabase
           .from('profiles')
-          .select('id, name, age, sign, description, photo_url, compatibility_score, location, lookingFor, gender')
-          .eq('is_premium', true)
-          .gte('compatibility_score', minCompatibility);
+          .select('id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender');
         // Aplica el filtro de género solo si corresponde
         let realProfiles, error;
         if (genderFilter !== 'ambos') {
           // @ts-expect-error: Suppress deep type instantiation error
-          ({ data: realProfiles, error } = await query.eq('gender', genderFilter));
+          ({ data: realProfiles, error } = await (query.eq('gender', genderFilter) as any));
         } else {
-          ({ data: realProfiles, error } = await query);
+          ({ data: realProfiles, error } = await (query as any));
         }
         let profilesWithCompatibility = [];
         if (error) {
@@ -114,7 +111,7 @@ const Home = () => {
     loadCompatibleProfiles();
   }, [toast, genderFilter, minCompatibility, userProfile]);
 
-  const handleChatClick = async (profile: Profile) => {
+  const handleChatClick = async (profile: any) => {
     if (!isAuthenticated) {
       setSelectedProfileForChat({ id: profile.id, name: profile.name });
       setShowAuthModal(true);
@@ -444,7 +441,7 @@ const Home = () => {
                 </div>
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
                   <Heart className="w-4 h-4 text-cosmic-magenta" />
-                  <span>{translateLookingFor(profile.lookingFor)}</span>
+                  <span>{translateLookingFor(profile.looking_for)}</span>
                 </div>
               </div>
               

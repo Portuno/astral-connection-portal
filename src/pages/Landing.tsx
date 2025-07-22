@@ -9,7 +9,7 @@ const Landing = () => {
   const navigate = useNavigate();
   
   const handleOpenOnboarding = () => {
-    navigate('/onboarding');
+    navigate('/prehome');
   };
 
   const pillars = [

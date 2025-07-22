@@ -52,13 +52,13 @@ const OnboardingPayment = () => {
   const uploadPhoto = async (file: File, idx: number) => {
     if (!user) return '';
     const ext = file.name.split('.').pop();
-    const filePath = `avatars/${user.id}_${idx}.${ext}`;
-    const { error } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+    const filePath = `pics/${user.id}_${idx}.${ext}`;
+    const { error } = await supabase.storage.from('pics').upload(filePath, file, { upsert: true });
     if (error) {
       toast({ title: 'Error subiendo foto', description: error.message, variant: 'destructive' });
       return '';
     }
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+    const { data: urlData } = supabase.storage.from('pics').getPublicUrl(filePath);
     return urlData.publicUrl;
   };
 

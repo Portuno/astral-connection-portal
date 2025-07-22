@@ -46,13 +46,13 @@ export default function Onboarding({ userId }: { userId: string }) {
   const uploadPhoto = async (file: File, idx: number) => {
     if (!userId) return '';
     const ext = file.name.split('.').pop();
-    const filePath = `avatars/${userId}_${idx}.${ext}`;
-    const { error } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+    const filePath = `${userId}_${idx}.${ext}`;
+    const { error } = await supabase.storage.from('pics').upload(filePath, file, { upsert: true });
     if (error) {
       setError('Error subiendo foto: ' + error.message);
       return '';
     }
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+    const { data: urlData } = supabase.storage.from('pics').getPublicUrl(filePath);
     return urlData.publicUrl;
   };
 

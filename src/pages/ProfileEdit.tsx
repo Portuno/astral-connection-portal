@@ -114,12 +114,12 @@ const ProfileEdit = () => {
     console.log('Archivo a subir:', file, 'Tamaño:', file.size, 'Tipo:', file.type);
     const ext = file.name.split('.').pop();
     const filePath = `${user.id}_${idx}_${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+    const { error } = await supabase.storage.from('pics').upload(filePath, file, { upsert: true });
     if (error) {
       toast({ title: 'Error subiendo foto', description: error.message, variant: 'destructive' });
       return '';
     }
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+    const { data: urlData } = supabase.storage.from('pics').getPublicUrl(filePath);
     return urlData.publicUrl;
   };
 

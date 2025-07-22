@@ -78,7 +78,11 @@ const Home = () => {
         setLoading(true);
         let query = supabase
           .from('profiles')
-          .select('id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender');
+          .select('id, user_id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender, is_premium')
+          .eq('is_premium', true);
+        if (user && user.id) {
+          query = query.neq('user_id', user.id);
+        }
         // Aplica el filtro de género solo si corresponde
         let realProfiles, error;
         if (genderFilter !== 'ambos') {

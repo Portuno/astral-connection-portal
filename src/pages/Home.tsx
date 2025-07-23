@@ -259,17 +259,18 @@ const Home = () => {
       <header className="sticky top-0 z-40 w-full bg-transparent shadow flex items-center justify-between px-4 py-2 backdrop-blur-md border-b border-white/10">
         <a href="/home" className="font-extrabold text-2xl text-white tracking-wide hover:text-yellow-300 transition-colors drop-shadow-[0_2px_8px_rgba(255,255,255,0.12)]" tabIndex={0} aria-label="Ir a inicio">Amor Astral</a>
         <div className="flex items-center gap-3">
-          {isAuthenticated && !user?.isPremium && (
-            <button
-              onClick={handleActivatePremium}
-              className="bg-gradient-to-r from-yellow-300 to-yellow-400 hover:from-yellow-400 hover:to-yellow-500 text-cosmic-magenta font-bold px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 border-2 border-yellow-200 animate-pulse"
+          {/* Botón Mis chats arriba a la izquierda */}
+          {isAuthenticated && (
+            <Button
+              onClick={handleViewChats}
+              className="bg-cosmic-magenta hover:bg-fuchsia-600 text-white font-semibold px-4 py-2 rounded-xl shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border border-white/20 mr-2"
               tabIndex={0}
-              aria-label="Activar Premium"
-              style={{ boxShadow: '0 0 16px 2px #ffe066, 0 0 32px 8px #fff7ae55' }}
+              aria-label="Ver mis chats"
             >
-              Activar Premium
-            </button>
+              Mis chats
+            </Button>
           )}
+          {/* Botón/perfil de usuario */}
           {isAuthenticated && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -342,7 +343,7 @@ const Home = () => {
               )}
             </div>
             {/* Mi perfil */}
-            <div className="rounded-2xl bg-gradient-to-br from-[#a78bfa]/30 to-[#38bdf8]/20 p-6 flex-1 shadow-lg flex flex-col items-center">
+            <div className="rounded-3xl bg-white/10 p-6 flex-1 shadow-lg flex flex-col items-center">
               <Avatar className="w-16 h-16 mb-2">
                 <AvatarImage src={userProfile?.avatar_url || ''} alt={userProfile?.full_name || 'Avatar'} />
                 <AvatarFallback>{userProfile?.full_name?.[0]?.toUpperCase() || '?'}</AvatarFallback>

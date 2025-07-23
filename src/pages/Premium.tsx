@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { X } from 'lucide-react';
+import { useAuth } from '@/components/AuthProvider';
 
 const GalacticBackground = () => (
   <div
@@ -42,13 +43,46 @@ const GalacticBackground = () => (
 const Premium = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleActivatePremium = () => {
-    toast({
-      title: '¡Pronto podrás activar premium!',
-      description: 'Aquí irá el flujo de pago con Square.',
-      variant: 'default',
-    });
+  const handleActivatePremium = async () => {
+    if (!user) {
+      toast({
+        title: "Debes iniciar sesión",
+        description: "Inicia sesión para activar premium.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      const response = await fetch(
+        "https://mfwvjjemxzgaddzlzodt.supabase.co/functions/v1/square-checkout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_id: user.id }),
+        }
+      );
+      const data = await response.json();
+      const url =
+        data.checkout_session?.checkout_page_url ||
+        data.checkout_session?.checkout_url ||
+        data.checkout_session?.payment_link?.url ||
+        data.checkout_session?.url;
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error("No se pudo crear la sesión de pago");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo procesar el pago. Inténtalo de nuevo.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

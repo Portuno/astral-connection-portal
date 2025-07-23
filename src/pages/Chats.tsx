@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
+import { useRef } from "react";
 
 interface ChatWithProfile {
   id: string;
@@ -47,6 +48,7 @@ const Chats = () => {
   const [searchQuery, setSearchQuery] = useState("");
   // Usar el id del usuario autenticado si existe, si no, fallback a sessionId local
   const currentUserId = user?.id || localStorage.getItem("sessionId") || "temp_user";
+  const chatsLoadedRef = useRef(false);
 
   // Cargar chats del usuario
   useEffect(() => {
@@ -139,11 +141,91 @@ const Chats = () => {
         });
       } finally {
         setLoading(false);
+        chatsLoadedRef.current = true;
       }
     };
 
     loadChats();
   }, [currentUserId, toast]);
+
+  // Suscripción realtime a mensajes para actualizar los badges
+  useEffect(() => {
+    if (!chatsLoadedRef.current) return;
+    const channel = supabase.channel('messages-realtime-badge')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload) => {
+          // Solo recargar si el mensaje es para un chat del usuario
+          const newMsg = payload.new;
+          if (!newMsg) return;
+          // Si el usuario es parte del chat, recargar chats
+          if (chats.some(chat => chat.id === newMsg.chat_id)) {
+            // Recargar chats (no poner loading para no parpadear la UI)
+            (async () => {
+              const { data: chatsData } = await supabase
+                .from('chats')
+                .select('*')
+                .or(`user1_id.eq.${currentUserId},user2_id.eq.${currentUserId}`)
+                .order('last_message_at', { ascending: false, nullsFirst: false });
+              if (!chatsData) return;
+              const chatsWithProfiles = await Promise.all(
+                chatsData.map(async (chat) => {
+                  const otherUserId = chat.user1_id === currentUserId ? chat.user2_id : chat.user1_id;
+                  const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', otherUserId)
+                    .single();
+                  const { data: lastMessage } = await supabase
+                    .from('messages')
+                    .select('content, created_at, sender_id')
+                    .eq('chat_id', chat.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+                  const { data: unreadMessages } = await supabase
+                    .from('messages')
+                    .select('id, created_at')
+                    .eq('chat_id', chat.id)
+                    .eq('read_at', null)
+                    .neq('sender_id', currentUserId);
+                  let unreadCount = 0;
+                  let lastUnreadAt = null;
+                  if (unreadMessages && unreadMessages.length > 0) {
+                    unreadCount = unreadMessages.length;
+                    lastUnreadAt = unreadMessages[unreadMessages.length - 1].created_at;
+                  }
+                  return {
+                    ...chat,
+                    profile,
+                    lastMessage: lastMessage?.[0] || null,
+                    unreadCount,
+                    lastUnreadAt
+                  };
+                })
+              );
+              const validChats = chatsWithProfiles
+                .filter((chat): chat is ChatWithProfile => chat !== null)
+                .sort((a, b) => {
+                  const aTime = a.last_message_at || a.created_at;
+                  const bTime = b.last_message_at || b.created_at;
+                  return new Date(bTime).getTime() - new Date(aTime).getTime();
+                });
+              setChats(validChats);
+              setFilteredChats(validChats);
+            })();
+          }
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [chats, currentUserId]);
 
   // Filtrar chats por búsqueda
   useEffect(() => {

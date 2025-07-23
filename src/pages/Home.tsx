@@ -18,42 +18,28 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 const PremiumModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => (
   <Dialog open={open} onOpenChange={onClose}>
     <DialogContent
-      className="max-w-2xl w-[60vw] sm:w-[75vw] mx-auto rounded-3xl p-0 border-0 shadow-[0_0_64px_16px_rgba(80,200,255,0.18)] bg-[rgba(20,20,40,0.98)] backdrop-blur-2xl relative flex flex-col items-center"
-      style={{ minHeight: 'min(480px,80vh)' }}
+      className="max-w-md mx-auto rounded-2xl p-8 bg-[rgba(20,20,40,0.97)] border border-cyan-400/30 shadow-lg backdrop-blur-md"
     >
-      {/* Cierre accesible */}
+      <DialogTitle className="text-2xl font-extrabold text-cosmic-magenta text-center mb-2">
+        Hazte Premium y desbloquea conversaciones cósmicas
+      </DialogTitle>
+      <DialogDescription className="text-cyan-100 text-center mb-4">
+        Accede a todas las funciones exclusivas de Amor Astral:
+      </DialogDescription>
+      <ul className="mb-6 space-y-3">
+        <li className="flex items-center gap-2 text-cyan-100"><span>🔓</span> Desbloquear conversaciones cósmicas</li>
+        <li className="flex items-center gap-2 text-cyan-100"><span>💬</span> Acceso ilimitado a chats</li>
+        <li className="flex items-center gap-2 text-cyan-100"><span>🌟</span> Funciones exclusivas y soporte prioritario</li>
+        <li className="flex items-center gap-2 text-cyan-100"><span>🚫</span> Sin anuncios</li>
+      </ul>
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 text-cyan-200 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/10 p-2 z-20"
-        aria-label="Cerrar"
+        className="w-full bg-gradient-to-r from-cosmic-magenta to-cyan-400 text-white font-bold py-3 rounded-xl shadow-lg text-lg"
         tabIndex={0}
+        aria-label="Activa tu suscripción"
       >
-        <X className="w-6 h-6" />
+        Activa tu suscripción por 29,9€
       </button>
-      {/* Título y descripción accesibles */}
-      <DialogTitle className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">Hazte Premium y desbloquea conversaciones cósmicas</DialogTitle>
-      <DialogDescription className="text-cyan-100 text-center mb-4 max-w-lg">Accede a todas las funciones exclusivas de Amor Astral:</DialogDescription>
-      {/* Motivos premium */}
-      <ul className="mb-6 space-y-3 w-full max-w-md mx-auto px-6">
-        <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🔓</span> Desbloquear conversaciones cósmicas</li>
-        <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">💬</span> Acceso ilimitado a chats</li>
-        <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🌟</span> Funciones exclusivas y soporte prioritario</li>
-        <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🚫</span> Sin anuncios</li>
-      </ul>
-      {/* Botón premium */}
-      <div className="w-full flex justify-center pb-10 px-6">
-        <button
-          onClick={onClose}
-          className="w-full max-w-md bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold py-4 rounded-2xl shadow-lg text-xl tracking-wide border-2 border-cyan-200 animate-pulse focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
-          tabIndex={0}
-          aria-label="Activar Premium"
-          style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}
-        >
-          Activar Premium, 29,9€ al mes
-        </button>
-      </div>
-      {/* Halo galáctico decorativo */}
-      <div className="pointer-events-none absolute inset-0 rounded-3xl" style={{boxShadow:'0 0 96px 24px #38bdf855, 0 0 192px 48px #a78bfa22'}}></div>
     </DialogContent>
   </Dialog>
 );

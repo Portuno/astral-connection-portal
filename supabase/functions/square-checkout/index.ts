@@ -1,67 +1,50 @@
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Application-Name, apikey'
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Application-Name, apikey"
 };
 
-const handler = async (req) => {
-  // --- ¡NO HAGAS NADA ANTES DE ESTE BLOQUE! ---
+const handler = async (req)=>{
+  console.log("INICIO: Entró a la función");
   if (req.method === "OPTIONS") {
-    return new Response(undefined, {
+    console.log("INICIO: OPTIONS recibido");
+    return new Response(null, {
       status: 204,
       headers: corsHeaders
     });
   }
-  // --- FIN BLOQUE OPTIONS ---
-
-  console.log("Edge function: inicio");
-
-  if (req.method !== "POST") {
-    console.log("Edge function: método no permitido");
-    return new Response("Method Not Allowed", {
-      status: 405,
-      headers: corsHeaders
-    });
-  }
-
+  console.log("INICIO: Método POST recibido");
   // Variables de entorno
   const SQUARE_ACCESS_TOKEN = Deno.env.get('SQUARE_SANDBOX_ACCESS_TOKEN') ?? "";
   const SQUARE_LOCATION_ID = Deno.env.get('SQUARE_SANDBOX_LOCATION_ID') ?? "";
-  console.log("Edge function: variables de entorno", {
+  console.log("Variables de entorno:", {
     SQUARE_ACCESS_TOKEN,
     SQUARE_LOCATION_ID
   });
-
   if (!SQUARE_ACCESS_TOKEN || !SQUARE_LOCATION_ID) {
-    console.log("Edge function: faltan variables de entorno");
+    console.log("ERROR: Faltan variables de entorno");
     return new Response(JSON.stringify({
       error: "Faltan variables de entorno de Square. Verifica SQUARE_SANDBOX_ACCESS_TOKEN y SQUARE_SANDBOX_LOCATION_ID."
     }), {
       status: 500,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      }
+      headers: corsHeaders
     });
   }
-
   try {
     const { user_id } = await req.json();
-    console.log("Edge function: user_id recibido", user_id);
+    console.log("POST: user_id recibido", user_id);
     if (!user_id) {
-      console.log("Edge function: falta user_id");
+      console.log("ERROR: Falta user_id");
       return new Response(JSON.stringify({
         error: "Falta user_id"
       }), {
         status: 400,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
-        }
+        headers: corsHeaders
       });
     }
-    // Llamada a Square para crear el link de pago
-    console.log("Edge function: llamando a Square");
+    // LOG ANTES DEL FETCH
+    console.log("ANTES DEL FETCH: Llamando a Square...");
     const response = await fetch(`https://connect.squareupsandbox.com/v2/online-checkout/payment-links`, {
       method: 'POST',
       headers: {
@@ -89,42 +72,34 @@ const handler = async (req) => {
         }
       })
     });
+    // LOG DESPUÉS DEL FETCH
+    console.log("DESPUÉS DEL FETCH: Respuesta recibida de Square");
     const data = await response.json();
-    console.log("Respuesta cruda de Square:", data);
+    console.log("RESPUESTA DE SQUARE:", data);
     if (!response.ok) {
-      console.error("Square error:", data);
+      console.error("ERROR: Square error:", data);
       return new Response(JSON.stringify({
         error: data
       }), {
         status: 400,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
-        }
+        headers: corsHeaders
       });
     }
-    // Devuelve solo la URL de pago en un campo claro
     const checkoutUrl = data.checkout_page_url || data.url || data.payment_link?.url || data.checkout_session?.checkout_url;
+    console.log("ÉXITO: checkout_url generado", checkoutUrl);
     return new Response(JSON.stringify({
       checkout_url: checkoutUrl
     }), {
       status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      }
+      headers: corsHeaders
     });
   } catch (e) {
-    console.error("Function error:", e);
+    console.error("ERROR: Function error:", e);
     return new Response(JSON.stringify({
       error: e.message || "Internal error"
     }), {
       status: 500,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      }
+      headers: corsHeaders
     });
   }
 };
-export default handler; 

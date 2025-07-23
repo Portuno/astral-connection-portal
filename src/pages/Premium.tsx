@@ -46,8 +46,9 @@ const Premium = () => {
   const { user, session } = useAuth();
 
   const handleActivatePremium = async () => {
-    console.log("Click en activar premium");
+    console.log("[DEBUG] Click en activar premium");
     if (!user || !session) {
+      console.log("[DEBUG] Usuario o sesión no disponible", { user, session });
       toast({
         title: "Debes iniciar sesión",
         description: "Inicia sesión para activar premium.",
@@ -56,7 +57,10 @@ const Premium = () => {
       return;
     }
     try {
-      console.log("Llamando a Supabase function...");
+      console.log("[DEBUG] Llamando a Supabase function...", {
+        user_id: user.id,
+        access_token: session.access_token
+      });
       const response = await fetch(
         "https://mfwvjjemxzgaddzlzodt.supabase.co/functions/v1/square-checkout",
         {
@@ -68,22 +72,24 @@ const Premium = () => {
           body: JSON.stringify({ user_id: user.id }),
         }
       );
+      console.log("[DEBUG] Respuesta cruda de Supabase:", response);
       const data = await response.json();
-      console.log("Respuesta de Supabase:", data);
+      console.log("[DEBUG] JSON recibido de Supabase:", data);
       const url =
         data.checkout_session?.checkout_page_url ||
         data.checkout_session?.checkout_url ||
         data.checkout_session?.payment_link?.url ||
-        data.checkout_session?.url;
+        data.checkout_session?.url ||
+        data.checkout_url;
       if (url) {
-        console.log("Redirigiendo a:", url);
+        console.log("[DEBUG] Redirigiendo a:", url);
         window.location.href = url;
       } else {
-        console.error("No se pudo crear la sesión de pago", data);
+        console.error("[DEBUG] No se pudo crear la sesión de pago", data);
         throw new Error("No se pudo crear la sesión de pago");
       }
     } catch (error) {
-      console.error("Error en handleActivatePremium:", error);
+      console.error("[DEBUG] Error en handleActivatePremium:", error);
       toast({
         title: "Error",
         description: "No se pudo procesar el pago. Inténtalo de nuevo.",

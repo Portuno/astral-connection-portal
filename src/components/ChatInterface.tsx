@@ -84,6 +84,20 @@ const ChatInterface = () => {
     );
   }
 
+  // Fallback defensivo: si tras cargar el usuario no es válido, mostrar mensaje y botón
+  if (!isLoading && (!isAuthenticated || !user?.isPremium)) {
+    return (
+      <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
+        <div className="text-center">
+          <Crown className="h-12 w-12 text-cosmic-gold mx-auto mb-4 animate-bounce" />
+          <h2 className="text-xl text-white mb-4">Acceso restringido</h2>
+          <p className="text-cosmic-gold mb-4">No tienes acceso premium o tu sesión expiró.<br />Por favor, vuelve al inicio e inicia sesión nuevamente.</p>
+          <Button onClick={() => navigate('/home')} className="bg-cosmic-magenta text-white px-6 py-3 rounded-full font-bold">Volver al inicio</Button>
+        </div>
+      </div>
+    );
+  }
+
   // Scroll automático al final de los mensajes
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -389,66 +403,37 @@ const ChatInterface = () => {
           setMessages(updatedWithAuto);
           supabase.from('ai_chats' as any).update({ messages: updatedWithAuto }).eq('id', (chat as any).id);
         }, Math.random() * 2000 + 2000);
-        setSending(false);
-        return;
-      }
-      console.log("📤 Enviando mensaje del usuario:", user.email);
-      
-      const { error } = await supabase
-        .from('messages')
-        .insert({
-          chat_id: chat.id,
-          sender_id: user.id,
-          content: newMessage.trim()
-        });
+      } else {
+        // Manejar envío de mensajes reales
+        const { error } = await supabase
+          .from('messages')
+          .insert({
+            chat_id: chat?.id,
+            sender_id: user.id,
+            content: newMessage.trim(),
+          });
 
-      if (error) {
-        if (error && error.message) {
-          console.error('Error sending message:', error.message);
-        } else {
-          try {
-            console.error('Error sending message:', JSON.stringify(error, null, 2));
-          } catch (e) {
-            console.error('Error sending message:', error);
-          }
+        if (error) {
+          console.error('Error sending message:', error);
+          toast({
+            title: "Error al enviar mensaje",
+            description: "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+            variant: "destructive"
+          });
+          return;
         }
-        toast({
-          title: "Error",
-          description: "No se pudo enviar el mensaje",
-          variant: "destructive"
-        });
-        return;
+        setNewMessage("");
+        // Actualizar última actividad del chat
+        await supabase
+          .from('chats')
+          .update({ last_message_at: new Date().toISOString() })
+          .eq('id', chat?.id);
       }
-
-      // Actualizar la última actividad del chat
-      await supabase
-        .from('chats')
-        .update({ last_message_at: new Date().toISOString() })
-        .eq('id', chat.id);
-
-      // Añadir mensaje a la lista local
-      const newMsg: Message = {
-        id: Date.now().toString(),
-        chat_id: chat.id,
-        sender_id: user.id,
-        content: newMessage.trim(),
-        created_at: new Date().toISOString(),
-        read_at: null
-      };
-
-      setMessages(prev => [...prev, newMsg]);
-      setNewMessage("");
-      
-      // Simular respuesta automática del perfil después de 2-4 segundos
-      setTimeout(async () => {
-        await sendAutoReply(chat.id, profileId);
-      }, Math.random() * 2000 + 2000);
-
     } catch (error) {
-      console.error('Unexpected error sending message:', error);
+      console.error('Error in handleSendMessage:', error);
       toast({
-        title: "Error",
-        description: "Error inesperado al enviar mensaje",
+        title: "Error al enviar mensaje",
+        description: "Ocurrió un error inesperado al enviar el mensaje.",
         variant: "destructive"
       });
     } finally {
@@ -456,158 +441,60 @@ const ChatInterface = () => {
     }
   };
 
-  // Cambiar onKeyPress por onKeyDown
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  // Si no está autenticado o premium, mostrar loading mientras carga
-  if (isLoading || !isAuthenticated || !user?.isPremium) {
-    return (
-      <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
-        <div className="text-center">
-          <Crown className="h-12 w-12 text-cosmic-gold mx-auto mb-4" />
-          <h2 className="text-xl text-white mb-4">Verificando acceso premium...</h2>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-cosmic-magenta border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl text-white mb-4">Perfil no encontrado</h2>
-          <Button onClick={() => navigate('/home')} variant="outline">
-            Volver al inicio
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-cosmic-blue flex flex-col">
-      {/* Header del chat */}
-      <div className="bg-white/10 backdrop-blur-md border-b border-white/20 p-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/home')}
-            className="text-white hover:bg-white/20"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={profile.photo_url || undefined} alt={profile.name} />
-            <AvatarFallback className="bg-cosmic-magenta text-white">
-              {profile.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              {profile.name}
-              <Crown className="h-4 w-4 text-cosmic-gold" />
-            </h2>
-            <p className="text-sm text-gray-300">
-              {profile.sign} • {profile.compatibility_score}% compatibilidad
-            </p>
-          </div>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20"
-          >
-            <MoreVertical className="h-5 w-5" />
-          </Button>
-        </div>
+      <div className="flex items-center p-4 border-b border-cosmic-gold">
+        <Button variant="ghost" onClick={() => navigate('/home')} className="text-cosmic-gold">
+          <ArrowLeft className="h-6 w-6" />
+        </Button>
+        <h2 className="text-xl text-white ml-2">Chat con {profile?.name || ''}</h2>
       </div>
 
-      {/* Área de mensajes */}
-      <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-cosmic-blue via-indigo-900 to-purple-900">
-        <div className="space-y-4 max-w-2xl mx-auto">
-          {messages.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-4xl mb-4">💫</div>
-              <h3 className="text-lg font-semibold text-white mb-2">
-                ¡Inicia tu conversación con {profile.name}!
-              </h3>
-              <p className="text-gray-300 text-sm">
-                Las estrellas han alineado esta conexión especial
-              </p>
-            </div>
-          ) : (
-            messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={`relative max-w-xs lg:max-w-md px-5 py-3 rounded-2xl shadow-md transition-all duration-200
-                  ${message.sender_id === user.id
-                    ? 'bg-gradient-to-r from-cosmic-magenta to-purple-600 text-white rounded-br-none'
-                    : 'bg-white/30 text-white rounded-bl-none border border-white/20 backdrop-blur-sm'}
-                `}>
-                  <p className="text-base leading-relaxed break-words">{message.content}</p>
-                  <span className="absolute -bottom-5 right-2 text-xs opacity-60 mt-1">
-                    {new Date(message.created_at).toLocaleTimeString('es-ES', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                </div>
-              </div>
-            ))
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
-
-      {/* Input de mensaje */}
-      <div className="bg-white/10 backdrop-blur-md border-t border-white/20 p-4 sticky bottom-0 z-10">
-        <div className="max-w-2xl mx-auto">
-          <form className="flex gap-2" onSubmit={e => { e.preventDefault(); handleSendMessage(); }}>
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder="Escribe tu mensaje..."
-              className="flex-1 bg-white/30 border-white/20 text-white placeholder-gray-300 focus:border-cosmic-magenta text-base px-4 py-3 rounded-full shadow-md"
-              disabled={sending}
-              autoFocus
-              aria-label="Escribe tu mensaje"
-            />
-            <Button
-              type="submit"
-              disabled={!newMessage.trim() || sending}
-              className="bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white rounded-full px-5 py-3 text-lg shadow-lg"
-              aria-label="Enviar mensaje"
+      <div className="flex-1 overflow-y-auto p-4">
+        <ScrollArea className="h-full">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex items-start mb-4 ${message.sender_id === user?.id ? 'justify-end' : ''}`}
             >
-              {sending ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-              ) : (
-                <Send className="h-5 w-5" />
-              )}
-            </Button>
-          </form>
+              <Avatar className="mr-2">
+                <AvatarImage src={message.sender_id === user?.id ? user?.avatar : profile?.avatar} />
+                <AvatarFallback>{message.sender_id === user?.id ? user?.name : profile?.name}</AvatarFallback>
+              </Avatar>
+              <div
+                className={`max-w-[70%] p-3 rounded-lg ${
+                  message.sender_id === user?.id ? 'bg-cosmic-magenta text-white' : 'bg-cosmic-gold text-black'
+                }`}
+              >
+                <p>{message.content}</p>
+                <p className="text-xs text-cosmic-gold mt-1">{new Date(message.created_at).toLocaleTimeString()}</p>
+              </div>
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </ScrollArea>
+      </div>
+
+      <div className="p-4 border-t border-cosmic-gold">
+        <div className="flex items-center space-x-2">
+          <Input
+            placeholder="Escribe un mensaje..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSendMessage();
+              }
+            }}
+            className="bg-cosmic-dark-blue text-white placeholder-cosmic-gold"
+          />
+          <Button onClick={handleSendMessage} disabled={sending || !user}>
+            <Send className="h-6 w-6" />
+          </Button>
         </div>
       </div>
     </div>
   );
 };
 
-export default ChatInterface; 
+export default ChatInterface;

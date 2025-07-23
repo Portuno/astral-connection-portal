@@ -20,6 +20,11 @@ export default function Onboarding({ userId }: { userId: string }) {
     photo_url_3: "",
     name: "",
     age: "",
+    birth_day: "",
+    birth_month: "",
+    birth_year: "",
+    birth_hour: "",
+    birth_minute: "",
     sign: "",
     moon_sign: "",
     rising_sign: "",
@@ -58,7 +63,11 @@ export default function Onboarding({ userId }: { userId: string }) {
 
   const validateStep = () => {
     if (step === 0 && !form.photo_url && !photoFiles[0]) return "Sube al menos una foto";
-    if (step === 1 && (!form.name || !form.age)) return "Completa tu nombre y edad";
+    if (step === 1) {
+      if (!form.name) return "Completa tu nombre";
+      if (!form.birth_day || !form.birth_month || !form.birth_year) return "Completa tu fecha de nacimiento";
+      if (!form.birth_hour || !form.birth_minute) return "Completa tu hora de nacimiento";
+    }
     if (step === 2 && (!form.sign || !form.moon_sign || !form.rising_sign)) return "Completa tus signos";
     if (step === 3 && !form.description) return "Agrega una descripción";
     if (step === 4 && !form.username) return "Elige un username";
@@ -99,9 +108,14 @@ export default function Onboarding({ userId }: { userId: string }) {
         }
       }
       // Guardar perfil
-      const { error } = await supabase.from("profiles").update({
+      const { error } = await (supabase as any).from("profiles").update({
         name: form.name,
         age: form.age ? Number(form.age) : undefined,
+        birth_day: form.birth_day,
+        birth_month: form.birth_month,
+        birth_year: form.birth_year,
+        birth_hour: form.birth_hour,
+        birth_minute: form.birth_minute,
         sign: form.sign,
         moon_sign: form.moon_sign,
         rising_sign: form.rising_sign,
@@ -137,8 +151,73 @@ export default function Onboarding({ userId }: { userId: string }) {
         <div>
           <label className="block text-white mb-2">Nombre</label>
           <input type="text" name="name" value={form.name} onChange={handleChange} className="mb-2 w-full" />
-          <label className="block text-white mb-2">Edad</label>
-          <input type="number" name="age" value={form.age} onChange={handleChange} className="mb-2 w-full" />
+          <label className="block text-white mb-2">Fecha de nacimiento</label>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="number"
+              name="birth_day"
+              value={form.birth_day}
+              onChange={handleChange}
+              placeholder="Día"
+              min={1}
+              max={31}
+              className="w-1/3 px-2 py-2 rounded bg-white/20 text-white placeholder-gray-300 focus:border-cosmic-magenta"
+              inputMode="numeric"
+              aria-label="Día de nacimiento"
+            />
+            <input
+              type="number"
+              name="birth_month"
+              value={form.birth_month}
+              onChange={handleChange}
+              placeholder="Mes"
+              min={1}
+              max={12}
+              className="w-1/3 px-2 py-2 rounded bg-white/20 text-white placeholder-gray-300 focus:border-cosmic-magenta"
+              inputMode="numeric"
+              aria-label="Mes de nacimiento"
+            />
+            <input
+              type="number"
+              name="birth_year"
+              value={form.birth_year}
+              onChange={handleChange}
+              placeholder="Año"
+              min={1900}
+              max={2024}
+              className="w-1/3 px-2 py-2 rounded bg-white/20 text-white placeholder-gray-300 focus:border-cosmic-magenta"
+              inputMode="numeric"
+              aria-label="Año de nacimiento"
+            />
+          </div>
+          <label className="block text-white mb-2">Hora de nacimiento</label>
+          <div className="flex gap-2 items-center mb-2">
+            <input
+              type="number"
+              name="birth_hour"
+              value={form.birth_hour}
+              onChange={handleChange}
+              placeholder="HH"
+              min={0}
+              max={23}
+              className="w-1/4 px-2 py-2 rounded bg-white/20 text-white placeholder-gray-300 focus:border-cosmic-magenta"
+              inputMode="numeric"
+              aria-label="Hora de nacimiento"
+            />
+            <span className="text-white">:</span>
+            <input
+              type="number"
+              name="birth_minute"
+              value={form.birth_minute}
+              onChange={handleChange}
+              placeholder="MM"
+              min={0}
+              max={59}
+              className="w-1/4 px-2 py-2 rounded bg-white/20 text-white placeholder-gray-300 focus:border-cosmic-magenta"
+              inputMode="numeric"
+              aria-label="Minutos de nacimiento"
+            />
+          </div>
         </div>
       )}
 

@@ -8,6 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
+const GENDER_OPTIONS = [
+  { value: '', label: 'Selecciona tu género' },
+  { value: 'masculino', label: 'Masculino' },
+  { value: 'femenino', label: 'Femenino' },
+  { value: 'no-binario', label: 'No binario' },
+  { value: 'otro', label: 'Otro' },
+];
+
 const ProfileEdit = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -24,6 +32,9 @@ const ProfileEdit = () => {
     photo_url: string;
     photo_url_2?: string;
     photo_url_3?: string;
+    photo_url_4?: string;
+    photo_url_5?: string;
+    gender?: string;
     gender_preference?: string;
     compatibility_score?: number;
     created_at: string;
@@ -34,13 +45,16 @@ const ProfileEdit = () => {
     photo_url: '',
     photo_url_2: '',
     photo_url_3: '',
+    photo_url_4: '',
+    photo_url_5: '',
     age: '',
     sign: '',
     moon_sign: '',
     rising_sign: '',
+    gender: '',
   });
-  const [photoFiles, setPhotoFiles] = useState<(File | null)[]>([null, null, null]);
-  const [photoPreviews, setPhotoPreviews] = useState<(string | null)[]>([null, null, null]);
+  const [photoFiles, setPhotoFiles] = useState<(File | null)[]>([null, null, null, null, null]);
+  const [photoPreviews, setPhotoPreviews] = useState<(string | null)[]>([null, null, null, null, null]);
 
   useEffect(() => {
     if (!user) return;
@@ -50,21 +64,7 @@ const ProfileEdit = () => {
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single<{
-          id: string;
-          name: string;
-          age: number;
-          sign: string;
-          moon_sign: string;
-          rising_sign: string;
-          description: string;
-          photo_url: string;
-          photo_url_2?: string;
-          photo_url_3?: string;
-          gender_preference?: string;
-          compatibility_score: number;
-          created_at: string;
-        }>();
+        .single();
       if (data) {
         setProfile(data);
         setForm({
@@ -73,10 +73,13 @@ const ProfileEdit = () => {
           photo_url: data.photo_url || '',
           photo_url_2: data.photo_url_2 || '',
           photo_url_3: data.photo_url_3 || '',
+          photo_url_4: data.photo_url_4 || '',
+          photo_url_5: data.photo_url_5 || '',
           age: data.age ? String(data.age) : '',
           sign: data.sign || '',
           moon_sign: data.moon_sign || '',
           rising_sign: data.rising_sign || '',
+          gender: data.gender || '',
         });
       }
       setLoading(false);
@@ -111,7 +114,6 @@ const ProfileEdit = () => {
 
   const uploadPhoto = async (file: File, idx: number) => {
     if (!user) return '';
-    console.log('Archivo a subir:', file, 'Tamaño:', file.size, 'Tipo:', file.type);
     const ext = file.name.split('.').pop();
     const filePath = `${user.id}_${idx}_${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from('pics').upload(filePath, file, { upsert: true });
@@ -138,8 +140,8 @@ const ProfileEdit = () => {
       return;
     }
     setLoading(true);
-    let photoUrls = [form.photo_url, form.photo_url_2, form.photo_url_3];
-    for (let i = 0; i < 3; i++) {
+    let photoUrls = [form.photo_url, form.photo_url_2, form.photo_url_3, form.photo_url_4, form.photo_url_5];
+    for (let i = 0; i < 5; i++) {
       if (photoFiles[i]) {
         const url = await uploadPhoto(photoFiles[i] as File, i + 1);
         if (!url) {
@@ -159,10 +161,13 @@ const ProfileEdit = () => {
       photo_url: photoUrls[0],
       photo_url_2: photoUrls[1],
       photo_url_3: photoUrls[2],
+      photo_url_4: photoUrls[3],
+      photo_url_5: photoUrls[4],
       age: form.age ? Number(form.age) : undefined,
       sign: form.sign,
       moon_sign: form.moon_sign,
       rising_sign: form.rising_sign,
+      gender: form.gender,
     };
     let result;
     if (profile) {
@@ -180,23 +185,59 @@ const ProfileEdit = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cosmic-blue via-indigo-900 to-purple-900 p-4">
-      <Card className="w-full max-w-lg bg-white/95 shadow-2xl border-0">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Fondo mágico/esotérico */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#1a1440] via-[#2a0a3c] to-[#a78bfa]">
+        <svg className="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="200" cy="200" r="120" fill="#fff" fillOpacity="0.08" />
+          <circle cx="1200" cy="700" r="180" fill="#fff" fillOpacity="0.06" />
+          <g opacity="0.18">
+            <path d="M720 100 l30 60 60 10-50 40 15 65-55-35-55 35 15-65-50-40 60-10z" fill="#fff" />
+            <circle cx="400" cy="600" r="60" fill="#fff" fillOpacity="0.12" />
+            <circle cx="1000" cy="300" r="40" fill="#fff" fillOpacity="0.10" />
+            <text x="1100" y="200" fontSize="48" fill="#fff" fillOpacity="0.12">♓</text>
+            <text x="300" y="800" fontSize="64" fill="#fff" fillOpacity="0.10">★</text>
+            <text x="800" y="850" fontSize="40" fill="#fff" fillOpacity="0.10">☉</text>
+            <text x="200" y="400" fontSize="32" fill="#fff" fillOpacity="0.10">☾</text>
+          </g>
+        </svg>
+      </div>
+      <Card className="w-full max-w-2xl bg-white/80 shadow-2xl border-0 rounded-3xl backdrop-blur-xl p-2 md:p-8">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-cosmic-magenta mb-2">Editar Perfil</CardTitle>
+          <CardTitle className="text-3xl font-extrabold text-cosmic-magenta mb-2 text-center drop-shadow">Editar Perfil</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <label className="block text-base font-semibold text-cosmic-magenta">Nombre</label>
-              <Input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Nombre completo"
-                required
-                className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-base font-semibold text-cosmic-magenta">Nombre</label>
+                <Input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Nombre completo"
+                  required
+                  className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
+                  aria-label="Nombre completo"
+                  tabIndex={0}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-base font-semibold text-cosmic-magenta">Género</label>
+                <select
+                  name="gender"
+                  value={form.gender}
+                  onChange={handleChange}
+                  className="bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base focus:ring-cosmic-magenta focus:border-cosmic-magenta"
+                  aria-label="Género"
+                  tabIndex={0}
+                  required
+                >
+                  {GENDER_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className="space-y-2">
               <label className="block text-base font-semibold text-cosmic-magenta">Descripción</label>
@@ -208,40 +249,57 @@ const ProfileEdit = () => {
                 rows={3}
                 required
                 className="bg-white/90 border border-cosmic-magenta text-gray-900 placeholder-gray-400 focus:ring-cosmic-magenta focus:border-cosmic-magenta rounded-lg px-4 py-3 text-base"
+                aria-label="Descripción personal"
+                tabIndex={0}
               />
             </div>
-            <div className="space-y-2">
-              <label className="block text-base font-semibold text-cosmic-magenta">Foto principal (avatar)</label>
-              <Input type="file" accept="image/*" onChange={e => handlePhotoChange(0, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
-              {photoPreviews[0] ? (
-                <img src={photoPreviews[0]} alt="preview avatar" className="w-20 h-20 rounded-full mt-2 border-2 border-cosmic-magenta" />
-              ) : form.photo_url && (
-                <img src={form.photo_url} alt="avatar" className="w-20 h-20 rounded-full mt-2 border-2 border-cosmic-magenta" />
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-base font-semibold text-cosmic-magenta">Edad</label>
+                <Input
+                  name="age"
+                  value={form.age}
+                  onChange={handleChange}
+                  placeholder="Edad"
+                  type="number"
+                  min={14}
+                  max={120}
+                  className="bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
+                  aria-label="Edad"
+                  tabIndex={0}
+                />
+              </div>
             </div>
             <div className="space-y-2">
-              <label className="block text-base font-semibold text-cosmic-magenta">Foto adicional 2</label>
-              <Input type="file" accept="image/*" onChange={e => handlePhotoChange(1, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
-              {photoPreviews[1] ? (
-                <img src={photoPreviews[1]} alt="preview foto2" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />
-              ) : form.photo_url_2 && (
-                <img src={form.photo_url_2} alt="foto2" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />
-              )}
-            </div>
-            <div className="space-y-2">
-              <label className="block text-base font-semibold text-cosmic-magenta">Foto adicional 3</label>
-              <Input type="file" accept="image/*" onChange={e => handlePhotoChange(2, e)} className="bg-white/90 border border-cosmic-magenta rounded-lg" />
-              {photoPreviews[2] ? (
-                <img src={photoPreviews[2]} alt="preview foto3" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />
-              ) : form.photo_url_3 && (
-                <img src={form.photo_url_3} alt="foto3" className="w-20 h-20 rounded mt-2 border-2 border-cosmic-magenta" />
-              )}
+              <label className="block text-base font-semibold text-cosmic-magenta">Fotos de perfil</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {[0,1,2,3,4].map(idx => (
+                  <div key={idx} className="flex flex-col items-center gap-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={e => handlePhotoChange(idx, e)}
+                      className="bg-white/90 border border-cosmic-magenta rounded-lg"
+                      aria-label={`Seleccionar foto ${idx+1}`}
+                      tabIndex={0}
+                    />
+                    {photoPreviews[idx] ? (
+                      <img src={photoPreviews[idx]!} alt={`preview foto${idx+1}`} className={`w-20 h-20 ${idx===0 ? 'rounded-full' : 'rounded-xl'} mt-1 border-2 border-cosmic-magenta shadow-lg`} />
+                    ) : form[`photo_url${idx===0?'':'_'+(idx+1)}`] ? (
+                      <img src={form[`photo_url${idx===0?'':'_'+(idx+1)}`]} alt={`foto${idx+1}`} className={`w-20 h-20 ${idx===0 ? 'rounded-full' : 'rounded-xl'} mt-1 border-2 border-cosmic-magenta shadow-lg`} />
+                    ) : (
+                      <div className={`w-20 h-20 flex items-center justify-center bg-white/40 text-cosmic-magenta ${idx===0 ? 'rounded-full' : 'rounded-xl'} border-2 border-dashed border-cosmic-magenta mt-1`}>Sin foto</div>
+                    )}
+                    <span className="text-xs text-cosmic-magenta">{idx === 0 ? 'Principal' : `Adicional ${idx}`}</span>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="flex flex-col gap-3 pt-2">
-              <Button type="submit" className="w-full bg-cosmic-magenta hover:bg-cosmic-magenta/90 text-white font-semibold text-lg py-3 rounded-lg shadow-lg" disabled={loading}>
+              <Button type="submit" className="w-full bg-gradient-to-r from-cosmic-magenta to-fuchsia-500 hover:from-fuchsia-600 hover:to-cosmic-magenta text-white font-bold text-lg py-3 rounded-xl shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" disabled={loading} aria-label="Guardar Cambios" tabIndex={0}>
                 {loading ? 'Guardando...' : 'Guardar Cambios'}
               </Button>
-              <Button type="button" variant="outline" className="w-full" onClick={() => navigate('/home')}>
+              <Button type="button" variant="outline" className="w-full border-2 border-cosmic-magenta text-cosmic-magenta font-semibold rounded-xl py-3 hover:bg-cosmic-magenta/10 transition-all" onClick={() => navigate('/home')} aria-label="Volver al inicio" tabIndex={0}>
                 Volver al inicio
               </Button>
             </div>

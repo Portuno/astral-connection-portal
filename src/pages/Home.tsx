@@ -65,10 +65,11 @@ const Home = () => {
   const [compatibleProfiles, setCompatibleProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
   // Estado para el modal premium
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  // Estado para el modal de login
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
 
   // Filtros
   const [genderFilter, setGenderFilter] = useState<'hombre' | 'mujer' | 'ambos'>('ambos');
@@ -135,16 +136,14 @@ const Home = () => {
   }, []);
 
   const handleChatClick = async (profile: any) => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
     if (!user?.isPremium) {
       setShowPremiumModal(true);
       return;
     }
-    if (!isAuthenticated) {
-      setSelectedProfileForChat({ id: profile.id, name: profile.name });
-      setShowAuthModal(true);
-      return;
-    }
-
     navigate(`/chat/${profile.id}`);
   };
 
@@ -190,6 +189,10 @@ const Home = () => {
     navigate('/');
   };
   const handleActivatePremium = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
     setShowPremiumModal(true);
   };
 
@@ -268,7 +271,17 @@ const Home = () => {
       <header className="sticky top-0 z-40 w-full bg-gradient-to-r from-cosmic-magenta/80 to-purple-700/80 shadow flex items-center justify-between px-4 py-2 backdrop-blur-md bg-opacity-80 border-b border-white/10">
         <a href="/home" className="font-extrabold text-2xl text-white tracking-wide hover:text-yellow-300 transition-colors drop-shadow-[0_2px_8px_rgba(255,255,255,0.12)]" tabIndex={0} aria-label="Ir a inicio">Amor Astral</a>
         <div className="flex items-center gap-3">
-          {!user?.isPremium && (
+          {!isAuthenticated && (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border-2 border-cyan-200"
+              tabIndex={0}
+              aria-label="Iniciar Sesión"
+            >
+              Iniciar Sesión
+            </button>
+          )}
+          {isAuthenticated && !user?.isPremium && (
             <button
               onClick={handleActivatePremium}
               className="bg-gradient-to-r from-yellow-300 to-yellow-400 hover:from-yellow-400 hover:to-yellow-500 text-cosmic-magenta font-bold px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 border-2 border-yellow-200 animate-pulse"
@@ -279,26 +292,28 @@ const Home = () => {
               Activar Premium
             </button>
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="flex items-center gap-2 bg-white/80 hover:bg-white text-cosmic-magenta font-semibold px-4 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border border-white/30"
-                tabIndex={0}
-                aria-label="Mi perfil"
-                style={{ boxShadow: '0 0 8px 1px #a78bfa55' }}
-              >
-                <Avatar className="w-7 h-7">
-                  <AvatarImage src={user?.avatar_url || ''} alt={user?.name || 'Avatar'} />
-                  <AvatarFallback>{user?.name?.[0]?.toUpperCase() || '?'}</AvatarFallback>
-                </Avatar>
-                Mi perfil
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleEditProfile} tabIndex={0} aria-label="Editar perfil">Editar perfil</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogoutClick} tabIndex={0} aria-label="Cerrar sesión">Cerrar sesión</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {isAuthenticated && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex items-center gap-2 bg-white/80 hover:bg-white text-cosmic-magenta font-semibold px-4 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border border-white/30"
+                  tabIndex={0}
+                  aria-label="Mi perfil"
+                  style={{ boxShadow: '0 0 8px 1px #a78bfa55' }}
+                >
+                  <Avatar className="w-7 h-7">
+                    <AvatarImage src={user?.avatar_url || ''} alt={user?.name || 'Avatar'} />
+                    <AvatarFallback>{user?.name?.[0]?.toUpperCase() || '?'}</AvatarFallback>
+                  </Avatar>
+                  Mi perfil
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleEditProfile} tabIndex={0} aria-label="Editar perfil">Editar perfil</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogoutClick} tabIndex={0} aria-label="Cerrar sesión">Cerrar sesión</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </header>
       {/* Contenido principal */}

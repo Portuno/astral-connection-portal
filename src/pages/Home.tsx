@@ -200,104 +200,41 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cosmic-blue">
-      {/* Header mejorado para móvil */}
-      <div className="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-cosmic-magenta to-cosmic-gold rounded-full">
-                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg sm:text-2xl font-bold text-white">
-                  Amor Astral
-                </h1>
-                {userProfile && (
-                  <p className="text-xs sm:text-sm text-gray-300 hidden sm:block">
-                    Hola {userProfile.full_name}, encuentra tu conexión cósmica
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex gap-2 sm:gap-3 items-center">
-              {isAuthenticated && user ? (
-                <>
-                  <div className="hidden sm:block text-right">
-                    <p className="text-white text-sm font-medium flex items-center gap-1">
-                      {user.isPremium && <Crown className="h-4 w-4 text-cosmic-gold" />}
-                      {user.name}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {user.isPremium ? "Premium" : "Usuario gratuito"}
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => navigate('/profile-edit')}
-                    size="sm"
-                    variant="secondary"
-                    className="bg-cosmic-magenta text-white font-semibold hover:bg-cosmic-magenta/80"
-                    aria-label="Editar perfil"
-                    tabIndex={0}
-                  >
-                    Editar Perfil
-                  </Button>
-                  {!user.isPremium && (
-                    <Button
-                      onClick={() => navigate('/premium')}
-                      size="sm"
-                      className="bg-gradient-to-r from-cosmic-gold to-yellow-500 text-black font-semibold hover:from-yellow-400 hover:to-cosmic-gold"
-                    >
-                      <Crown className="w-4 h-4 mr-1" />
-                      Activar Premium
-                    </Button>
-                  )}
-                  
-                  <Button
-                    onClick={handleViewChats}
-                    variant="outline"
-                    size="sm"
-                    className="border-white/20 text-white hover:bg-white/10"
-                  >
-                    <MessageCircle className="w-4 h-4 mr-1 sm:mr-2" />
-                    <span className="hidden sm:inline">Mis Chats</span>
-                  </Button>
-                  
-                  <Button
-                    onClick={handleLogout}
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-white/20"
-                    title="Cerrar sesión"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </>
-              ) : (
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => setShowAuthModal(true)}
-                    variant="outline"
-                    size="sm"
-                    className="border-white/20 text-white hover:bg-white/10"
-                  >
-                    <span className="hidden sm:inline">Iniciar Sesión</span>
-                    <span className="sm:hidden">Login</span>
-                  </Button>
-                  
-                  <Button
-                    onClick={() => navigate('/onboarding')}
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-white/20"
-                  >
-                    <span className="hidden sm:inline">Crear Perfil</span>
-                    <span className="sm:hidden">Registro</span>
-                  </Button>
-                </div>
-              )}
-            </div>
+    <div className="min-h-screen w-full bg-cosmic-blue overflow-x-hidden">
+      {/* Header */}
+      <div className="bg-white/10 backdrop-blur-md border-b border-white/20 p-4 w-full overflow-x-hidden">
+        <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
+            <Button
+              onClick={() => navigate('/profile-edit')}
+              size="sm"
+              variant="secondary"
+              className="bg-cosmic-magenta text-white font-semibold hover:bg-cosmic-magenta/80 w-full sm:w-auto"
+              aria-label="Editar perfil"
+              tabIndex={0}
+            >
+              Editar Perfil
+            </Button>
+            <Button
+              onClick={() => navigate('/premium')}
+              size="sm"
+              className="bg-gradient-to-r from-cosmic-gold to-yellow-500 text-black font-semibold hover:from-yellow-400 hover:to-cosmic-gold w-full sm:w-auto"
+              aria-label="Activar Premium"
+            >
+              <Crown className="w-4 h-4 mr-1" />
+              Activar Premium
+            </Button>
+          </div>
+          <div className="flex gap-2 justify-end w-full sm:w-auto">
+            <Button
+              onClick={handleViewChats}
+              variant="outline"
+              size="sm"
+              className="border-white/20 text-white hover:bg-white/10"
+            >
+              <MessageCircle className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Mis Chats</span>
+            </Button>
           </div>
         </div>
       </div>

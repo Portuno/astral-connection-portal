@@ -211,19 +211,10 @@ const Home = () => {
     <>
       <GalacticBackground />
       {/* Header sticky */}
-      <header className="sticky top-0 z-40 w-full bg-gradient-to-r from-cosmic-magenta/80 to-purple-700/80 shadow flex items-center justify-between px-4 py-2 backdrop-blur-md bg-opacity-80 border-b border-white/10">
+      <header className="sticky top-0 z-40 w-full bg-transparent shadow flex items-center justify-between px-4 py-2 backdrop-blur-md border-b border-white/10">
         <a href="/home" className="font-extrabold text-2xl text-white tracking-wide hover:text-yellow-300 transition-colors drop-shadow-[0_2px_8px_rgba(255,255,255,0.12)]" tabIndex={0} aria-label="Ir a inicio">Amor Astral</a>
         <div className="flex items-center gap-3">
-          {!isAuthenticated && (
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border-2 border-cyan-200"
-              tabIndex={0}
-              aria-label="Iniciar Sesión"
-            >
-              Iniciar Sesión
-            </button>
-          )}
+          {/* Eliminar botón Activar Premium completamente */}
           {isAuthenticated && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -245,6 +236,16 @@ const Home = () => {
                 <DropdownMenuItem onClick={handleLogoutClick} tabIndex={0} aria-label="Cerrar sesión">Cerrar sesión</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          )}
+          {!isAuthenticated && (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border-2 border-cyan-200"
+              tabIndex={0}
+              aria-label="Iniciar Sesión"
+            >
+              Iniciar Sesión
+            </button>
           )}
         </div>
       </header>

@@ -396,7 +396,7 @@ const Home = () => {
               aria-label={`Ver perfil de ${profile.name}`}
               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/profile/${profile.id}`); }}
             >
-              <div>
+              <div className="px-4">
                 <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">

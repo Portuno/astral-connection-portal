@@ -95,19 +95,33 @@ const Home = () => {
       
       // Si el usuario está autenticado, excluir su propio perfil
       if (isAuthenticated && user?.id) {
+        // Primero intentar excluir por user_id
         query = query.neq('user_id', user.id);
+        
+        // También excluir si el perfil actual del usuario coincide con algún perfil
+        if (userProfile?.id) {
+          console.log("🚫 Excluyendo perfil del usuario actual:", userProfile.id);
+          query = query.neq('id', userProfile.id);
+        }
       }
       
       const { data, error } = await query;
+      console.log("📋 Perfiles encontrados después del filtrado:", data?.length || 0);
       if (!error && data) {
-        setCompatibleProfiles(data);
+        // Filtro adicional para excluir el perfil actual del usuario
+        let filteredData = data;
+        if (userProfile?.id) {
+          filteredData = data.filter((profile: any) => profile.id !== userProfile.id);
+          console.log("🚫 Perfiles después del filtro adicional:", filteredData.length);
+        }
+        setCompatibleProfiles(filteredData);
       } else {
         setCompatibleProfiles([]);
       }
       setLoading(false);
     };
     fetchProfiles();
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, userProfile?.id]);
 
   // Cargar chats del usuario
   useEffect(() => {

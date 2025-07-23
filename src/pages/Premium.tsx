@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { X } from 'lucide-react';
 
 const GalacticBackground = () => (
@@ -64,8 +63,12 @@ const Premium = () => {
         >
           <X className="w-6 h-6" />
         </button>
-        <DialogTitle className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">Hazte Premium y desbloquea conversaciones cósmicas</DialogTitle>
-        <DialogDescription className="text-cyan-100 text-center mb-4 max-w-lg">Accede a todas las funciones exclusivas de Amor Astral:</DialogDescription>
+        <h1 className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">
+          Hazte Premium y desbloquea conversaciones cósmicas
+        </h1>
+        <p className="text-cyan-100 text-center mb-4 max-w-lg">
+          Accede a todas las funciones exclusivas de Amor Astral:
+        </p>
         <ul className="mb-6 space-y-3 w-full max-w-md mx-auto">
           <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🔓</span> Desbloquear conversaciones cósmicas</li>
           <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">💬</span> Acceso ilimitado a chats</li>

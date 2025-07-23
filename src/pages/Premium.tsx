@@ -46,6 +46,7 @@ const Premium = () => {
   const { user } = useAuth();
 
   const handleActivatePremium = async () => {
+    console.log("Click en activar premium");
     if (!user) {
       toast({
         title: "Debes iniciar sesión",
@@ -55,6 +56,7 @@ const Premium = () => {
       return;
     }
     try {
+      console.log("Llamando a Supabase function...");
       const response = await fetch(
         "https://mfwvjjemxzgaddzlzodt.supabase.co/functions/v1/square-checkout",
         {
@@ -66,17 +68,21 @@ const Premium = () => {
         }
       );
       const data = await response.json();
+      console.log("Respuesta de Supabase:", data);
       const url =
         data.checkout_session?.checkout_page_url ||
         data.checkout_session?.checkout_url ||
         data.checkout_session?.payment_link?.url ||
         data.checkout_session?.url;
       if (url) {
+        console.log("Redirigiendo a:", url);
         window.location.href = url;
       } else {
+        console.error("No se pudo crear la sesión de pago", data);
         throw new Error("No se pudo crear la sesión de pago");
       }
     } catch (error) {
+      console.error("Error en handleActivatePremium:", error);
       toast({
         title: "Error",
         description: "No se pudo procesar el pago. Inténtalo de nuevo.",

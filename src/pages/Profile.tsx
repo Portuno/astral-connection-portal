@@ -94,13 +94,13 @@ const ProfilePage = () => {
           <ArrowLeft className="w-5 h-5" />
           <span className="hidden sm:inline">Volver</span>
         </button>
+        {/* % compatibilidad arriba a la derecha */}
+        <div className="absolute top-4 right-4">
+          <Badge className="bg-cosmic-gold/20 text-cosmic-gold text-xs">
+            {profile.compatibility_score}% compatible
+          </Badge>
+        </div>
         <CardHeader className="flex flex-col items-center gap-2 mt-6">
-          <Avatar className="w-24 h-24 border-2 border-cosmic-gold/30">
-            <AvatarImage src={profile.photo_url || undefined} alt={profile.name} />
-            <AvatarFallback className="bg-cosmic-magenta text-white font-bold">
-              {profile.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
           <CardTitle className="text-white text-3xl mt-2">{profile.name}</CardTitle>
           <div className="flex items-center gap-2 text-gray-300">
             <Calendar className="w-4 h-4" />
@@ -108,9 +108,6 @@ const ProfilePage = () => {
             <MapPin className="w-4 h-4 ml-2" />
             <span>{profile.location}</span>
           </div>
-          <Badge className="bg-cosmic-gold/20 text-cosmic-gold text-xs mt-2">
-            {profile.compatibility_score}% compatible
-          </Badge>
         </CardHeader>
         <CardContent>
           {/* Slider de fotos */}
@@ -120,7 +117,7 @@ const ProfilePage = () => {
                 ref={imgRef}
                 src={photos[currentPhoto]}
                 alt={`Foto ${currentPhoto + 1} de ${profile.name}`}
-                className="object-cover w-full max-w-xs sm:max-w-md md:w-96 md:h-96 rounded-2xl border-4 border-cosmic-magenta shadow-lg mx-auto cursor-pointer select-none"
+                className="object-cover w-full max-w-sm sm:max-w-lg md:w-[30rem] md:h-[30rem] rounded-2xl border-4 border-cosmic-magenta shadow-lg mx-auto cursor-pointer select-none"
                 onClick={handleImageClick}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
@@ -171,15 +168,16 @@ const ProfilePage = () => {
               <Navigation className="w-4 h-4 text-cosmic-blue" />
               <span>Ascendente: {profile.rising_sign}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-200">
-              <Heart className="w-4 h-4 text-red-400" />
-              <span>Busca: {profile.lookingFor}</span>
-            </div>
           </div>
           {/* Descripción */}
-          <p className="text-gray-100 text-base mb-8 text-center whitespace-pre-line">
+          <p className="text-gray-100 text-base mb-4 text-center whitespace-pre-line">
             {profile.description}
           </p>
+          {/* Busca debajo, con corazón */}
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <Heart className="w-5 h-5 text-red-400" />
+            <span className="text-gray-200 text-base">Busca: {profile.lookingFor}</span>
+          </div>
           {/* Botón Chatear con (primer nombre) */}
           <div className="flex justify-center mt-6">
             <Button

@@ -23,7 +23,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
   // Eliminar PremiumModal y toda lógica de showPremiumModal
-  // Estado para el modal de login
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
   // Estado para los chats del usuario
@@ -285,10 +284,10 @@ const Home = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex items-center gap-2 bg-white/80 hover:bg-white text-cosmic-magenta font-semibold px-4 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border border-white/30"
+                  className="flex items-center gap-2 bg-gradient-to-r from-cosmic-magenta to-fuchsia-500 hover:from-fuchsia-600 hover:to-cosmic-magenta text-white font-bold px-5 py-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border-0 transition-all duration-200 drop-shadow-[0_2px_8px_rgba(168,139,250,0.18)]"
                   tabIndex={0}
                   aria-label="Mi perfil"
-                  style={{ boxShadow: '0 0 8px 1px #a78bfa55' }}
+                  style={{ boxShadow: '0 0 12px 2px #a78bfa55' }}
                 >
                   <Avatar className="w-7 h-7">
                     <AvatarImage src={user?.avatar_url || ''} alt={user?.name || 'Avatar'} />

@@ -83,6 +83,18 @@ export default function PreHome() {
 
   const handleSubmit = e => {
     e.preventDefault();
+    // Validación de hora y minutos
+    const [hh, mm] = form.birthTime.split(':');
+    const hour = parseInt(hh, 10);
+    const minute = parseInt(mm, 10);
+    if (
+      isNaN(hour) || isNaN(minute) ||
+      hour < 0 || hour > 23 ||
+      minute < 0 || minute > 59
+    ) {
+      alert('Por favor ingresa una hora válida (HH:MM, 00-23 y 00-59)');
+      return;
+    }
     if (!cities.some(city => city.name === form.birthCity)) {
       alert('Por favor selecciona una ciudad de la lista.');
       return;
@@ -211,7 +223,7 @@ export default function PreHome() {
             placeholder="Ciudad de nacimiento"
             required
             autoComplete="off"
-            className="w-full rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            className="w-full rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 placeholder-gray-400 text-lg"
           />
           {suggestions.length > 0 && (
             <ul className="absolute z-10 w-full bg-white border border-cosmic-magenta rounded-lg mt-1 max-h-40 overflow-y-auto">

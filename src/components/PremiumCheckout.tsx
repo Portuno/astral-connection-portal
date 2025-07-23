@@ -19,6 +19,7 @@ const PremiumCheckout = () => {
   }
 
   const handleUpgradeToPremium = async () => {
+    console.log("Botón Activar Premium presionado");
     if (!user) {
       toast({
         title: "Error",
@@ -43,7 +44,8 @@ const PremiumCheckout = () => {
         })
       })
 
-      const data = await response.json()
+      console.log("Respuesta fetch:", response);
+      const data = await response.json();
       console.log("Respuesta de Square:", data);
 
       const url =
@@ -58,7 +60,7 @@ const PremiumCheckout = () => {
       }
 
     } catch (error) {
-      console.error('Error al procesar el pago:', error)
+      console.error("Error en handleUpgradeToPremium:", error);
       toast({
         title: "Error",
         description: "No se pudo procesar el pago. Inténtalo de nuevo.",

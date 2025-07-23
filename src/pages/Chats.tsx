@@ -33,6 +33,8 @@ interface ChatWithProfile {
     created_at: string;
     sender_id: string;
   };
+  unreadCount?: number;
+  lastUnreadAt?: string | null;
 }
 
 const Chats = () => {
@@ -92,10 +94,26 @@ const Chats = () => {
               console.error('Error loading last message:', messageError);
             }
 
+            // Obtener mensajes no leídos
+            const { data: unreadMessages, error: unreadError } = await supabase
+              .from('messages')
+              .select('id, created_at')
+              .eq('chat_id', chat.id)
+              .eq('read_at', null)
+              .neq('sender_id', currentUserId);
+            let unreadCount = 0;
+            let lastUnreadAt = null;
+            if (unreadMessages && unreadMessages.length > 0) {
+              unreadCount = unreadMessages.length;
+              lastUnreadAt = unreadMessages[unreadMessages.length - 1].created_at;
+            }
+
             return {
               ...chat,
               profile,
-              lastMessage: lastMessage?.[0] || null
+              lastMessage: lastMessage?.[0] || null,
+              unreadCount,
+              lastUnreadAt
             };
           })
         );
@@ -274,6 +292,11 @@ const Chats = () => {
                           <h3 className="font-semibold text-white truncate">
                             {chat.profile.name}
                           </h3>
+                          {chat.unreadCount && chat.unreadCount > 0 && (
+                            <span className="ml-2 bg-cosmic-magenta text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                              {chat.unreadCount}
+                            </span>
+                          )}
                           <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
                             {chat.lastMessage 
                               ? formatMessageTime(chat.lastMessage.created_at)
@@ -313,6 +336,11 @@ const Chats = () => {
                             {chat.profile.age} años
                           </span>
                         </div>
+                        {chat.unreadCount && chat.unreadCount > 0 && chat.lastUnreadAt && (
+                          <div className="text-xs text-cosmic-magenta mt-1">
+                            {`Nuevo${chat.unreadCount > 1 ? 's' : ''} mensaje${chat.unreadCount > 1 ? 's' : ''} hace ${formatTimeAgo(chat.lastUnreadAt)}`}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -325,5 +353,19 @@ const Chats = () => {
     </div>
   );
 };
+
+// Helper para mostrar "hace X min/h" en vez de hora exacta
+function formatTimeAgo(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return 'menos de 1 min';
+  if (diffMin < 60) return `${diffMin} min`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `${diffH} h`;
+  const diffD = Math.floor(diffH / 24);
+  return `${diffD} d`;
+}
 
 export default Chats; 

@@ -41,7 +41,7 @@ const ChatInterface = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const currentUserId = localStorage.getItem("sessionId") || "temp_user";
+  const currentUserId = user?.id || localStorage.getItem("sessionId") || "temp_user";
   const [isArtificial, setIsArtificial] = useState(false);
 
   // Verificar autenticación al cargar
@@ -95,6 +95,37 @@ const ChatInterface = () => {
       supabase.removeChannel(channel);
     };
   }, [chat?.id, isArtificial]);
+
+  // Marcar mensajes recibidos como leídos al abrir el chat
+  useEffect(() => {
+    if (!chat?.id || !user?.id) return;
+    async function markAsRead() {
+      // Solo para chats reales
+      if (isArtificial) return;
+      // Buscar mensajes recibidos no leídos
+      const { data: unreadMessages } = await supabase
+        .from('messages')
+        .select('id')
+        .eq('chat_id', chat.id)
+        .eq('read_at', null)
+        .neq('sender_id', user.id);
+      if (unreadMessages && unreadMessages.length > 0) {
+        const ids = unreadMessages.map((m: any) => m.id);
+        await supabase
+          .from('messages')
+          .update({ read_at: new Date().toISOString() })
+          .in('id', ids);
+        // Refrescar mensajes
+        const { data: refreshed } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('chat_id', chat.id)
+          .order('created_at', { ascending: true });
+        setMessages(refreshed || []);
+      }
+    }
+    markAsRead();
+  }, [chat?.id, isArtificial, user?.id]);
 
   // Cargar perfil y chat al montar el componente
   useEffect(() => {

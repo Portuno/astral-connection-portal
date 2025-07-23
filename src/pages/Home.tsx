@@ -177,18 +177,62 @@ const Home = () => {
     );
   }
 
+  // Fondo galáctico global
+  const GalacticBackground = () => (
+    <div
+      aria-hidden="true"
+      className="fixed inset-0 -z-10 w-full h-full bg-gradient-to-br from-[#0a1033] via-[#1a1440] to-[#2a0a3c]">
+      {/* Estrellas */}
+      <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
+        <defs>
+          <radialGradient id="star-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#fff" stopOpacity="1" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {/* Estrellas grandes */}
+        {[...Array(18)].map((_, i) => (
+          <circle
+            key={i}
+            cx={Math.random() * 100 + '%'}
+            cy={Math.random() * 100 + '%'}
+            r={Math.random() * 1.2 + 0.6}
+            fill="url(#star-glow)"
+            opacity={0.7}
+          />
+        ))}
+        {/* Estrellas pequeñas */}
+        {[...Array(80)].map((_, i) => (
+          <circle
+            key={100 + i}
+            cx={Math.random() * 100 + '%'}
+            cy={Math.random() * 100 + '%'}
+            r={Math.random() * 0.4 + 0.2}
+            fill="#fff"
+            opacity={0.3 + Math.random() * 0.5}
+          />
+        ))}
+        {/* Constelaciones sutiles (líneas) */}
+        <polyline points="10,20 30,40 50,20 70,60" stroke="#6ee7ff" strokeWidth="0.3" opacity="0.18" fill="none" />
+        <polyline points="80,80 90,60 100,90" stroke="#a78bfa" strokeWidth="0.3" opacity="0.13" fill="none" />
+      </svg>
+    </div>
+  );
+
   return (
     <>
+      <GalacticBackground />
       {/* Header sticky */}
-      <header className="sticky top-0 z-40 w-full bg-gradient-to-r from-cosmic-magenta/80 to-purple-700/80 shadow flex items-center justify-between px-4 py-2">
-        <a href="/home" className="font-extrabold text-2xl text-white tracking-wide hover:text-yellow-300 transition-colors" tabIndex={0} aria-label="Ir a inicio">Amor Astral</a>
+      <header className="sticky top-0 z-40 w-full bg-gradient-to-r from-cosmic-magenta/80 to-purple-700/80 shadow flex items-center justify-between px-4 py-2 backdrop-blur-md bg-opacity-80 border-b border-white/10">
+        <a href="/home" className="font-extrabold text-2xl text-white tracking-wide hover:text-yellow-300 transition-colors drop-shadow-[0_2px_8px_rgba(255,255,255,0.12)]" tabIndex={0} aria-label="Ir a inicio">Amor Astral</a>
         <div className="flex items-center gap-3">
           {!user?.isPremium && (
             <button
               onClick={handleActivatePremium}
-              className="bg-yellow-400 hover:bg-yellow-500 text-cosmic-magenta font-bold px-4 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-yellow-300"
+              className="bg-gradient-to-r from-yellow-300 to-yellow-400 hover:from-yellow-400 hover:to-yellow-500 text-cosmic-magenta font-bold px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 border-2 border-yellow-200 animate-pulse"
               tabIndex={0}
               aria-label="Activar Premium"
+              style={{ boxShadow: '0 0 16px 2px #ffe066, 0 0 32px 8px #fff7ae55' }}
             >
               Activar Premium
             </button>
@@ -196,9 +240,10 @@ const Home = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className="flex items-center gap-2 bg-white/80 hover:bg-white text-cosmic-magenta font-semibold px-4 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+                className="flex items-center gap-2 bg-white/80 hover:bg-white text-cosmic-magenta font-semibold px-4 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border border-white/30"
                 tabIndex={0}
                 aria-label="Mi perfil"
+                style={{ boxShadow: '0 0 8px 1px #a78bfa55' }}
               >
                 <Avatar className="w-7 h-7">
                   <AvatarImage src={user?.avatar_url || ''} alt={user?.name || 'Avatar'} />
@@ -278,12 +323,12 @@ const Home = () => {
         </div>
 
         {/* Grid de perfiles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {compatibleProfiles.map((profile) => (
-            <Card
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {compatibleProfiles.map((profile, idx) => (
+            <div
               key={profile.id}
-              className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all duration-300 overflow-hidden group cursor-pointer"
-              onClick={() => navigate(`/profile/${profile.id}`)}
+              className="relative rounded-2xl bg-[rgba(20,20,40,0.85)] shadow-[0_0_16px_4px_rgba(0,255,255,0.13)] border border-cyan-400/20 backdrop-blur-md overflow-hidden group hover:shadow-[0_0_32px_8px_rgba(80,200,255,0.25)] transition-shadow duration-300"
+              style={{ boxShadow: '0 0 24px 4px #38bdf855, 0 0 64px 8px #a78bfa22' }}
             >
               <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
                 <div className="flex items-center justify-between mb-3">
@@ -342,7 +387,7 @@ const Home = () => {
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Iniciar Chat
               </Button>
-            </Card>
+            </div>
           ))}
         </div>
 
@@ -371,27 +416,30 @@ const Home = () => {
 
       {/* Modal premium para usuarios free */}
       <Dialog open={showPremiumModal} onOpenChange={setShowPremiumModal}>
-        <DialogContent className="max-w-md mx-auto rounded-2xl p-6 bg-white/95">
+        <DialogContent className="max-w-md mx-auto rounded-2xl p-6 bg-[rgba(20,20,40,0.97)] border border-cyan-400/30 shadow-[0_0_32px_8px_rgba(80,200,255,0.25)] backdrop-blur-md relative">
           <DialogHeader>
-            <DialogTitle className="text-cosmic-magenta text-2xl font-bold mb-2">Hazte Premium y desbloquea conversaciones cósmicas</DialogTitle>
-            <DialogDescription className="text-gray-700 mb-4">Accede a todas las funciones exclusivas de Amor Astral:</DialogDescription>
+            <DialogTitle className="text-cosmic-magenta text-2xl font-extrabold mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">Hazte Premium y desbloquea conversaciones cósmicas</DialogTitle>
+            <DialogDescription className="text-cyan-100 mb-4">Accede a todas las funciones exclusivas de Amor Astral:</DialogDescription>
           </DialogHeader>
           <ul className="mb-4 space-y-2">
-            <li className="flex items-center gap-2"><span className="text-cosmic-magenta font-bold">🔓</span> Desbloquear conversaciones cósmicas</li>
-            <li className="flex items-center gap-2"><span className="text-cosmic-magenta font-bold">💬</span> Acceso ilimitado a chats</li>
-            <li className="flex items-center gap-2"><span className="text-cosmic-magenta font-bold">🌟</span> Funciones exclusivas y soporte prioritario</li>
-            <li className="flex items-center gap-2"><span className="text-cosmic-magenta font-bold">🚫</span> Sin anuncios</li>
+            <li className="flex items-center gap-2 text-cyan-100"><span className="text-cosmic-magenta font-bold text-lg">🔓</span> Desbloquear conversaciones cósmicas</li>
+            <li className="flex items-center gap-2 text-cyan-100"><span className="text-cosmic-magenta font-bold text-lg">💬</span> Acceso ilimitado a chats</li>
+            <li className="flex items-center gap-2 text-cyan-100"><span className="text-cosmic-magenta font-bold text-lg">🌟</span> Funciones exclusivas y soporte prioritario</li>
+            <li className="flex items-center gap-2 text-cyan-100"><span className="text-cosmic-magenta font-bold text-lg">🚫</span> Sin anuncios</li>
           </ul>
           <DialogFooter>
             <button
               onClick={handleGoToPremiumPayment}
-              className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white font-bold py-3 rounded-xl shadow-lg text-lg"
+              className="w-full bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold py-3 rounded-xl shadow-lg text-lg tracking-wide border-2 border-cyan-200 animate-pulse"
               tabIndex={0}
               aria-label="Activar Premium"
+              style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}
             >
               Activar Premium
             </button>
           </DialogFooter>
+          {/* Efecto de halo galáctico */}
+          <div className="pointer-events-none absolute inset-0 rounded-2xl" style={{boxShadow:'0 0 64px 16px #38bdf855, 0 0 128px 32px #a78bfa22'}}></div>
         </DialogContent>
       </Dialog>
     </>

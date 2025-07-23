@@ -119,7 +119,7 @@ const OnboardingPayment = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-cosmic-blue via-indigo-900 to-purple-900 p-2 sm:p-4 overflow-x-hidden">
-      <Card className="w-full max-w-sm sm:max-w-lg bg-white/95 shadow-2xl border-0 mx-auto">
+      <Card className="w-full max-w-xs sm:max-w-md bg-white/95 shadow-2xl border-0 mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-cosmic-magenta mb-2">Completa tu Perfil</CardTitle>
         </CardHeader>

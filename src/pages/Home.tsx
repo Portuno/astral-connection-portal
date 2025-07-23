@@ -353,7 +353,7 @@ const Home = () => {
               )}
             </div>
             {/* Mi perfil */}
-            <div className="rounded-3xl bg-white/10 p-6 flex-1 shadow-lg flex flex-col items-center">
+            <div className="rounded-3xl bg-[#a78bfa]/30 p-6 flex-1 shadow-lg flex flex-col items-center">
               <Avatar className="w-16 h-16 mb-2">
                 <AvatarImage src={userProfile?.avatar_url || ''} alt={userProfile?.full_name || 'Avatar'} />
                 <AvatarFallback>{userProfile?.full_name?.[0]?.toUpperCase() || '?'}</AvatarFallback>

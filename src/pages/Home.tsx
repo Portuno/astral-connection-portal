@@ -14,35 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PremiumCheckout from "@/components/PremiumCheckout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
-// Modal galáctico reutilizable para premium
-const PremiumModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => (
-  <Dialog open={open} onOpenChange={onClose}>
-    <DialogContent
-      className="max-w-md mx-auto rounded-2xl p-8 bg-[rgba(20,20,40,0.97)] border border-cyan-400/30 shadow-lg backdrop-blur-md"
-    >
-      <DialogTitle className="text-2xl font-extrabold text-cosmic-magenta text-center mb-2">
-        Hazte Premium y desbloquea conversaciones cósmicas
-      </DialogTitle>
-      <DialogDescription className="text-cyan-100 text-center mb-4">
-        Accede a todas las funciones exclusivas de Amor Astral:
-      </DialogDescription>
-      <ul className="mb-6 space-y-3">
-        <li className="flex items-center gap-2 text-cyan-100"><span>🔓</span> Desbloquear conversaciones cósmicas</li>
-        <li className="flex items-center gap-2 text-cyan-100"><span>💬</span> Acceso ilimitado a chats</li>
-        <li className="flex items-center gap-2 text-cyan-100"><span>🌟</span> Funciones exclusivas y soporte prioritario</li>
-        <li className="flex items-center gap-2 text-cyan-100"><span>🚫</span> Sin anuncios</li>
-      </ul>
-      <button
-        onClick={onClose}
-        className="w-full bg-gradient-to-r from-cosmic-magenta to-cyan-400 text-white font-bold py-3 rounded-xl shadow-lg text-lg"
-        tabIndex={0}
-        aria-label="Activa tu suscripción"
-      >
-        Activa tu suscripción por 29,9€
-      </button>
-    </DialogContent>
-  </Dialog>
-);
+// Eliminar PremiumModal y toda lógica de showPremiumModal
 
 const Home = () => {
   const navigate = useNavigate();
@@ -51,8 +23,7 @@ const Home = () => {
   const [compatibleProfiles, setCompatibleProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
-  // Estado para el modal premium
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  // Eliminar PremiumModal y toda lógica de showPremiumModal
   // Estado para el modal de login
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
@@ -126,10 +97,7 @@ const Home = () => {
       setShowAuthModal(true);
       return;
     }
-    if (!user?.isPremium) {
-      setShowPremiumModal(true);
-      return;
-    }
+    // Eliminar PremiumModal y toda lógica de showPremiumModal
     navigate(`/chat/${profile.id}`);
   };
 
@@ -174,18 +142,7 @@ const Home = () => {
     await logout();
     navigate('/');
   };
-  const handleActivatePremium = () => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-    setShowPremiumModal(true);
-  };
-
-  const handleGoToPremiumPayment = () => {
-    setShowPremiumModal(false);
-    navigate('/premium');
-  };
+  // Eliminar PremiumModal y toda lógica de showPremiumModal
 
   const translateLookingFor = (lookingFor: string) => {
     const translations: { [key: string]: string } = {
@@ -265,17 +222,6 @@ const Home = () => {
               aria-label="Iniciar Sesión"
             >
               Iniciar Sesión
-            </button>
-          )}
-          {isAuthenticated && !user?.isPremium && (
-            <button
-              onClick={handleActivatePremium}
-              className="bg-gradient-to-r from-yellow-300 to-yellow-400 hover:from-yellow-400 hover:to-yellow-500 text-cosmic-magenta font-bold px-4 py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 border-2 border-yellow-200 animate-pulse"
-              tabIndex={0}
-              aria-label="Activar Premium"
-              style={{ boxShadow: '0 0 16px 2px #ffe066, 0 0 32px 8px #fff7ae55' }}
-            >
-              Activar Premium
             </button>
           )}
           {isAuthenticated && (
@@ -457,8 +403,7 @@ const Home = () => {
         onSuccess={handleAuthSuccess}
       />
 
-      {/* Modal premium para usuarios free o botón premium */}
-      <PremiumModal open={showPremiumModal} onClose={() => setShowPremiumModal(false)} />
+      {/* Eliminar PremiumModal y toda lógica de showPremiumModal */}
     </>
   );
 };

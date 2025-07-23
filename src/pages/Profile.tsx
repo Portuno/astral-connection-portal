@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +31,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileWithGallery | null>(null);
   const [currentPhoto, setCurrentPhoto] = useState(0);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if (!profileId) return;
@@ -62,6 +63,24 @@ const ProfilePage = () => {
 
   // Slider de fotos
   const photos = [profile.photo_url, profile.photo_url_2, profile.photo_url_3].filter(Boolean);
+
+  // Touch/swipe handlers
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX = e.changedTouches[0].screenX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX = e.changedTouches[0].screenX;
+    if (touchEndX < touchStartX - 30) {
+      setCurrentPhoto((currentPhoto + 1) % photos.length);
+    } else if (touchEndX > touchStartX + 30) {
+      setCurrentPhoto((currentPhoto - 1 + photos.length) % photos.length);
+    }
+  };
+  const handleImageClick = () => {
+    setCurrentPhoto((currentPhoto + 1) % photos.length);
+  };
 
   return (
     <div className="min-h-screen bg-cosmic-blue flex flex-col items-center py-8 px-4">
@@ -98,22 +117,28 @@ const ProfilePage = () => {
           {photos.length > 0 && (
             <div className="flex flex-col items-center mb-8 relative">
               <img
+                ref={imgRef}
                 src={photos[currentPhoto]}
                 alt={`Foto ${currentPhoto + 1} de ${profile.name}`}
-                className="object-cover w-72 h-72 rounded-2xl border-4 border-cosmic-magenta shadow-lg mx-auto"
+                className="object-cover w-full max-w-xs sm:max-w-md md:w-96 md:h-96 rounded-2xl border-4 border-cosmic-magenta shadow-lg mx-auto cursor-pointer select-none"
+                onClick={handleImageClick}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                draggable={false}
+                style={{ userSelect: 'none' }}
               />
               {photos.length > 1 && (
                 <div className="flex gap-2 mt-2">
                   <button
                     onClick={() => setCurrentPhoto((currentPhoto - 1 + photos.length) % photos.length)}
-                    className="bg-cosmic-magenta text-white rounded-full px-3 py-1"
+                    className="bg-cosmic-magenta text-white rounded-full px-3 py-1 hidden sm:inline"
                     aria-label="Foto anterior"
                   >
                     {"<"}
                   </button>
                   <button
                     onClick={() => setCurrentPhoto((currentPhoto + 1) % photos.length)}
-                    className="bg-cosmic-magenta text-white rounded-full px-3 py-1"
+                    className="bg-cosmic-magenta text-white rounded-full px-3 py-1 hidden sm:inline"
                     aria-label="Foto siguiente"
                   >
                     {">"}

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Send, MoreVertical, Crown } from "lucide-react";
+import { ArrowLeft, Send, MoreVertical, Crown, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "./AuthProvider";
@@ -102,43 +102,10 @@ const ChatInterface = () => {
       console.log('[Realtime] Chat artificial, no se subscribe a realtime');
       return;
     }
-    console.log(`[Realtime] Subscribiendo a canal: messages-chat-${chat.id}`);
-    const channel = supabase.channel(`messages-chat-${chat.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `chat_id=eq.${chat.id}`,
-        },
-        (payload) => {
-          const newMsg = payload.new;
-          console.log('[Realtime] Recibido payload:', payload);
-          // Validar que el mensaje tenga los campos requeridos
-          if (!newMsg || !newMsg.id || !newMsg.chat_id || !newMsg.sender_id || !newMsg.content || !newMsg.created_at) {
-            console.log('[Realtime] Mensaje recibido inválido:', newMsg);
-            return;
-          }
-          setMessages((prev) => {
-            // Filtrar duplicados por id y por contenido+timestamp
-            if (prev.some((m) => m.id === newMsg.id)) {
-              console.log('[Realtime] Mensaje duplicado por id:', newMsg.id);
-              return prev;
-            }
-            if (prev.some((m) => m.content === newMsg.content && m.created_at === newMsg.created_at && m.sender_id === newMsg.sender_id)) {
-              console.log('[Realtime] Mensaje duplicado por contenido+timestamp:', newMsg.content);
-              return prev;
-            }
-            console.log('[Realtime] Mensaje nuevo agregado:', newMsg);
-            return [...prev, newMsg as Message];
-          });
-        }
-      )
-      .subscribe();
+    // Temporalmente deshabilitado debido a problemas de WebSocket
+    console.log('[Realtime] Suscripción realtime deshabilitada temporalmente');
     return () => {
-      console.log(`[Realtime] Desuscribiendo canal: messages-chat-${chat.id}`);
-      supabase.removeChannel(channel);
+      console.log('[Realtime] No hay suscripción activa para desuscribir');
     };
   }, [chat?.id, isArtificial]);
 
@@ -305,6 +272,30 @@ const ChatInterface = () => {
     console.log('[Debug] user.id:', user?.id, 'profileId:', profileId, 'chat?.id:', chat?.id, 'isArtificial:', isArtificial);
   }, [user?.id, profileId, chat?.id, isArtificial]);
 
+  // Función para recargar mensajes manualmente
+  const reloadMessages = async () => {
+    if (!chat?.id || isArtificial) return;
+    
+    try {
+      console.log('[Reload] Recargando mensajes para chat:', chat.id);
+      const { data: messagesData, error: messagesError } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('chat_id', chat.id)
+        .order('created_at', { ascending: true });
+      
+      if (messagesError) {
+        console.error('[Reload] Error recargando mensajes:', messagesError);
+        return;
+      }
+      
+      console.log('[Reload] Mensajes recargados:', messagesData?.length || 0);
+      setMessages(messagesData || []);
+    } catch (error) {
+      console.error('[Reload] Error inesperado recargando mensajes:', error);
+    }
+  };
+
   // Función para enviar respuesta automática del perfil
   const handleSendMessage = async () => {
     if (!newMessage.trim() || sending || !user) return;
@@ -359,10 +350,24 @@ const ChatInterface = () => {
         console.log('[Send] Mensaje enviado exitosamente');
         setNewMessage("");
         // Actualizar última actividad del chat
-        await supabase
-          .from('chats')
-          .update({ last_message_at: new Date().toISOString() })
-          .eq('id', chat?.id);
+        try {
+          console.log('[Chat] Actualizando last_message_at para chat:', chat?.id);
+          const { error: updateError } = await supabase
+            .from('chats')
+            .update({ last_message_at: new Date().toISOString() })
+            .eq('id', chat?.id);
+          
+          if (updateError) {
+            console.error('[Chat] Error actualizando last_message_at:', updateError);
+            // No mostrar error al usuario, solo log
+          } else {
+            console.log('[Chat] last_message_at actualizado exitosamente');
+          }
+        } catch (updateError) {
+          console.error('[Chat] Error inesperado actualizando chat:', updateError);
+        }
+        // Recargar mensajes para mostrar el nuevo mensaje
+        await reloadMessages();
         toast({
           title: "💬 Mensaje enviado",
           description: "Tu mensaje ha sido enviado correctamente.",
@@ -394,6 +399,17 @@ const ChatInterface = () => {
           <span className="font-semibold hidden sm:inline">Volver</span>
         </button>
         <h2 className="text-xl text-white ml-4 font-bold drop-shadow">Chat con {profile?.name || ''}</h2>
+        {!isArtificial && (
+          <button
+            onClick={reloadMessages}
+            className="ml-auto flex items-center gap-2 text-cosmic-gold hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-cosmic-gold rounded-full p-2"
+            tabIndex={0}
+            aria-label="Recargar mensajes"
+          >
+            <RefreshCw className="h-5 w-5" />
+            <span className="font-semibold hidden sm:inline">Recargar</span>
+          </button>
+        )}
       </div>
 
       {/* Área de mensajes */}

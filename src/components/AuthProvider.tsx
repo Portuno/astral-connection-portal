@@ -66,81 +66,64 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   };
 
-  // Función para cargar usuario (simplificada)
-  const loadUser = async (supabaseUser: SupabaseUser): Promise<User> => {
+  // Función para cargar usuario (mejorada: no sobrescribe isPremium a false si falla la consulta)
+  const loadUser = async (supabaseUser: SupabaseUser, prevUser?: User | null): Promise<User> => {
     try {
       console.log("📊 Cargando usuario:", supabaseUser.email);
-      
       // Intentar obtener datos adicionales de la BD con timeout
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Database timeout')), 3000);
       });
-      
       const queryPromise = supabase
         .from('users')
         .select('*')
         .eq('id', supabaseUser.id)
         .single();
-      
       try {
         const { data: userData, error } = await Promise.race([queryPromise, timeoutPromise]);
-        
         if (userData && !error) {
           console.log("✅ Datos de usuario encontrados en BD");
-                     return {
-             id: userData.id,
-             email: userData.email,
-             name: userData.full_name || userData.email?.split('@')[0] || 'Usuario',
-             avatar_url: userData.avatar_url,
-             isPremium: userData.is_premium || false,
-             subscriptionDate: userData.created_at,
-             onboardingCompleted: userData.onboarding_completed || false,
-             birth_date: userData.birth_date,
-             birth_time: userData.birth_time,
-             birth_place: userData.birth_place,
-             gender: userData.gender,
-             looking_for: userData.looking_for
-           };
+          return {
+            id: userData.id,
+            email: userData.email,
+            name: userData.full_name || userData.email?.split('@')[0] || 'Usuario',
+            avatar_url: userData.avatar_url,
+            isPremium: userData.is_premium || false,
+            subscriptionDate: userData.created_at,
+            onboardingCompleted: userData.onboarding_completed || false,
+            birth_date: userData.birth_date,
+            birth_time: userData.birth_time,
+            birth_place: userData.birth_place,
+            gender: userData.gender,
+            looking_for: userData.looking_for
+          };
         }
       } catch (dbError) {
-        console.log("⚠️ Error/timeout en BD, usando datos básicos:", dbError);
+        console.log("⚠️ Error/timeout en BD, usando datos básicos y manteniendo premium anterior si existe:", dbError);
       }
-      
-      // Si no se puede cargar desde BD, usar datos básicos
+      // Si no se puede cargar desde BD, usar datos básicos y mantener premium anterior
       const basicUser = createUserFromSupabase(supabaseUser);
-      
-      // Intentar crear el usuario en BD en background (sin esperar)
-      setTimeout(async () => {
-        try {
-          await supabase.from('users').insert({
-            id: supabaseUser.id,
-            email: supabaseUser.email,
-            full_name: basicUser.name,
-            avatar_url: basicUser.avatar_url,
-            is_premium: false,
-            onboarding_completed: false
-          });
-          console.log("✅ Usuario creado en BD en background");
-        } catch (err) {
-          console.log("⚠️ No se pudo crear usuario en BD:", err);
-        }
-      }, 100);
-      
-      return basicUser;
+      return {
+        ...basicUser,
+        isPremium: prevUser?.isPremium || false // Mantener premium si ya era true
+      };
     } catch (error) {
       console.error('❌ Error cargando usuario:', error);
-      return createUserFromSupabase(supabaseUser);
+      const basicUser = createUserFromSupabase(supabaseUser);
+      return {
+        ...basicUser,
+        isPremium: prevUser?.isPremium || false
+      };
     }
   };
 
-  // Función para refrescar usuario
+  // Función para refrescar usuario (mejorada: pasa el usuario anterior a loadUser)
   const refreshUser = async (): Promise<void> => {
     try {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
       if (currentSession?.user) {
         console.log("🔄 Refrescando datos del usuario...");
-        const userData = await loadUser(currentSession.user);
+        const userData = await loadUser(currentSession.user, user); // pasar usuario anterior
         setUser(userData);
         setSession(currentSession);
         console.log("✅ Usuario refrescado:", userData.email);
@@ -157,17 +140,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Inicialización del AuthProvider
   useEffect(() => {
     let mounted = true;
-    
     const initializeAuth = async () => {
       try {
         console.log("🔄 Inicializando AuthProvider...");
-        
         // Obtener sesión actual
         const { data: { session: currentSession } } = await supabase.auth.getSession();
-        
         if (currentSession?.user && mounted) {
           console.log("✅ Sesión encontrada:", currentSession.user.email);
-          const userData = await loadUser(currentSession.user);
+          const userData = await loadUser(currentSession.user, user); // pasar usuario anterior
           setUser(userData);
           setSession(currentSession);
         } else {
@@ -186,19 +166,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
     };
-
     initializeAuth();
-
     // Listener para cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
-        
         console.log("🔄 Cambio de estado de auth:", event, session?.user?.email);
-        
         if (event === 'SIGNED_IN' && session?.user) {
           console.log("✅ Usuario logueado:", session.user.email);
-          const userData = await loadUser(session.user);
+          const userData = await loadUser(session.user, user); // pasar usuario anterior
           setUser(userData);
           setSession(session);
         } else if (event === 'SIGNED_OUT') {
@@ -207,15 +183,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setSession(null);
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log("🔄 Token refrescado");
-          const userData = await loadUser(session.user);
+          const userData = await loadUser(session.user, user); // pasar usuario anterior
           setUser(userData);
           setSession(session);
         }
-        
         setIsLoading(false);
       }
     );
-
     return () => {
       mounted = false;
       subscription.unsubscribe();

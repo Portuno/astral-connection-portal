@@ -29,6 +29,19 @@ interface Chat {
   last_message_at: string | null;
 }
 
+// Añadir tipo para chat artificial (ai_chats)
+type AIChat = {
+  id: string;
+  user_id: string;
+  profile_id: string;
+  messages: Array<{
+    id: string;
+    sender_id: string;
+    content: string;
+    created_at: string;
+  }>;
+};
+
 const ChatInterface = () => {
   const { profileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
@@ -151,34 +164,27 @@ const ChatInterface = () => {
         }
         setProfile(profileData);
 
-        // Verificar si el perfil es artificial (no tiene user_id en users)
-        let artificial = false;
-        if (!profileData.user_id) {
-          artificial = true;
-        } else {
-          const { data: userExists } = await supabase
-            .from('users')
-            .select('id')
-            .eq('id', profileData.user_id)
-            .single();
-          if (!userExists) artificial = true;
-        }
-        setIsArtificial(artificial);
+        // Detectar si el perfil es artificial (no tiene user_id en profiles)
+        const isArtificialProfile = !(profileData as any).user_id;
+        setIsArtificial(isArtificialProfile);
+        // Definir identificadores correctos
+        const myUserId = user.id; // siempre el id de users
+        const otherId = isArtificialProfile ? profileData.id : (profileData as any).user_id;
 
-        if (artificial) {
-          // Buscar o crear chat artificial en ai_chats
-          let aiChat = null;
+        if (isArtificialProfile) {
+          // Buscar o crear chat artificial en ai_chats (sin cambios)
+          let aiChat: AIChat | null = null;
           const { data: existingAiChat } = await supabase
-            .from('ai_chats')
+            .from('ai_chats' as any)
             .select('*')
             .eq('user_id', user.id)
             .eq('profile_id', profileId)
             .single();
           if (existingAiChat) {
-            aiChat = existingAiChat;
+            aiChat = existingAiChat as unknown as AIChat;
           } else {
             const { data: newAiChat, error: aiChatError } = await supabase
-              .from('ai_chats')
+              .from('ai_chats' as any)
               .insert({ user_id: user.id, profile_id: profileId, messages: [] })
               .select()
               .single();
@@ -187,33 +193,31 @@ const ChatInterface = () => {
               setLoading(false);
               return;
             }
-            aiChat = newAiChat;
+            aiChat = newAiChat as unknown as AIChat;
           }
-          setChat(aiChat); // chat artificial
-          setMessages((aiChat.messages || []).map((msg: any, idx: number) => ({
+          setChat(aiChat as any); // chat artificial, solo para mantener la API
+          setMessages((aiChat.messages || []).map((msg) => ({
             id: msg.id || uuidv4(),
-            chat_id: aiChat.id,
+            chat_id: aiChat!.id,
             sender_id: msg.sender_id,
             content: msg.content,
             created_at: msg.created_at,
-            read_at: null
+            read_at: null // para cumplir el tipo Message
           })));
         } else {
-          // Chat real (lógica mejorada: buscar ambos órdenes y nunca duplicar)
-          const authenticatedUserId = user.id;
-          const otherId = profileData.id;
+          // Chat real (matching por user.id de ambos)
           // Buscar todos los chats entre ambos usuarios, sin importar el orden
           const { data: existingChats, error: chatError } = await supabase
             .from('chats')
             .select('*')
-            .or(`and(user1_id.eq.${authenticatedUserId},user2_id.eq.${otherId}),and(user1_id.eq.${otherId},user2_id.eq.${authenticatedUserId})`)
+            .or(`and(user1_id.eq.${myUserId},user2_id.eq.${otherId}),and(user1_id.eq.${otherId},user2_id.eq.${myUserId})`)
             .order('created_at', { ascending: true });
           let chatData = existingChats && existingChats.length > 0 ? existingChats[0] : null;
           if (!chatData) {
             // Solo crear si no existe ninguno
             const { data: newChat, error: createError } = await supabase
               .from('chats')
-              .insert({ user1_id: authenticatedUserId, user2_id: otherId })
+              .insert({ user1_id: myUserId, user2_id: otherId })
               .select()
               .single();
             if (createError) {
@@ -308,27 +312,43 @@ const ChatInterface = () => {
           id: uuidv4(),
           sender_id: user.id,
           content: newMessage.trim(),
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          chat_id: (chat as any).id,
+          read_at: null
         };
         const updatedMessages = [...(messages || []), newMsg];
         setMessages(updatedMessages);
         setNewMessage("");
         // Actualizar en Supabase
         await supabase
-          .from('ai_chats')
+          .from('ai_chats' as any)
           .update({ messages: updatedMessages })
-          .eq('id', chat.id);
+          .eq('id', (chat as any).id);
         // Simular respuesta automática
         setTimeout(() => {
+          // Generar respuesta automática inline (como en sendAutoReply)
+          const replies = [
+            `¡Hola! Me alegra mucho chatear contigo 😊`,
+            `¿Cómo ha sido tu día? El mío ha sido lleno de energía ${(profile as any)?.sign || ''} ✨`,
+            `Me encanta nuestra conexión cósmica, ${user?.name || 'querido/a'} 💫`,
+            `¿Has notado la influencia de ${(profile as any)?.moon_sign || ''} en tu Luna? Es fascinante`,
+            `Nuestra compatibilidad del ${(profile as any)?.compatibility_score || ''}% se siente muy real 🌟`,
+            `Me gusta cómo piensas, definitivamente hay química entre nosotros`,
+            `¿Te gustaría que exploremos más nuestra conexión astrológica? 🔮`,
+            `Creo que las estrellas nos han unido por una razón especial`
+          ];
+          const randomReply = replies[Math.floor(Math.random() * replies.length)];
           const autoMsg = {
             id: uuidv4(),
             sender_id: profileId,
-            content: getAutoReply(profile),
-            created_at: new Date().toISOString()
+            content: randomReply,
+            created_at: new Date().toISOString(),
+            chat_id: (chat as any).id,
+            read_at: null
           };
           const updatedWithAuto = [...updatedMessages, autoMsg];
           setMessages(updatedWithAuto);
-          supabase.from('ai_chats').update({ messages: updatedWithAuto }).eq('id', chat.id);
+          supabase.from('ai_chats' as any).update({ messages: updatedWithAuto }).eq('id', (chat as any).id);
         }, Math.random() * 2000 + 2000);
         setSending(false);
         return;

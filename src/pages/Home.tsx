@@ -6,13 +6,59 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Sparkles, MapPin, Calendar } from "lucide-react";
+import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Sparkles, MapPin, Calendar, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import AuthModal from "@/components/AuthModal";
 import { supabase } from "@/integrations/supabase/client";
 import PremiumCheckout from "@/components/PremiumCheckout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+
+// Modal galáctico reutilizable para premium
+const PremiumModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => (
+  <Dialog open={open} onOpenChange={onClose}>
+    <DialogContent
+      className="max-w-2xl w-[60vw] sm:w-[75vw] mx-auto rounded-3xl p-0 border-0 shadow-[0_0_64px_16px_rgba(80,200,255,0.18)] bg-[rgba(20,20,40,0.98)] backdrop-blur-2xl relative flex flex-col items-center"
+      style={{ minHeight: 'min(480px,80vh)' }}
+    >
+      {/* Cierre accesible */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-cyan-200 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/10 p-2 z-20"
+        aria-label="Cerrar"
+        tabIndex={0}
+      >
+        <X className="w-6 h-6" />
+      </button>
+      {/* Título */}
+      <div className="w-full flex flex-col items-center pt-10 pb-2 px-6">
+        <h2 className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">Hazte Premium y desbloquea conversaciones cósmicas</h2>
+        <p className="text-cyan-100 text-center mb-4 max-w-lg">Accede a todas las funciones exclusivas de Amor Astral:</p>
+      </div>
+      {/* Motivos premium */}
+      <ul className="mb-6 space-y-3 w-full max-w-md mx-auto px-6">
+        <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🔓</span> Desbloquear conversaciones cósmicas</li>
+        <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">💬</span> Acceso ilimitado a chats</li>
+        <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🌟</span> Funciones exclusivas y soporte prioritario</li>
+        <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🚫</span> Sin anuncios</li>
+      </ul>
+      {/* Botón premium */}
+      <div className="w-full flex justify-center pb-10 px-6">
+        <button
+          onClick={onClose}
+          className="w-full max-w-md bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold py-4 rounded-2xl shadow-lg text-xl tracking-wide border-2 border-cyan-200 animate-pulse focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+          tabIndex={0}
+          aria-label="Activar Premium"
+          style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}
+        >
+          Activar Premium, 29,9€ al mes
+        </button>
+      </div>
+      {/* Halo galáctico decorativo */}
+      <div className="pointer-events-none absolute inset-0 rounded-3xl" style={{boxShadow:'0 0 96px 24px #38bdf855, 0 0 192px 48px #a78bfa22'}}></div>
+    </DialogContent>
+  </Dialog>
+);
 
 const Home = () => {
   const navigate = useNavigate();
@@ -23,6 +69,7 @@ const Home = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
+  // Estado para el modal premium
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   // Filtros
@@ -145,10 +192,7 @@ const Home = () => {
     navigate('/');
   };
   const handleActivatePremium = () => {
-    toast({
-      title: 'Función premium',
-      description: 'Aquí iría el flujo de activación premium.',
-    });
+    setShowPremiumModal(true);
   };
 
   const handleGoToPremiumPayment = () => {
@@ -414,34 +458,8 @@ const Home = () => {
         onSuccess={handleAuthSuccess}
       />
 
-      {/* Modal premium para usuarios free */}
-      <Dialog open={showPremiumModal} onOpenChange={setShowPremiumModal}>
-        <DialogContent className="max-w-md mx-auto rounded-2xl p-6 bg-[rgba(20,20,40,0.97)] border border-cyan-400/30 shadow-[0_0_32px_8px_rgba(80,200,255,0.25)] backdrop-blur-md relative">
-          <DialogHeader>
-            <DialogTitle className="text-cosmic-magenta text-2xl font-extrabold mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">Hazte Premium y desbloquea conversaciones cósmicas</DialogTitle>
-            <DialogDescription className="text-cyan-100 mb-4">Accede a todas las funciones exclusivas de Amor Astral:</DialogDescription>
-          </DialogHeader>
-          <ul className="mb-4 space-y-2">
-            <li className="flex items-center gap-2 text-cyan-100"><span className="text-cosmic-magenta font-bold text-lg">🔓</span> Desbloquear conversaciones cósmicas</li>
-            <li className="flex items-center gap-2 text-cyan-100"><span className="text-cosmic-magenta font-bold text-lg">💬</span> Acceso ilimitado a chats</li>
-            <li className="flex items-center gap-2 text-cyan-100"><span className="text-cosmic-magenta font-bold text-lg">🌟</span> Funciones exclusivas y soporte prioritario</li>
-            <li className="flex items-center gap-2 text-cyan-100"><span className="text-cosmic-magenta font-bold text-lg">🚫</span> Sin anuncios</li>
-          </ul>
-          <DialogFooter>
-            <button
-              onClick={handleGoToPremiumPayment}
-              className="w-full bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold py-3 rounded-xl shadow-lg text-lg tracking-wide border-2 border-cyan-200 animate-pulse"
-              tabIndex={0}
-              aria-label="Activar Premium"
-              style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}
-            >
-              Activar Premium
-            </button>
-          </DialogFooter>
-          {/* Efecto de halo galáctico */}
-          <div className="pointer-events-none absolute inset-0 rounded-2xl" style={{boxShadow:'0 0 64px 16px #38bdf855, 0 0 128px 32px #a78bfa22'}}></div>
-        </DialogContent>
-      </Dialog>
+      {/* Modal premium para usuarios free o botón premium */}
+      <PremiumModal open={showPremiumModal} onClose={() => setShowPremiumModal(false)} />
     </>
   );
 };

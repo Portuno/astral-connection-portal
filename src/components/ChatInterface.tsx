@@ -66,6 +66,36 @@ const ChatInterface = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Suscripción realtime a mensajes del chat actual
+  useEffect(() => {
+    if (!chat?.id) return;
+    // Solo para chats reales, no artificiales
+    if (isArtificial) return;
+    const channel = supabase.channel(`messages-chat-${chat.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `chat_id=eq.${chat.id}`,
+        },
+        (payload) => {
+          const newMsg = payload.new;
+          // Validar que el mensaje tenga los campos requeridos
+          if (!newMsg || !newMsg.id || !newMsg.chat_id || !newMsg.sender_id || !newMsg.content || !newMsg.created_at) return;
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg as Message];
+          });
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [chat?.id, isArtificial]);
+
   // Cargar perfil y chat al montar el componente
   useEffect(() => {
     const loadChatData = async () => {

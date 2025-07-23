@@ -8,6 +8,7 @@ import { ArrowLeft, MessageCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthProvider";
 
 interface ChatWithProfile {
   id: string;
@@ -37,11 +38,13 @@ interface ChatWithProfile {
 const Chats = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
   const [chats, setChats] = useState<ChatWithProfile[]>([]);
   const [filteredChats, setFilteredChats] = useState<ChatWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const currentUserId = localStorage.getItem("sessionId") || "temp_user";
+  // Usar el id del usuario autenticado si existe, si no, fallback a sessionId local
+  const currentUserId = user?.id || localStorage.getItem("sessionId") || "temp_user";
 
   // Cargar chats del usuario
   useEffect(() => {

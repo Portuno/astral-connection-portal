@@ -55,7 +55,7 @@ const Premium = () => {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center">
       <GalacticBackground />
-      <div className="relative z-10 w-full max-w-2xl mx-auto rounded-3xl p-0 border-0 shadow-[0_0_64px_16px_rgba(80,200,255,0.18)] bg-[rgba(20,20,40,0.98)] backdrop-blur-2xl flex flex-col items-center mt-16 mb-8">
+      <div className="relative z-10 w-full max-w-2xl mx-auto rounded-3xl border-0 shadow-[0_0_64px_16px_rgba(80,200,255,0.18)] bg-[rgba(20,20,40,0.98)] backdrop-blur-2xl flex flex-col items-center px-6 py-10">
         <button
           onClick={() => navigate(-1)}
           className="absolute top-4 right-4 text-cyan-200 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/10 p-2 z-20"
@@ -64,15 +64,15 @@ const Premium = () => {
         >
           <X className="w-6 h-6" />
         </button>
-        <DialogTitle className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2 mt-10 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">Hazte Premium y desbloquea conversaciones cósmicas</DialogTitle>
+        <DialogTitle className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">Hazte Premium y desbloquea conversaciones cósmicas</DialogTitle>
         <DialogDescription className="text-cyan-100 text-center mb-4 max-w-lg">Accede a todas las funciones exclusivas de Amor Astral:</DialogDescription>
-        <ul className="mb-6 space-y-3 w-full max-w-md mx-auto px-6">
+        <ul className="mb-6 space-y-3 w-full max-w-md mx-auto">
           <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🔓</span> Desbloquear conversaciones cósmicas</li>
           <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">💬</span> Acceso ilimitado a chats</li>
           <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🌟</span> Funciones exclusivas y soporte prioritario</li>
           <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🚫</span> Sin anuncios</li>
         </ul>
-        <div className="w-full flex justify-center pb-10 px-6">
+        <div className="w-full flex justify-center">
           <button
             onClick={handleActivatePremium}
             className="w-full max-w-md bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold py-4 rounded-2xl shadow-lg text-xl tracking-wide border-2 border-cyan-200 animate-pulse focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"

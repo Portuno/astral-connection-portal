@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Sparkles, MapPin, Calendar, Sun, Moon, Navigation, Heart } from "lucide-react";
+import { Sparkles, MapPin, Calendar, Sun, Moon, Navigation, Heart, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 // Extender el tipo Profile para permitir hasta 4 fotos
@@ -65,15 +65,24 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-cosmic-blue flex flex-col items-center py-8 px-4">
-      <Card className="w-full max-w-xl bg-white/10 backdrop-blur-md border-white/20">
-        <CardHeader className="flex flex-col items-center gap-2">
-          <Avatar className="w-20 h-20 border-2 border-cosmic-gold/30">
+      <Card className="w-full max-w-2xl bg-white/10 backdrop-blur-md border-white/20 p-6 relative">
+        {/* Botón Volver arriba a la izquierda */}
+        <button
+          onClick={() => navigate('/home')}
+          className="absolute top-4 left-4 flex items-center gap-2 text-cosmic-magenta hover:text-fuchsia-400 bg-white/20 px-3 py-1 rounded-lg font-semibold shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+          aria-label="Volver al inicio"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">Volver</span>
+        </button>
+        <CardHeader className="flex flex-col items-center gap-2 mt-6">
+          <Avatar className="w-24 h-24 border-2 border-cosmic-gold/30">
             <AvatarImage src={profile.photo_url || undefined} alt={profile.name} />
             <AvatarFallback className="bg-cosmic-magenta text-white font-bold">
               {profile.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
-          <CardTitle className="text-white text-2xl mt-2">{profile.name}</CardTitle>
+          <CardTitle className="text-white text-3xl mt-2">{profile.name}</CardTitle>
           <div className="flex items-center gap-2 text-gray-300">
             <Calendar className="w-4 h-4" />
             <span>{profile.age} años</span>
@@ -87,11 +96,11 @@ const ProfilePage = () => {
         <CardContent>
           {/* Slider de fotos */}
           {photos.length > 0 && (
-            <div className="flex flex-col items-center mb-6 relative">
+            <div className="flex flex-col items-center mb-8 relative">
               <img
                 src={photos[currentPhoto]}
                 alt={`Foto ${currentPhoto + 1} de ${profile.name}`}
-                className="object-cover w-48 h-48 rounded-lg border-2 border-cosmic-magenta"
+                className="object-cover w-72 h-72 rounded-2xl border-4 border-cosmic-magenta shadow-lg mx-auto"
               />
               {photos.length > 1 && (
                 <div className="flex gap-2 mt-2">
@@ -143,31 +152,21 @@ const ProfilePage = () => {
             </div>
           </div>
           {/* Descripción */}
-          <p className="text-gray-100 text-base mb-4 text-center whitespace-pre-line">
+          <p className="text-gray-100 text-base mb-8 text-center whitespace-pre-line">
             {profile.description}
           </p>
+          {/* Botón Chatear con (primer nombre) */}
+          <div className="flex justify-center mt-6">
+            <Button
+              onClick={() => navigate(`/chat/${profile.id}`)}
+              className="bg-cosmic-magenta hover:bg-fuchsia-600 text-white font-bold text-lg px-8 py-3 rounded-xl shadow-lg"
+              aria-label={`Chatear con ${profile.name.split(' ')[0]}`}
+            >
+              {`Chatear con ${profile.name.split(' ')[0]}`}
+            </Button>
+          </div>
         </CardContent>
       </Card>
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
-        <button
-          id="volver-inicio"
-          onClick={() => { console.log('Click volver al inicio'); navigate('/home'); }}
-          style={{
-            background: '#d72660',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: 20,
-            padding: '16px 32px',
-            borderRadius: 8,
-            boxShadow: '0 2px 8px #0002',
-            cursor: 'pointer',
-            zIndex: 9999,
-            position: 'relative'
-          }}
-        >
-          Volver al inicio
-        </button>
-      </div>
     </div>
   );
 };

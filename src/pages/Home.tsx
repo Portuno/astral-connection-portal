@@ -128,7 +128,7 @@ const Home = () => {
 
     if (!user?.isPremium) {
       toast({
-        title: "�� Desbloquea el chat premium",
+        title: "🎉 Desbloquea el chat premium",
         description: "Debes activar tu suscripción premium para chatear.",
         action: (
           <Button
@@ -148,7 +148,7 @@ const Home = () => {
   const handleAuthSuccess = () => {
     if (selectedProfileForChat) {
       toast({
-        title: "🎉 ¡Bienvenido a AstroTarot!",
+        title: "🎉 ¡Bienvenido a Amor Astral!",
         description: `Ahora puedes chatear con ${selectedProfileForChat.name}`,
       });
       
@@ -220,7 +220,7 @@ const Home = () => {
               </div>
               <div>
                 <h1 className="text-lg sm:text-2xl font-bold text-white">
-                  AstroTarot
+                  Amor Astral
                 </h1>
                 {userProfile && (
                   <p className="text-xs sm:text-sm text-gray-300 hidden sm:block">

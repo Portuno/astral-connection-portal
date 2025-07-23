@@ -73,7 +73,7 @@ const Landing = () => {
                 <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-3 sm:mb-4 leading-tight">
-                Alma<span className="text-cosmic-gold">Estelar</span>
+                Amor <span className="text-cosmic-gold">Astral</span>
               </h1>
               <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto px-2">
                 Encuentra tu conexión perfecta a través de la sabiduría ancestral de la astrología
@@ -223,7 +223,7 @@ const Landing = () => {
               <a href="#" className="text-gray-400 hover:text-white transition-colors">Contacto</a>
             </div>
 
-            <p className="text-gray-500 text-xs sm:text-sm">© 2025 AlmaEstelar. Todos los derechos reservados.</p>
+            <p className="text-gray-500 text-xs sm:text-sm">© 2025 Amor Astral. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>

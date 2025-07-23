@@ -184,10 +184,10 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
             </div>
           </div>
           <DialogTitle className="text-xl font-bold text-cosmic-blue">
-            Únete a AstroTarot
+            Únete a Amor Astral
           </DialogTitle>
           <DialogDescription className="text-center text-gray-600 text-sm">
-            Accede a tu cuenta para descubrir tu alma gemela
+            Accede a tu cuenta para descubrir tu conexión cósmica
           </DialogDescription>
         </DialogHeader>
 

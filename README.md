@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Amor Astral
 
 ## Project info
 

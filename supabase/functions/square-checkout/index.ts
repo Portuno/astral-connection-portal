@@ -46,6 +46,7 @@ Deno.serve(async (req) => {
           idempotency_key: crypto.randomUUID(),
           order: {
             location_id: SQUARE_LOCATION_ID,
+            reference_id: user_id, // <-- Asocia el pago al usuario
             line_items: [
               {
                 name: "Suscripción Premium AstroTarot",

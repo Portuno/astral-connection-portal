@@ -21,7 +21,6 @@ const Home = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   // Filtros
   const [genderFilter, setGenderFilter] = useState<'hombre' | 'mujer' | 'ambos'>('ambos');
@@ -128,11 +127,6 @@ const Home = () => {
       return;
     }
 
-    if (!user?.isPremium) {
-      setShowPremiumModal(true);
-      return;
-    }
-
     navigate(`/chat/${profile.id}`);
   };
 
@@ -159,7 +153,7 @@ const Home = () => {
   };
 
   const handleViewChats = () => {
-    if (!isAuthenticated || !user?.isPremium) {
+    if (!isAuthenticated) {
       setShowAuthModal(true);
       toast({
         title: "🔐 Acceso Premium Requerido",
@@ -393,47 +387,6 @@ const Home = () => {
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
-
-      {/* Modal de pago premium */}
-      {showPremiumModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" aria-modal="true" role="dialog" tabIndex={-1}>
-          <div className="relative w-[95vw] max-w-2xl mx-auto rounded-3xl shadow-2xl bg-gradient-to-br from-white/90 via-purple-100/90 to-blue-100/90 flex flex-col items-center"
-            style={{ minHeight: '60vh', maxHeight: '90vh', width: '90vw', maxWidth: '420px' }}>
-            {/* Botón de cierre */}
-            <button
-              onClick={() => setShowPremiumModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/70 p-1 z-20"
-              aria-label="Cerrar"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            <div className="w-full flex flex-col items-center pt-8 pb-4 px-6">
-              <div className="flex justify-center mb-2">
-                <div className="relative">
-                  <svg className="w-16 h-16 text-yellow-500 drop-shadow-lg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" /></svg>
-                </div>
-              </div>
-              <h2 className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2">¡Hazte Premium y desbloquea el chat!</h2>
-              <p className="text-base text-gray-700 text-center mb-2 max-w-xs">
-                Descubre los chats, habla con tus conexiones estelares, accede a funciones exclusivas y vive el amor cósmico sin límites.
-              </p>
-              <ul className="text-gray-700 text-sm mb-4 space-y-2">
-                <li>💬 Chatea sin límites con tus matches</li>
-                <li>🔮 Lecturas de tarot personalizadas</li>
-                <li>🌟 Compatibilidad astrológica avanzada</li>
-                <li>🚫 Sin anuncios</li>
-                <li>⭐ Soporte prioritario</li>
-              </ul>
-              <button
-                onClick={() => { setShowPremiumModal(false); navigate('/premium'); }}
-                className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white font-bold py-3 text-lg rounded-xl shadow-lg mt-2 mb-3"
-              >
-                Activar Premium
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -7,7 +7,6 @@ interface User {
   email: string;
   name: string;
   avatar_url?: string;
-  isPremium: boolean;
   subscriptionDate?: string;
   onboardingCompleted?: boolean;
   birth_date?: string;
@@ -27,8 +26,6 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<boolean>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<boolean>;
-  checkSubscription: () => Promise<boolean>;
-  upgradeToPremiumFree: () => Promise<boolean>;
   refreshUser: () => Promise<void>;
 }
 
@@ -61,7 +58,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             supabaseUser.email?.split('@')[0] || 
             'Usuario',
       avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
-      isPremium: false, // Por defecto no premium
       onboardingCompleted: false
     };
   };
@@ -88,7 +84,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             email: userData.email,
             name: userData.full_name || userData.email?.split('@')[0] || 'Usuario',
             avatar_url: userData.avatar_url,
-            isPremium: userData.is_premium || false,
             subscriptionDate: userData.created_at,
             onboardingCompleted: userData.onboarding_completed || false,
             birth_date: userData.birth_date,
@@ -99,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           };
         }
       } catch (dbError) {
-        console.log("⚠️ Error/timeout en BD, usando datos básicos y manteniendo premium anterior si existe:", dbError);
+        console.log("⚠️ Error/timeout en BD, usando datos básicos y manteniendo usuario anterior si existe:", dbError);
       }
       // Si no se puede cargar desde BD:
       if (prevUser) {
@@ -343,60 +338,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const checkSubscription = async (): Promise<boolean> => {
-    if (!user) return false;
-    
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('is_premium')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('❌ Error verificando suscripción:', error);
-        return false;
-      }
-
-      const isPremium = data?.is_premium || false;
-      setUser(prev => prev ? { ...prev, isPremium } : null);
-      return isPremium;
-    } catch (error) {
-      console.error('❌ Error verificando suscripción:', error);
-      return false;
-    }
-  };
-
-  const upgradeToPremiumFree = async (): Promise<boolean> => {
-    if (!user) return false;
-
-    try {
-      console.log("⭐ Actualizando a premium gratuito...");
-             const { error } = await supabase
-         .from('users')
-         .update({ 
-           is_premium: true
-         })
-         .eq('id', user.id);
-
-      if (error) {
-        console.error('❌ Error actualizando a premium:', error);
-        return false;
-      }
-
-             setUser(prev => prev ? { 
-         ...prev, 
-         isPremium: true
-       } : null);
-      
-      console.log("✅ Usuario actualizado a premium");
-      return true;
-    } catch (error) {
-      console.error('❌ Error actualizando a premium:', error);
-      return false;
-    }
-  };
-
   const isAuthenticated = !!user && !!session;
 
   const value: AuthContextType = {
@@ -409,8 +350,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loginWithGoogle,
     logout,
     updateProfile,
-    checkSubscription,
-    upgradeToPremiumFree,
     refreshUser
   };
 

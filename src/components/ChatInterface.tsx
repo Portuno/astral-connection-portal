@@ -60,10 +60,10 @@ const ChatInterface = () => {
   // Verificar autenticación al cargar
   useEffect(() => {
     if (isLoading) return; // Esperar a que cargue el usuario
-    if (!isAuthenticated || !user?.isPremium) {
+    if (!isAuthenticated) {
       toast({
-        title: "🔒 Acceso Premium Requerido",
-        description: "Necesitas una suscripción premium para acceder a los chats",
+        title: "🔒 Acceso Requerido",
+        description: "Necesitas iniciar sesión para acceder a los chats",
         variant: "destructive"
       });
       navigate('/home');
@@ -71,28 +71,13 @@ const ChatInterface = () => {
     }
   }, [isAuthenticated, user, navigate, toast, isLoading]);
 
-  // Si está cargando usuario o premium, mostrar loading temático
+  // Si está cargando usuario, mostrar loading temático
   if (isLoading) {
     return (
       <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
         <div className="text-center">
-          <Crown className="h-12 w-12 text-cosmic-gold mx-auto mb-4 animate-pulse" />
           <h2 className="text-xl text-white mb-4">Canalizando energías cósmicas...</h2>
-          <p className="text-cosmic-gold">Consultando los astros para verificar tu acceso premium</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Fallback defensivo: si tras cargar el usuario no es válido, mostrar mensaje y botón
-  if (!isLoading && (!isAuthenticated || !user?.isPremium)) {
-    return (
-      <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
-        <div className="text-center">
-          <Crown className="h-12 w-12 text-cosmic-gold mx-auto mb-4 animate-bounce" />
-          <h2 className="text-xl text-white mb-4">Acceso restringido</h2>
-          <p className="text-cosmic-gold mb-4">No tienes acceso premium o tu sesión expiró.<br />Por favor, vuelve al inicio e inicia sesión nuevamente.</p>
-          <Button onClick={() => navigate('/home')} className="bg-cosmic-magenta text-white px-6 py-3 rounded-full font-bold">Volver al inicio</Button>
+          <p className="text-cosmic-gold">Consultando los astros para verificar tu acceso</p>
         </div>
       </div>
     );
@@ -191,7 +176,7 @@ const ChatInterface = () => {
   // Cargar perfil y chat al montar el componente
   useEffect(() => {
     const loadChatData = async () => {
-      if (!profileId || !isAuthenticated || !user?.isPremium) return;
+      if (!profileId || !isAuthenticated) return;
       setLoading(true);
       try {
         // Cargar perfil desde Supabase

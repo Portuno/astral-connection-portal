@@ -13,9 +13,6 @@ import Chats from "./pages/Chats";
 import ChatInterface from "./components/ChatInterface";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
-import PremiumCheckout from "./components/PremiumCheckout";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentCancelled from "./pages/PaymentCancelled";
 import ProfileEdit from "./pages/ProfileEdit";
 import ProfilePage from "./pages/Profile";
 import { useAuth } from "./components/AuthProvider";
@@ -46,9 +43,6 @@ const App = () => (
             <Route path="/chats" element={<Chats />} />
             <Route path="/chat/:profileId" element={<ChatInterface />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/premium" element={<PremiumCheckout />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             <Route path="/profile-edit" element={<ProfileEdit />} />
             <Route path="/profile/:profileId" element={<ProfilePage />} />
             <Route path="*" element={<NotFound />} />

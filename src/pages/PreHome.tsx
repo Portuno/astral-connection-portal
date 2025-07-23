@@ -41,7 +41,12 @@ export default function PreHome() {
     name: '',
     birthDate: '',
     birthTime: '',
-    birthCity: ''
+    birthCity: '',
+    birth_day: '',
+    birth_month: '',
+    birth_year: '',
+    birth_hour: '',
+    birth_minute: ''
   });
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
@@ -161,20 +166,72 @@ export default function PreHome() {
         </div>
         <div className="mb-4 flex gap-2">
           <input
-            name="birthDate"
-            type="date"
-            value={form.birthDate}
+            name="birth_day"
+            type="number"
+            value={form.birth_day || ''}
             onChange={handleChange}
-            required
+            placeholder="Día"
+            min={1}
+            max={31}
             className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            inputMode="numeric"
+            aria-label="Día de nacimiento"
+            required
           />
           <input
-            name="birthTime"
-            type="time"
-            value={form.birthTime}
+            name="birth_month"
+            type="number"
+            value={form.birth_month || ''}
             onChange={handleChange}
-            required
+            placeholder="Mes"
+            min={1}
+            max={12}
             className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            inputMode="numeric"
+            aria-label="Mes de nacimiento"
+            required
+          />
+          <input
+            name="birth_year"
+            type="number"
+            value={form.birth_year || ''}
+            onChange={handleChange}
+            placeholder="Año"
+            min={1900}
+            max={2024}
+            className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            inputMode="numeric"
+            aria-label="Año de nacimiento"
+            required
+          />
+        </div>
+        <div className="mb-4 flex gap-2 items-center">
+          <input
+            name="birth_hour"
+            type="number"
+            value={form.birth_hour || ''}
+            onChange={handleChange}
+            placeholder="HH"
+            min={0}
+            max={23}
+            className="w-1/2 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            inputMode="numeric"
+            aria-label="Hora de nacimiento"
+            required
+          />
+          <span className="text-cosmic-magenta font-bold">:</span>
+          <input
+            name="birth_minute"
+            type="number"
+            value={form.birth_minute || ''}
+            onChange={handleChange}
+            placeholder="MM"
+            min={0}
+            max={59}
+            className="w-1/2 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            inputMode="numeric"
+            aria-label="Minutos de nacimiento"
+            required
           />
         </div>
         <div className="mb-6 relative">

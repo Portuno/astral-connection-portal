@@ -140,24 +140,76 @@ const OnboardingPayment = () => {
             )}
             {step === 2 && (
               <div className="space-y-3">
-                <Input
-                  name="birth_date"
-                  type="date"
-                  value={form.birth_date}
-                  onChange={handleChange}
-                  placeholder="Fecha de nacimiento"
-                  required
-                  className="bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
-                />
-                <Input
-                  name="birth_time"
-                  type="time"
-                  value={form.birth_time}
-                  onChange={handleChange}
-                  placeholder="Hora de nacimiento"
-                  required
-                  className="bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    name="birth_day"
+                    type="number"
+                    value={form.birth_day || ''}
+                    onChange={handleChange}
+                    placeholder="Día"
+                    min={1}
+                    max={31}
+                    className="flex-1 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
+                    inputMode="numeric"
+                    aria-label="Día de nacimiento"
+                    required
+                  />
+                  <Input
+                    name="birth_month"
+                    type="number"
+                    value={form.birth_month || ''}
+                    onChange={handleChange}
+                    placeholder="Mes"
+                    min={1}
+                    max={12}
+                    className="flex-1 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
+                    inputMode="numeric"
+                    aria-label="Mes de nacimiento"
+                    required
+                  />
+                  <Input
+                    name="birth_year"
+                    type="number"
+                    value={form.birth_year || ''}
+                    onChange={handleChange}
+                    placeholder="Año"
+                    min={1900}
+                    max={2024}
+                    className="flex-1 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
+                    inputMode="numeric"
+                    aria-label="Año de nacimiento"
+                    required
+                  />
+                </div>
+                <div className="flex gap-2 items-center">
+                  <Input
+                    name="birth_hour"
+                    type="number"
+                    value={form.birth_hour || ''}
+                    onChange={handleChange}
+                    placeholder="HH"
+                    min={0}
+                    max={23}
+                    className="w-1/2 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
+                    inputMode="numeric"
+                    aria-label="Hora de nacimiento"
+                    required
+                  />
+                  <span className="text-cosmic-magenta font-bold">:</span>
+                  <Input
+                    name="birth_minute"
+                    type="number"
+                    value={form.birth_minute || ''}
+                    onChange={handleChange}
+                    placeholder="MM"
+                    min={0}
+                    max={59}
+                    className="w-1/2 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
+                    inputMode="numeric"
+                    aria-label="Minutos de nacimiento"
+                    required
+                  />
+                </div>
                 <Input
                   name="birth_place"
                   value={form.birth_place}

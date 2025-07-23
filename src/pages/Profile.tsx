@@ -85,22 +85,21 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-cosmic-blue flex flex-col items-center py-8 px-4">
       <Card className="w-full max-w-2xl bg-white/10 backdrop-blur-md border-white/20 p-6 relative">
-        {/* Botón Volver arriba a la izquierda */}
-        <button
-          onClick={() => navigate('/home')}
-          className="absolute top-4 left-4 flex items-center gap-2 text-cosmic-magenta hover:text-fuchsia-400 bg-white/20 px-3 py-1 rounded-lg font-semibold shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
-          aria-label="Volver al inicio"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="hidden sm:inline">Volver</span>
-        </button>
-        {/* % compatibilidad arriba a la derecha */}
-        <div className="absolute top-4 right-4">
+        {/* Botón Volver arriba a la izquierda y % compatible a la derecha */}
+        <div className="flex flex-row items-center justify-between w-full absolute top-4 left-0 px-6">
+          <button
+            onClick={() => navigate('/home')}
+            className="flex items-center gap-2 text-cosmic-magenta hover:text-fuchsia-400 bg-white/20 px-3 py-1 rounded-lg font-semibold shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+            aria-label="Volver al inicio"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="hidden sm:inline">Volver</span>
+          </button>
           <Badge className="bg-cosmic-gold/20 text-cosmic-gold text-xs">
             {profile.compatibility_score}% compatible
           </Badge>
         </div>
-        <CardHeader className="flex flex-col items-center gap-2 mt-6">
+        <CardHeader className="flex flex-col items-center gap-2 mt-16">
           <CardTitle className="text-white text-3xl mt-2">{profile.name}</CardTitle>
           <div className="flex items-center gap-2 text-gray-300">
             <Calendar className="w-4 h-4" />
@@ -170,14 +169,9 @@ const ProfilePage = () => {
             </div>
           </div>
           {/* Descripción */}
-          <p className="text-gray-100 text-base mb-4 text-center whitespace-pre-line">
+          <p className="text-gray-100 text-base mb-8 text-center whitespace-pre-line">
             {profile.description}
           </p>
-          {/* Busca debajo, con corazón */}
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <Heart className="w-5 h-5 text-red-400" />
-            <span className="text-gray-200 text-base">Busca: {profile.lookingFor}</span>
-          </div>
           {/* Botón Chatear con (primer nombre) */}
           <div className="flex justify-center mt-6">
             <Button

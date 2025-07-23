@@ -43,11 +43,11 @@ const GalacticBackground = () => (
 const Premium = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   const handleActivatePremium = async () => {
     console.log("Click en activar premium");
-    if (!user) {
+    if (!user || !session) {
       toast({
         title: "Debes iniciar sesión",
         description: "Inicia sesión para activar premium.",
@@ -63,6 +63,7 @@ const Premium = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`
           },
           body: JSON.stringify({ user_id: user.id }),
         }

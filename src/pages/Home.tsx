@@ -11,7 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import AuthModal from "@/components/AuthModal";
 import { supabase } from "@/integrations/supabase/client";
-import PremiumCheckout from "@/components/PremiumCheckout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 // Eliminar PremiumModal y toda lógica de showPremiumModal
@@ -19,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 const Home = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, isAuthenticated, logout, upgradeToPremiumFree, refreshUser } = useAuth();
+  const { user, isAuthenticated, logout, refreshUser } = useAuth();
   const [compatibleProfiles, setCompatibleProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -334,8 +333,12 @@ const Home = () => {
           {compatibleProfiles.map((profile, idx) => (
             <div
               key={profile.id}
-              className="relative rounded-2xl bg-[rgba(20,20,40,0.85)] shadow-[0_0_16px_4px_rgba(0,255,255,0.13)] border border-cyan-400/20 backdrop-blur-md overflow-hidden group hover:shadow-[0_0_32px_8px_rgba(80,200,255,0.25)] transition-shadow duration-300"
+              className="relative rounded-2xl bg-[rgba(20,20,40,0.85)] shadow-[0_0_16px_4px_rgba(0,255,255,0.13)] border border-cyan-400/20 backdrop-blur-md overflow-hidden group hover:shadow-[0_0_32px_8px_rgba(80,200,255,0.25)] transition-shadow duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
               style={{ boxShadow: '0 0 24px 4px #38bdf855, 0 0 64px 8px #a78bfa22' }}
+              onClick={() => handleChatClick(profile)}
+              tabIndex={0}
+              aria-label={`Abrir chat con ${profile.name}`}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleChatClick(profile); }}
             >
               <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
                 <div className="flex items-center justify-between mb-3">
@@ -390,6 +393,8 @@ const Home = () => {
               <Button
                 onClick={e => { e.stopPropagation(); handleChatClick(profile); }}
                 className="w-full bg-cosmic-magenta hover:bg-cosmic-magenta/80 text-white text-sm py-2"
+                tabIndex={-1}
+                aria-label={`Iniciar chat con ${profile.name}`}
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Iniciar Chat

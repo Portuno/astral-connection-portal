@@ -199,16 +199,18 @@ const ChatInterface = () => {
             read_at: null
           })));
         } else {
-          // Chat real (lógica actual)
+          // Chat real (lógica mejorada: buscar ambos órdenes y nunca duplicar)
           const authenticatedUserId = user.id;
           const otherId = profileData.id;
-          const { data: existingChat, error: chatError } = await supabase
+          // Buscar todos los chats entre ambos usuarios, sin importar el orden
+          const { data: existingChats, error: chatError } = await supabase
             .from('chats')
             .select('*')
             .or(`and(user1_id.eq.${authenticatedUserId},user2_id.eq.${otherId}),and(user1_id.eq.${otherId},user2_id.eq.${authenticatedUserId})`)
-            .single();
-          let chatData = existingChat;
-          if (chatError && chatError.code === 'PGRST116') {
+            .order('created_at', { ascending: true });
+          let chatData = existingChats && existingChats.length > 0 ? existingChats[0] : null;
+          if (!chatData) {
+            // Solo crear si no existe ninguno
             const { data: newChat, error: createError } = await supabase
               .from('chats')
               .insert({ user1_id: authenticatedUserId, user2_id: otherId })
@@ -220,10 +222,6 @@ const ChatInterface = () => {
               return;
             }
             chatData = newChat;
-          } else if (chatError) {
-            toast({ title: 'Error', description: 'No se pudo cargar el chat', variant: 'destructive' });
-            setLoading(false);
-            return;
           }
           setChat(chatData);
           if (chatData) {

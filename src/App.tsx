@@ -18,7 +18,6 @@ import ProfilePage from "./pages/Profile";
 import { useAuth } from "./components/AuthProvider";
 import PreHome from "./pages/PreHome";
 import Preloading from "./pages/Preloading";
-import Premium from "./pages/Premium";
 
 const queryClient = new QueryClient();
 
@@ -46,7 +45,6 @@ const App = () => (
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/profile-edit" element={<ProfileEdit />} />
             <Route path="/profile/:profileId" element={<ProfilePage />} />
-            <Route path="/premium" element={<Premium />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

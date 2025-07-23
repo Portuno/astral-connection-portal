@@ -19,6 +19,7 @@ import { useAuth } from "./components/AuthProvider";
 import PreHome from "./pages/PreHome";
 import Preloading from "./pages/Preloading";
 import Premium from "./pages/Premium";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/profile-edit" element={<ProfileEdit />} />
             <Route path="/profile/:profileId" element={<ProfilePage />} />
             <Route path="/premium" element={<Premium />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

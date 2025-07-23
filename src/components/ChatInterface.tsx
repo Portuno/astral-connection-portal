@@ -443,7 +443,7 @@ const ChatInterface = () => {
               className={`flex items-start mb-4 ${message.sender_id === user?.id ? 'justify-end' : ''}`}
             >
               <Avatar className="mr-2">
-                <AvatarImage src={message.sender_id === user?.id ? user?.avatar : profile?.avatar} />
+                <AvatarImage src={message.sender_id === user?.id ? user?.avatar_url : profile?.avatar} />
                 <AvatarFallback>{message.sender_id === user?.id ? user?.name : profile?.name}</AvatarFallback>
               </Avatar>
               <div

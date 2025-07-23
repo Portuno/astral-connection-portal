@@ -39,14 +39,9 @@ export default function PreHome() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: '',
-    birthDate: '',
-    birthTime: '',
-    birthCity: '',
-    birth_day: '',
-    birth_month: '',
-    birth_year: '',
-    birth_hour: '',
-    birth_minute: ''
+    birthDate: '', // formato DD/MM/AAAA
+    birthTime: '', // formato HH:MM
+    birthCity: ''
   });
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
@@ -65,6 +60,20 @@ export default function PreHome() {
         setSuggestions([]);
       }
     }
+  };
+
+  const handleDateInput = (e) => {
+    let value = e.target.value.replace(/[^\d]/g, '');
+    if (value.length > 2) value = value.slice(0,2) + '/' + value.slice(2);
+    if (value.length > 5) value = value.slice(0,5) + '/' + value.slice(5,9);
+    if (value.length > 10) value = value.slice(0,10);
+    setForm({ ...form, birthDate: value });
+  };
+  const handleTimeInput = (e) => {
+    let value = e.target.value.replace(/[^\d]/g, '');
+    if (value.length > 2) value = value.slice(0,2) + ':' + value.slice(2,4);
+    if (value.length > 5) value = value.slice(0,5);
+    setForm({ ...form, birthTime: value });
   };
 
   const handleSelectCity = (city: string) => {
@@ -166,71 +175,31 @@ export default function PreHome() {
         </div>
         <div className="mb-4 flex gap-2">
           <input
-            name="birth_day"
-            type="number"
-            value={form.birth_day || ''}
-            onChange={handleChange}
-            placeholder="Día"
-            min={1}
-            max={31}
-            className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            name="birthDate"
+            type="text"
+            value={form.birthDate}
+            onChange={handleDateInput}
+            placeholder="DD/MM/AAAA"
             inputMode="numeric"
-            aria-label="Día de nacimiento"
-            required
-          />
-          <input
-            name="birth_month"
-            type="number"
-            value={form.birth_month || ''}
-            onChange={handleChange}
-            placeholder="Mes"
-            min={1}
-            max={12}
+            pattern="\d{2}/\d{2}/\d{4}"
+            maxLength={10}
             className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
-            inputMode="numeric"
-            aria-label="Mes de nacimiento"
-            required
-          />
-          <input
-            name="birth_year"
-            type="number"
-            value={form.birth_year || ''}
-            onChange={handleChange}
-            placeholder="Año"
-            min={1900}
-            max={2024}
-            className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
-            inputMode="numeric"
-            aria-label="Año de nacimiento"
+            aria-label="Fecha de nacimiento"
             required
           />
         </div>
         <div className="mb-4 flex gap-2 items-center">
           <input
-            name="birth_hour"
-            type="number"
-            value={form.birth_hour || ''}
-            onChange={handleChange}
-            placeholder="HH"
-            min={0}
-            max={23}
-            className="w-1/2 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            name="birthTime"
+            type="text"
+            value={form.birthTime}
+            onChange={handleTimeInput}
+            placeholder="HH:MM"
             inputMode="numeric"
+            pattern="\d{2}:\d{2}"
+            maxLength={5}
+            className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
             aria-label="Hora de nacimiento"
-            required
-          />
-          <span className="text-cosmic-magenta font-bold">:</span>
-          <input
-            name="birth_minute"
-            type="number"
-            value={form.birth_minute || ''}
-            onChange={handleChange}
-            placeholder="MM"
-            min={0}
-            max={59}
-            className="w-1/2 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
-            inputMode="numeric"
-            aria-label="Minutos de nacimiento"
             required
           />
         </div>

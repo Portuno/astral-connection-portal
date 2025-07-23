@@ -25,8 +25,8 @@ const OnboardingPayment = () => {
   const [form, setForm] = useState({
     full_name: '',
     gender: '',
-    birth_date: '',
-    birth_time: '',
+    birth_date: '', // formato DD/MM/AAAA
+    birth_time: '', // formato HH:MM
     birth_place: '',
     description: '',
     sign: '',
@@ -41,6 +41,20 @@ const OnboardingPayment = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleDateInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/[^\d]/g, '');
+    if (value.length > 2) value = value.slice(0,2) + '/' + value.slice(2);
+    if (value.length > 5) value = value.slice(0,5) + '/' + value.slice(5,9);
+    if (value.length > 10) value = value.slice(0,10);
+    setForm({ ...form, birth_date: value });
+  };
+  const handleTimeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/[^\d]/g, '');
+    if (value.length > 2) value = value.slice(0,2) + ':' + value.slice(2,4);
+    if (value.length > 5) value = value.slice(0,5);
+    setForm({ ...form, birth_time: value });
   };
 
   const handlePhotoChange = (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,14 +101,12 @@ const OnboardingPayment = () => {
       };
       // Guardar perfil
       const { error: profileError } = await supabase.from('profiles').insert(profileData);
-      // Marcar usuario como premium
-      const { error: userError } = await supabase.from('users').update({ is_premium: true }).eq('id', user.id);
       setLoading(false);
-      if (profileError || userError) {
-        toast({ title: 'Error', description: (profileError?.message || userError?.message), variant: 'destructive' });
+      if (profileError) {
+        toast({ title: 'Error', description: profileError.message, variant: 'destructive' });
         return;
       }
-      toast({ title: '¡Perfil completo!', description: 'Tu perfil premium ha sido creado.' });
+      toast({ title: '¡Perfil completo!', description: 'Tu perfil ha sido creado.' });
       navigate('/home');
     } else {
       setStep(step + 1);
@@ -106,10 +118,10 @@ const OnboardingPayment = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cosmic-blue via-indigo-900 to-purple-900 p-4">
-      <Card className="w-full max-w-lg bg-white/95 shadow-2xl border-0">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-cosmic-blue via-indigo-900 to-purple-900 p-2 sm:p-4 overflow-x-hidden">
+      <Card className="w-full max-w-sm sm:max-w-lg bg-white/95 shadow-2xl border-0 mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-cosmic-magenta mb-2">Completa tu Perfil Premium</CardTitle>
+          <CardTitle className="text-2xl font-bold text-cosmic-magenta mb-2">Completa tu Perfil</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-6 text-center text-cosmic-magenta font-semibold">Paso {step + 1} de {steps.length}: {steps[step]}</div>
@@ -142,71 +154,31 @@ const OnboardingPayment = () => {
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <Input
-                    name="birth_day"
-                    type="number"
-                    value={form.birth_day || ''}
-                    onChange={handleChange}
-                    placeholder="Día"
-                    min={1}
-                    max={31}
-                    className="flex-1 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
+                    name="birth_date"
+                    type="text"
+                    value={form.birth_date}
+                    onChange={handleDateInput}
+                    placeholder="DD/MM/AAAA"
                     inputMode="numeric"
-                    aria-label="Día de nacimiento"
-                    required
-                  />
-                  <Input
-                    name="birth_month"
-                    type="number"
-                    value={form.birth_month || ''}
-                    onChange={handleChange}
-                    placeholder="Mes"
-                    min={1}
-                    max={12}
+                    pattern="\d{2}/\d{2}/\d{4}"
+                    maxLength={10}
                     className="flex-1 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
-                    inputMode="numeric"
-                    aria-label="Mes de nacimiento"
-                    required
-                  />
-                  <Input
-                    name="birth_year"
-                    type="number"
-                    value={form.birth_year || ''}
-                    onChange={handleChange}
-                    placeholder="Año"
-                    min={1900}
-                    max={2024}
-                    className="flex-1 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
-                    inputMode="numeric"
-                    aria-label="Año de nacimiento"
+                    aria-label="Fecha de nacimiento"
                     required
                   />
                 </div>
                 <div className="flex gap-2 items-center">
                   <Input
-                    name="birth_hour"
-                    type="number"
-                    value={form.birth_hour || ''}
-                    onChange={handleChange}
-                    placeholder="HH"
-                    min={0}
-                    max={23}
-                    className="w-1/2 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
+                    name="birth_time"
+                    type="text"
+                    value={form.birth_time}
+                    onChange={handleTimeInput}
+                    placeholder="HH:MM"
                     inputMode="numeric"
+                    pattern="\d{2}:\d{2}"
+                    maxLength={5}
+                    className="flex-1 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
                     aria-label="Hora de nacimiento"
-                    required
-                  />
-                  <span className="text-cosmic-magenta font-bold">:</span>
-                  <Input
-                    name="birth_minute"
-                    type="number"
-                    value={form.birth_minute || ''}
-                    onChange={handleChange}
-                    placeholder="MM"
-                    min={0}
-                    max={59}
-                    className="w-1/2 bg-white/90 border border-cosmic-magenta text-gray-900 rounded-lg px-4 py-3 text-base"
-                    inputMode="numeric"
-                    aria-label="Minutos de nacimiento"
                     required
                   />
                 </div>
@@ -268,12 +240,6 @@ const OnboardingPayment = () => {
           </form>
         </CardContent>
       </Card>
-      <button
-        onClick={() => { console.log('Click fuera del Card'); navigate('/home'); }}
-        style={{ position: 'fixed', bottom: 40, left: 40, background: 'green', color: 'white', fontSize: 24, zIndex: 9999 }}
-      >
-        Botón de prueba
-      </button>
     </div>
   );
 };

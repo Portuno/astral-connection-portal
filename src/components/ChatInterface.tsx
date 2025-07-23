@@ -62,7 +62,7 @@ const ChatInterface = () => {
     if (isLoading) return; // Esperar a que cargue el usuario
     if (!isAuthenticated || !user?.isPremium) {
       toast({
-        title: "🔐 Acceso Premium Requerido",
+        title: "🔒 Acceso Premium Requerido",
         description: "Necesitas una suscripción premium para acceder a los chats",
         variant: "destructive"
       });
@@ -70,6 +70,19 @@ const ChatInterface = () => {
       return;
     }
   }, [isAuthenticated, user, navigate, toast, isLoading]);
+
+  // Si está cargando usuario o premium, mostrar loading temático
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
+        <div className="text-center">
+          <Crown className="h-12 w-12 text-cosmic-gold mx-auto mb-4 animate-pulse" />
+          <h2 className="text-xl text-white mb-4">Canalizando energías cósmicas...</h2>
+          <p className="text-cosmic-gold">Consultando los astros para verificar tu acceso premium</p>
+        </div>
+      </div>
+    );
+  }
 
   // Scroll automático al final de los mensajes
   const scrollToBottom = () => {

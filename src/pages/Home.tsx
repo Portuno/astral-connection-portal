@@ -87,11 +87,18 @@ const Home = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       setLoading(true);
-      // Solo mostrar perfiles premium
-      const { data, error } = await supabase
+      // Solo mostrar perfiles premium y excluir al usuario actual
+      let query = supabase
         .from('profiles')
         .select('*')
         .eq('is_premium', true);
+      
+      // Si el usuario está autenticado, excluir su propio perfil
+      if (isAuthenticated && user?.id) {
+        query = query.neq('user_id', user.id);
+      }
+      
+      const { data, error } = await query;
       if (!error && data) {
         setCompatibleProfiles(data);
       } else {
@@ -100,41 +107,80 @@ const Home = () => {
       setLoading(false);
     };
     fetchProfiles();
-  }, []);
+  }, [isAuthenticated, user?.id]);
 
   // Cargar chats del usuario
   useEffect(() => {
     if (!isAuthenticated || !user?.id) return;
     const loadChats = async () => {
-      const { data: chatsData } = await supabase
-        .from('chats')
-        .select('*')
-        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-        .order('last_message_at', { ascending: false });
-      if (!chatsData) return;
-      // Obtener perfil y último mensaje de cada chat
-      const chatsWithProfiles = await Promise.all(
-        chatsData.map(async (chat: any) => {
-          const otherUserId = chat.user1_id === user.id ? chat.user2_id : chat.user1_id;
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', otherUserId)
-            .single();
-          const { data: lastMessage } = await supabase
-            .from('messages')
-            .select('content, created_at, sender_id')
-            .eq('chat_id', chat.id)
-            .order('created_at', { ascending: false })
-            .limit(1);
-          return {
-            ...chat,
-            profile,
-            lastMessage: lastMessage?.[0] || null,
-          };
-        })
-      );
-      setUserChats(chatsWithProfiles.filter(Boolean));
+      try {
+        console.log("🔄 Cargando chats para usuario:", user.id);
+        const { data: chatsData, error: chatsError } = await supabase
+          .from('chats')
+          .select('*')
+          .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+          .order('last_message_at', { ascending: false, nullsFirst: false });
+        
+        if (chatsError) {
+          console.error("❌ Error cargando chats:", chatsError);
+          return;
+        }
+        
+        console.log("📋 Chats encontrados:", chatsData?.length || 0, chatsData);
+        
+        if (!chatsData || chatsData.length === 0) {
+          setUserChats([]);
+          return;
+        }
+        
+        // Obtener perfil y último mensaje de cada chat
+        const chatsWithProfiles = await Promise.all(
+          chatsData.map(async (chat: any) => {
+            try {
+              const otherUserId = chat.user1_id === user.id ? chat.user2_id : chat.user1_id;
+              console.log("👤 Buscando perfil para:", otherUserId);
+              
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', otherUserId)
+                .single();
+              
+              if (profileError) {
+                console.error("❌ Error cargando perfil:", profileError, "para usuario:", otherUserId);
+                return null;
+              }
+              
+              const { data: lastMessage, error: messageError } = await supabase
+                .from('messages')
+                .select('content, created_at, sender_id')
+                .eq('chat_id', chat.id)
+                .order('created_at', { ascending: false })
+                .limit(1);
+              
+              if (messageError) {
+                console.error("❌ Error cargando último mensaje:", messageError);
+              }
+              
+              return {
+                ...chat,
+                profile,
+                lastMessage: lastMessage?.[0] || null,
+              };
+            } catch (error) {
+              console.error("❌ Error procesando chat:", error);
+              return null;
+            }
+          })
+        );
+        
+        const validChats = chatsWithProfiles.filter(Boolean);
+        console.log("✅ Chats procesados:", validChats.length, validChats);
+        setUserChats(validChats);
+      } catch (error) {
+        console.error("❌ Error general cargando chats:", error);
+        setUserChats([]);
+      }
     };
     loadChats();
   }, [isAuthenticated, user?.id]);
@@ -317,7 +363,7 @@ const Home = () => {
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
         {/* Fila horizontal: Mis chats + Mi perfil */}
-        {isAuthenticated && userProfile && (
+        {isAuthenticated && user && (
           <div className="flex flex-row gap-4 w-full mb-8">
             {/* Mis chats */}
             <div className="rounded-2xl bg-gradient-to-br from-[#2a0a3c]/80 to-[#1a1440]/80 p-4 w-[320px] min-w-[200px] max-h-[400px] overflow-y-auto shadow-lg">
@@ -352,6 +398,7 @@ const Home = () => {
               )}
             </div>
             {/* Mi perfil */}
+            {userProfile && (
             <div className="rounded-3xl bg-[#a78bfa]/30 p-6 flex-1 shadow-lg flex flex-col items-center">
               <Avatar className="w-16 h-16 mb-2">
                 <AvatarImage src={userProfile?.avatar_url || ''} alt={userProfile?.full_name || 'Avatar'} />
@@ -366,6 +413,7 @@ const Home = () => {
                 Editar perfil
               </Button>
             </div>
+            )}
           </div>
         )}
         {/* Filtro mejorado */}

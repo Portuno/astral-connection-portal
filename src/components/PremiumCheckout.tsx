@@ -4,7 +4,7 @@ import { useAuth } from '../components/AuthProvider'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
-import { Check, Crown, Star } from 'lucide-react'
+import { Check, Crown, Star, X } from 'lucide-react'
 import { useToast } from './ui/use-toast'
 
 const PremiumCheckout = () => {
@@ -12,6 +12,11 @@ const PremiumCheckout = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
+
+  // Cierre accesible
+  const handleClose = () => {
+    navigate(-1)
+  }
 
   const handleUpgradeToPremium = async () => {
     if (!user) {
@@ -70,55 +75,58 @@ const PremiumCheckout = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
-        <CardHeader className="text-center pb-6">
-          <div className="flex justify-center mb-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      aria-modal="true"
+      role="dialog"
+      tabIndex={-1}
+    >
+      {/* Modal centrado */}
+      <div
+        className="relative w-[95vw] max-w-2xl mx-auto rounded-3xl shadow-2xl bg-gradient-to-br from-white/90 via-purple-100/90 to-blue-100/90 p-0 flex flex-col items-center"
+        style={{ minHeight: '60vh', maxHeight: '90vh', width: '90vw', maxWidth: '420px' }}
+      >
+        {/* Botón de cierre */}
+        <button
+          onClick={handleClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/70 p-1 z-20"
+          aria-label="Cerrar"
+        >
+          <X className="w-6 h-6" />
+        </button>
+        {/* Header visual */}
+        <div className="w-full flex flex-col items-center pt-8 pb-4 px-6">
+          <div className="flex justify-center mb-2">
             <div className="relative">
-              <Crown className="w-16 h-16 text-yellow-500" />
-              <Star className="w-6 h-6 text-yellow-400 absolute -top-2 -right-2" />
+              <Crown className="w-16 h-16 text-yellow-500 drop-shadow-lg" />
+              <Star className="w-7 h-7 text-yellow-400 absolute -top-3 -right-3 animate-pulse" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">
-            Activar Premium
-          </CardTitle>
-          <CardDescription className="text-gray-600">
-            Desbloquea todas las funciones premium de AstroTarot
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          {/* Precio */}
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-3xl font-bold text-gray-900">€29,90</span>
-              <Badge variant="secondary" className="text-sm">
-                /mes
-              </Badge>
-            </div>
-            <p className="text-sm text-gray-500">
-              Cancelación en cualquier momento
-            </p>
+          <h2 className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2">¡Descubre tu experiencia Premium!</h2>
+          <p className="text-base text-gray-700 text-center mb-2 max-w-xs">
+            Desbloquea los chats, habla con tus conexiones estelares, accede a funciones exclusivas y vive el amor cósmico sin límites.
+          </p>
+        </div>
+        {/* Precio y beneficios */}
+        <div className="w-full flex-1 flex flex-col justify-between px-6 pb-6">
+          <div className="text-center mb-4">
+            <span className="text-4xl font-bold text-cosmic-magenta">€29,90</span>
+            <span className="ml-2 text-base text-gray-600 font-semibold">/mes</span>
+            <div className="text-xs text-gray-500 mt-1">Cancela cuando quieras</div>
           </div>
-
-          {/* Lista de características */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-gray-900 mb-3">
-              Incluye:
-            </h3>
+          <div className="space-y-3 mb-6">
+            <h3 className="font-semibold text-cosmic-magenta mb-2 text-center">Incluye:</h3>
             {premiumFeatures.map((feature, index) => (
-              <div key={index} className="flex items-center gap-3">
+              <div key={index} className="flex items-center gap-3 bg-white/60 rounded-lg px-3 py-2 shadow-sm">
                 <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
-                <span className="text-gray-700">{feature}</span>
+                <span className="text-gray-700 text-sm font-medium">{feature}</span>
               </div>
             ))}
           </div>
-
-          {/* Botón de pago */}
           <Button
             onClick={handleUpgradeToPremium}
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 text-lg"
+            className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white font-bold py-3 text-lg rounded-xl shadow-lg mt-2 mb-3"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
@@ -132,15 +140,13 @@ const PremiumCheckout = () => {
               </div>
             )}
           </Button>
-
-          {/* Información de seguridad */}
-          <div className="text-center">
+          <div className="text-center mt-2">
             <p className="text-xs text-gray-500">
               Pago seguro procesado por Square
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

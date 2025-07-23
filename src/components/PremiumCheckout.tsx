@@ -44,12 +44,17 @@ const PremiumCheckout = () => {
       })
 
       const data = await response.json()
+      console.log("Respuesta de Square:", data);
 
-      if (data.checkout_session?.checkout_url) {
-        // Redirigir a Square Checkout
-        window.location.href = data.checkout_session.checkout_url
+      const url =
+        data.checkout_session?.checkout_url ||
+        data.checkout_session?.payment_link?.url ||
+        data.checkout_session?.url;
+
+      if (url) {
+        window.location.href = url;
       } else {
-        throw new Error('No se pudo crear la sesión de pago')
+        throw new Error('No se pudo crear la sesión de pago');
       }
 
     } catch (error) {

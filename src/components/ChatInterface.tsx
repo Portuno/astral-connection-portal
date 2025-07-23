@@ -95,9 +95,15 @@ const ChatInterface = () => {
 
   // Suscripción realtime a mensajes del chat actual
   useEffect(() => {
-    if (!chat?.id) return;
-    // Solo para chats reales, no artificiales
-    if (isArtificial) return;
+    if (!chat?.id) {
+      console.log('[Realtime] No chat.id disponible, no se subscribe');
+      return;
+    }
+    if (isArtificial) {
+      console.log('[Realtime] Chat artificial, no se subscribe a realtime');
+      return;
+    }
+    console.log(`[Realtime] Subscribiendo a canal: messages-chat-${chat.id}`);
     const channel = supabase.channel(`messages-chat-${chat.id}`)
       .on(
         'postgres_changes',
@@ -109,19 +115,30 @@ const ChatInterface = () => {
         },
         (payload) => {
           const newMsg = payload.new;
+          console.log('[Realtime] Recibido payload:', payload);
           // Validar que el mensaje tenga los campos requeridos
-          if (!newMsg || !newMsg.id || !newMsg.chat_id || !newMsg.sender_id || !newMsg.content || !newMsg.created_at) return;
+          if (!newMsg || !newMsg.id || !newMsg.chat_id || !newMsg.sender_id || !newMsg.content || !newMsg.created_at) {
+            console.log('[Realtime] Mensaje recibido inválido:', newMsg);
+            return;
+          }
           setMessages((prev) => {
             // Filtrar duplicados por id y por contenido+timestamp
-            if (prev.some((m) => m.id === newMsg.id)) return prev;
-            // Si el mensaje ya está por contenido y timestamp, no agregar
-            if (prev.some((m) => m.content === newMsg.content && m.created_at === newMsg.created_at && m.sender_id === newMsg.sender_id)) return prev;
+            if (prev.some((m) => m.id === newMsg.id)) {
+              console.log('[Realtime] Mensaje duplicado por id:', newMsg.id);
+              return prev;
+            }
+            if (prev.some((m) => m.content === newMsg.content && m.created_at === newMsg.created_at && m.sender_id === newMsg.sender_id)) {
+              console.log('[Realtime] Mensaje duplicado por contenido+timestamp:', newMsg.content);
+              return prev;
+            }
+            console.log('[Realtime] Mensaje nuevo agregado:', newMsg);
             return [...prev, newMsg as Message];
           });
         }
       )
       .subscribe();
     return () => {
+      console.log(`[Realtime] Desuscribiendo canal: messages-chat-${chat.id}`);
       supabase.removeChannel(channel);
     };
   }, [chat?.id, isArtificial]);
@@ -262,6 +279,11 @@ const ChatInterface = () => {
     };
     loadChatData();
   }, [profileId, isAuthenticated, user, navigate, toast]);
+
+  // Debug: log ids relevantes
+  useEffect(() => {
+    console.log('[Debug] user.id:', user?.id, 'profileId:', profileId, 'chat?.id:', chat?.id, 'isArtificial:', isArtificial);
+  }, [user?.id, profileId, chat?.id, isArtificial]);
 
   // Función para enviar respuesta automática del perfil
   const sendAutoReply = async (chatId: string, profileId: string) => {

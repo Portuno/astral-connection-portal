@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Sparkles, MapPin, Calendar } from "lucide-react";
@@ -11,6 +12,7 @@ import { useAuth } from "@/components/AuthProvider";
 import AuthModal from "@/components/AuthModal";
 import { supabase } from "@/integrations/supabase/client";
 import PremiumCheckout from "@/components/PremiumCheckout";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -21,6 +23,7 @@ const Home = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   // Filtros
   const [genderFilter, setGenderFilter] = useState<'hombre' | 'mujer' | 'ambos'>('ambos');
@@ -69,58 +72,28 @@ const Home = () => {
   }, [isAuthenticated, user]);
 
   useEffect(() => {
-    const loadCompatibleProfiles = async () => {
-      try {
-        setLoading(true);
-
-        // 1. Perfiles artificiales SIEMPRE visibles
-        const { data: artificialProfiles } = await (supabase
-          .from('profiles')
-          .select('id, user_id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender, is_artificial')
-          .eq('is_artificial', true) as any);
-
-        // 2. Perfiles reales premium con filtro de género
-        let query = supabase
-          .from('profiles')
-          .select('id, user_id, name, age, sign, description, photo_url, compatibility_score, location, looking_for, gender, is_premium')
-          .eq('is_premium', true);
-
-        if (user && user.id) {
-          query = query.neq('user_id', user.id);
-        }
-        if (genderFilter !== 'ambos') {
-          query = query.eq('gender', genderFilter);
-        }
-
-        const { data: realProfiles } = await (query as any);
-
-        // Unir ambos arrays y filtrar por género
-        let allProfiles = [
-          ...(artificialProfiles || []),
-          ...(realProfiles || [])
-        ];
-        if (genderFilter !== 'ambos') {
-          allProfiles = allProfiles.filter(p => p.gender === genderFilter);
-        }
-        if (user && user.id) {
-          allProfiles = allProfiles.filter(p => p.user_id !== user.id);
-        }
-        setCompatibleProfiles(allProfiles);
-      } catch (error) {
-        console.error("Error loading profiles:", error);
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar los perfiles compatibles",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
+    const fetchProfiles = async () => {
+      setLoading(true);
+      // Solo mostrar perfiles premium
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('is_premium', true);
+      if (!error && data) {
+        setCompatibleProfiles(data);
+      } else {
+        setCompatibleProfiles([]);
       }
+      setLoading(false);
     };
-    loadCompatibleProfiles();
-  }, [toast, genderFilter, userProfile]);
+    fetchProfiles();
+  }, []);
 
   const handleChatClick = async (profile: any) => {
+    if (!user?.isPremium) {
+      setShowPremiumModal(true);
+      return;
+    }
     if (!isAuthenticated) {
       setSelectedProfileForChat({ id: profile.id, name: profile.name });
       setShowAuthModal(true);
@@ -164,12 +137,23 @@ const Home = () => {
     navigate('/chats');
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleEditProfile = () => {
+    navigate('/profile-edit');
+  };
+  const handleLogoutClick = async () => {
+    await logout();
+    navigate('/');
+  };
+  const handleActivatePremium = () => {
     toast({
-      title: "Sesión cerrada",
-      description: "Has cerrado sesión exitosamente",
+      title: 'Función premium',
+      description: 'Aquí iría el flujo de activación premium.',
     });
+  };
+
+  const handleGoToPremiumPayment = () => {
+    setShowPremiumModal(false);
+    navigate('/premium');
   };
 
   const translateLookingFor = (lookingFor: string) => {
@@ -194,45 +178,42 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-cosmic-blue overflow-x-hidden">
-      {/* Header */}
-      <div className="bg-white/10 backdrop-blur-md border-b border-white/20 p-4 w-full overflow-x-hidden">
-        <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-          <div className="flex flex-col sm:flex-row gap-2 w-full">
-            <Button
-              onClick={() => navigate('/profile-edit')}
-              size="sm"
-              variant="secondary"
-              className="bg-cosmic-magenta text-white font-semibold hover:bg-cosmic-magenta/80 w-full sm:w-auto"
-              aria-label="Editar perfil"
+    <>
+      {/* Header sticky */}
+      <header className="sticky top-0 z-40 w-full bg-gradient-to-r from-cosmic-magenta/80 to-purple-700/80 shadow flex items-center justify-between px-4 py-2">
+        <a href="/home" className="font-extrabold text-2xl text-white tracking-wide hover:text-yellow-300 transition-colors" tabIndex={0} aria-label="Ir a inicio">Amor Astral</a>
+        <div className="flex items-center gap-3">
+          {!user?.isPremium && (
+            <button
+              onClick={handleActivatePremium}
+              className="bg-yellow-400 hover:bg-yellow-500 text-cosmic-magenta font-bold px-4 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-yellow-300"
               tabIndex={0}
-            >
-              Editar Perfil
-            </Button>
-            <Button
-              onClick={() => navigate('/premium')}
-              size="sm"
-              className="bg-gradient-to-r from-cosmic-gold to-yellow-500 text-black font-semibold hover:from-yellow-400 hover:to-cosmic-gold w-full sm:w-auto"
               aria-label="Activar Premium"
             >
-              <Crown className="w-4 h-4 mr-1" />
               Activar Premium
-            </Button>
-          </div>
-          <div className="flex gap-2 justify-end w-full sm:w-auto">
-            <Button
-              onClick={handleViewChats}
-              variant="outline"
-              size="sm"
-              className="border-white/20 text-white hover:bg-white/10"
-            >
-              <MessageCircle className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Mis Chats</span>
-            </Button>
-          </div>
+            </button>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="flex items-center gap-2 bg-white/80 hover:bg-white text-cosmic-magenta font-semibold px-4 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+                tabIndex={0}
+                aria-label="Mi perfil"
+              >
+                <Avatar className="w-7 h-7">
+                  <AvatarImage src={user?.avatar_url || ''} alt={user?.name || 'Avatar'} />
+                  <AvatarFallback>{user?.name?.[0]?.toUpperCase() || '?'}</AvatarFallback>
+                </Avatar>
+                Mi perfil
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleEditProfile} tabIndex={0} aria-label="Editar perfil">Editar perfil</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogoutClick} tabIndex={0} aria-label="Cerrar sesión">Cerrar sesión</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </div>
-
+      </header>
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
         {/* Filtros */}
@@ -387,7 +368,33 @@ const Home = () => {
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
-    </div>
+
+      {/* Modal premium para usuarios free */}
+      <Dialog open={showPremiumModal} onOpenChange={setShowPremiumModal}>
+        <DialogContent className="max-w-md mx-auto rounded-2xl p-6 bg-white/95">
+          <DialogHeader>
+            <DialogTitle className="text-cosmic-magenta text-2xl font-bold mb-2">Hazte Premium y desbloquea conversaciones cósmicas</DialogTitle>
+            <DialogDescription className="text-gray-700 mb-4">Accede a todas las funciones exclusivas de Amor Astral:</DialogDescription>
+          </DialogHeader>
+          <ul className="mb-4 space-y-2">
+            <li className="flex items-center gap-2"><span className="text-cosmic-magenta font-bold">🔓</span> Desbloquear conversaciones cósmicas</li>
+            <li className="flex items-center gap-2"><span className="text-cosmic-magenta font-bold">💬</span> Acceso ilimitado a chats</li>
+            <li className="flex items-center gap-2"><span className="text-cosmic-magenta font-bold">🌟</span> Funciones exclusivas y soporte prioritario</li>
+            <li className="flex items-center gap-2"><span className="text-cosmic-magenta font-bold">🚫</span> Sin anuncios</li>
+          </ul>
+          <DialogFooter>
+            <button
+              onClick={handleGoToPremiumPayment}
+              className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white font-bold py-3 rounded-xl shadow-lg text-lg"
+              tabIndex={0}
+              aria-label="Activar Premium"
+            >
+              Activar Premium
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

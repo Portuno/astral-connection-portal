@@ -14,6 +14,7 @@ interface User {
   birth_place?: string;
   gender?: string;
   looking_for?: string;
+  isPremium?: boolean;
 }
 
 interface AuthContextType {
@@ -49,16 +50,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Función simplificada para crear usuario desde datos de Supabase
-  const createUserFromSupabase = (supabaseUser: SupabaseUser): User => {
+  const createUserFromSupabase = (supabaseUser: SupabaseUser, userData?: any): User => {
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
-      name: supabaseUser.user_metadata?.full_name || 
-            supabaseUser.user_metadata?.name || 
-            supabaseUser.email?.split('@')[0] || 
-            'Usuario',
-      avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
-      onboardingCompleted: false
+      name: userData?.full_name || supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
+      avatar_url: userData?.avatar_url || supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture,
+      isPremium: userData?.is_premium || false,
+      onboardingCompleted: userData?.onboarding_completed || false,
+      subscriptionDate: userData?.created_at,
+      birth_date: userData?.birth_date,
+      birth_time: userData?.birth_time,
+      birth_place: userData?.birth_place,
+      gender: userData?.gender,
+      looking_for: userData?.looking_for
     };
   };
 
@@ -79,19 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { data: userData, error } = await Promise.race([queryPromise, timeoutPromise]);
         if (userData && !error) {
           console.log("✅ Datos de usuario encontrados en BD");
-          return {
-            id: userData.id,
-            email: userData.email,
-            name: userData.full_name || userData.email?.split('@')[0] || 'Usuario',
-            avatar_url: userData.avatar_url,
-            subscriptionDate: userData.created_at,
-            onboardingCompleted: userData.onboarding_completed || false,
-            birth_date: userData.birth_date,
-            birth_time: userData.birth_time,
-            birth_place: userData.birth_place,
-            gender: userData.gender,
-            looking_for: userData.looking_for
-          };
+          return createUserFromSupabase(supabaseUser, userData);
         }
       } catch (dbError) {
         console.log("⚠️ Error/timeout en BD, usando datos básicos y manteniendo usuario anterior si existe:", dbError);

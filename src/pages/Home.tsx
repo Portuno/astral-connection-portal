@@ -30,11 +30,9 @@ const PremiumModal = ({ open, onClose }: { open: boolean; onClose: () => void })
       >
         <X className="w-6 h-6" />
       </button>
-      {/* Título */}
-      <div className="w-full flex flex-col items-center pt-10 pb-2 px-6">
-        <h2 className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">Hazte Premium y desbloquea conversaciones cósmicas</h2>
-        <p className="text-cyan-100 text-center mb-4 max-w-lg">Accede a todas las funciones exclusivas de Amor Astral:</p>
-      </div>
+      {/* Título y descripción accesibles */}
+      <DialogTitle className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">Hazte Premium y desbloquea conversaciones cósmicas</DialogTitle>
+      <DialogDescription className="text-cyan-100 text-center mb-4 max-w-lg">Accede a todas las funciones exclusivas de Amor Astral:</DialogDescription>
       {/* Motivos premium */}
       <ul className="mb-6 space-y-3 w-full max-w-md mx-auto px-6">
         <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🔓</span> Desbloquear conversaciones cósmicas</li>

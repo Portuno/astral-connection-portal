@@ -26,6 +26,8 @@ const Home = () => {
   // Estado para el modal de login
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
+  // Estado para los chats del usuario
+  const [userChats, setUserChats] = useState<any[]>([]);
 
   // Filtros
   const [genderFilter, setGenderFilter] = useState<'hombre' | 'mujer' | 'ambos'>('ambos');
@@ -90,6 +92,43 @@ const Home = () => {
     };
     fetchProfiles();
   }, []);
+
+  // Cargar chats del usuario
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) return;
+    const loadChats = async () => {
+      const { data: chatsData } = await supabase
+        .from('chats')
+        .select('*')
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+        .order('last_message_at', { ascending: false });
+      if (!chatsData) return;
+      // Obtener perfil y último mensaje de cada chat
+      const chatsWithProfiles = await Promise.all(
+        chatsData.map(async (chat: any) => {
+          const otherUserId = chat.user1_id === user.id ? chat.user2_id : chat.user1_id;
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', otherUserId)
+            .single();
+          const { data: lastMessage } = await supabase
+            .from('messages')
+            .select('content, created_at, sender_id')
+            .eq('chat_id', chat.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+          return {
+            ...chat,
+            profile,
+            lastMessage: lastMessage?.[0] || null,
+          };
+        })
+      );
+      setUserChats(chatsWithProfiles.filter(Boolean));
+    };
+    loadChats();
+  }, [isAuthenticated, user?.id]);
 
   const handleChatClick = async (profile: any) => {
     if (!isAuthenticated) {
@@ -267,14 +306,67 @@ const Home = () => {
       </header>
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
-        {/* Filtros */}
-        <div className="mb-8 flex flex-wrap gap-6 items-center justify-center bg-white/10 p-4 rounded-lg">
-          <div className="flex flex-col items-start">
-            <label className="text-white font-semibold mb-1">Ver:</label>
+        {/* Fila horizontal: Mis chats + Mi perfil */}
+        {isAuthenticated && userProfile && (
+          <div className="flex flex-row gap-4 w-full mb-8">
+            {/* Mis chats */}
+            <div className="rounded-2xl bg-gradient-to-br from-[#2a0a3c]/80 to-[#1a1440]/80 p-4 w-[320px] min-w-[200px] max-h-[400px] overflow-y-auto shadow-lg">
+              <h3 className="text-lg font-bold text-white mb-3">Mis chats</h3>
+              {userChats.length === 0 ? (
+                <p className="text-gray-400 text-sm">No tienes chats activos.</p>
+              ) : (
+                userChats.map(chat => (
+                  <div
+                    key={chat.id}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer transition"
+                    onClick={() => navigate(`/chat/${chat.profile.id}`)}
+                    tabIndex={0}
+                    aria-label={`Abrir chat con ${chat.profile.name}`}
+                  >
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={chat.profile.photo_url || undefined} alt={chat.profile.name} />
+                      <AvatarFallback className="bg-cosmic-magenta text-white">
+                        {chat.profile.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold truncate">{chat.profile.name}</span>
+                      </div>
+                      <span className="text-xs text-gray-300 truncate block">
+                        {chat.lastMessage ? (chat.lastMessage.sender_id === user.id ? "Tú: " : "") + chat.lastMessage.content : "Chat iniciado"}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            {/* Mi perfil */}
+            <div className="rounded-2xl bg-gradient-to-br from-[#a78bfa]/30 to-[#38bdf8]/20 p-6 flex-1 shadow-lg flex flex-col items-center">
+              <Avatar className="w-16 h-16 mb-2">
+                <AvatarImage src={userProfile?.avatar_url || ''} alt={userProfile?.full_name || 'Avatar'} />
+                <AvatarFallback>{userProfile?.full_name?.[0]?.toUpperCase() || '?'}</AvatarFallback>
+              </Avatar>
+              <p className="text-white font-bold text-lg">{userProfile?.full_name}</p>
+              <p className="text-gray-300 text-sm">{userProfile?.birth_place}</p>
+              <Button
+                onClick={handleEditProfile}
+                className="mt-4 bg-cosmic-magenta hover:bg-cosmic-magenta/80 text-white"
+              >
+                Editar perfil
+              </Button>
+            </div>
+          </div>
+        )}
+        {/* Filtro mejorado */}
+        <div className="mb-4 flex items-center justify-center w-full">
+          <div className="flex flex-row items-center gap-3 bg-gradient-to-r from-[#2a0a3c]/80 to-[#1a1440]/80 px-4 py-2 rounded-xl shadow-lg">
+            <label className="text-white font-semibold mr-2">Ver:</label>
             <select
               value={genderFilter}
               onChange={e => setGenderFilter(e.target.value as any)}
-              className="rounded px-2 py-1"
+              className="rounded-lg px-3 py-1 bg-[#1a1440] text-white border border-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+              aria-label="Filtrar por género"
             >
               <option value="ambos">Ambos</option>
               <option value="hombre">Hombres</option>
@@ -282,42 +374,6 @@ const Home = () => {
             </select>
           </div>
         </div>
-        {/* Información del usuario móvil */}
-        {userProfile && (
-          <div className="sm:hidden mb-6">
-            <Card className="bg-white/10 backdrop-blur-md border-white/20">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-cosmic-magenta to-cosmic-gold rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">
-                      {userProfile.full_name?.charAt(0) || '?'}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white font-medium">{userProfile.full_name}</p>
-                    <div className="flex items-center gap-2 text-xs text-gray-300">
-                      <MapPin className="w-3 h-3" />
-                      <span>{userProfile.birth_place}</span>
-                    </div>
-                  </div>
-                  {user?.isPremium ? (
-                    <Crown className="w-5 h-5 text-cosmic-gold" />
-                  ) : (
-                    <Button
-                      onClick={() => navigate('/premium')}
-                      size="sm"
-                      className="bg-gradient-to-r from-cosmic-gold to-yellow-500 text-black font-semibold hover:from-yellow-400 hover:to-cosmic-gold text-xs px-2 py-1"
-                    >
-                      <Crown className="w-3 h-3 mr-1" />
-                      Premium
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
         {/* Título principal */}
         <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
@@ -333,72 +389,74 @@ const Home = () => {
           {compatibleProfiles.map((profile, idx) => (
             <div
               key={profile.id}
-              className="relative rounded-2xl bg-[rgba(20,20,40,0.85)] shadow-[0_0_16px_4px_rgba(0,255,255,0.13)] border border-cyan-400/20 backdrop-blur-md overflow-hidden group hover:shadow-[0_0_32px_8px_rgba(80,200,255,0.25)] transition-shadow duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+              className="relative flex flex-col justify-between h-full rounded-2xl bg-[rgba(20,20,40,0.85)] shadow-[0_0_16px_4px_rgba(0,255,255,0.13)] border border-cyan-400/20 backdrop-blur-md overflow-hidden group hover:shadow-[0_0_32px_8px_rgba(80,200,255,0.25)] transition-shadow duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
               style={{ boxShadow: '0 0 24px 4px #38bdf855, 0 0 64px 8px #a78bfa22' }}
-              onClick={() => handleChatClick(profile)}
+              onClick={() => navigate(`/profile/${profile.id}`)}
               tabIndex={0}
-              aria-label={`Abrir chat con ${profile.name}`}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleChatClick(profile); }}
+              aria-label={`Ver perfil de ${profile.name}`}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/profile/${profile.id}`); }}
             >
-              <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${profile.compatibility_score >= 85 ? 'bg-green-400' : profile.compatibility_score >= 70 ? 'bg-yellow-400' : 'bg-orange-400'}`}></div>
-                    <Badge 
-                      variant="secondary" 
-                      className="bg-cosmic-gold/20 text-cosmic-gold text-xs"
+              <div>
+                <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${profile.compatibility_score >= 85 ? 'bg-green-400' : profile.compatibility_score >= 70 ? 'bg-yellow-400' : 'bg-orange-400'}`}></div>
+                      <Badge 
+                        variant="secondary" 
+                        className="bg-cosmic-gold/20 text-cosmic-gold text-xs"
+                      >
+                        {profile.compatibility_score ? `${profile.compatibility_score}% compatible` : '% compatible'}
+                      </Badge>
+                    </div>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleLikeClick(profile.name); }}
+                      className="text-gray-400 hover:text-red-400 transition-colors"
+                      tabIndex={0}
+                      aria-label={`Dar like a ${profile.name}`}
                     >
-                      {profile.compatibility_score}% compatible
-                    </Badge>
+                      <Heart className="w-5 h-5" />
+                    </button>
                   </div>
-                  <button
-                    onClick={e => { e.stopPropagation(); handleLikeClick(profile.name); }}
-                    className="text-gray-400 hover:text-red-400 transition-colors"
-                  >
-                    <Heart className="w-5 h-5" />
-                  </button>
+                  <Avatar className="w-12 h-12 sm:w-16 sm:h-16 border-2 border-cosmic-gold/30">
+                    <AvatarImage src={profile.photo_url} alt={profile.name} />
+                    <AvatarFallback className="bg-cosmic-magenta text-white font-bold">
+                      {profile.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <CardTitle className="text-white text-base sm:text-lg">
+                      {profile.name}
+                    </CardTitle>
+                    <p className="text-xs sm:text-sm text-gray-300">
+                      {profile.age ? `${profile.age} años` : 'años'} • {profile.location || ''}
+                    </p>
+                  </div>
+                </CardHeader>
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
+                    <Sun className="w-4 h-4 text-cosmic-gold" />
+                    <span>{profile.sign}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
+                    <Heart className="w-4 h-4 text-cosmic-magenta" />
+                    <span>{translateLookingFor(profile.looking_for)}</span>
+                  </div>
                 </div>
-                
-                <Avatar className="w-12 h-12 sm:w-16 sm:h-16 border-2 border-cosmic-gold/30">
-                  <AvatarImage src={profile.photo_url} alt={profile.name} />
-                  <AvatarFallback className="bg-cosmic-magenta text-white font-bold">
-                    {profile.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <CardTitle className="text-white text-base sm:text-lg">
-                    {profile.name}
-                  </CardTitle>
-                  <p className="text-xs sm:text-sm text-gray-300">
-                    {profile.age} años • {profile.location}
-                  </p>
-                </div>
-              </CardHeader>
-              
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
-                  <Sun className="w-4 h-4 text-cosmic-gold" />
-                  <span>{profile.sign}</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
-                  <Heart className="w-4 h-4 text-cosmic-magenta" />
-                  <span>{translateLookingFor(profile.looking_for)}</span>
-                </div>
+                <p className="text-xs sm:text-sm text-gray-300 mb-4 text-justify line-clamp-2">
+                  {profile.description}
+                </p>
               </div>
-              
-              <p className="text-xs sm:text-sm text-gray-300 mb-4 line-clamp-2">
-                {profile.description}
-              </p>
-              
-              <Button
-                onClick={e => { e.stopPropagation(); handleChatClick(profile); }}
-                className="w-full bg-cosmic-magenta hover:bg-cosmic-magenta/80 text-white text-sm py-2"
-                tabIndex={-1}
-                aria-label={`Iniciar chat con ${profile.name}`}
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Iniciar Chat
-              </Button>
+              <div className="mt-auto">
+                <Button
+                  onClick={e => { e.stopPropagation(); handleChatClick(profile); }}
+                  className="w-full bg-gradient-to-r from-cosmic-magenta to-pink-400 hover:from-fuchsia-600 hover:to-pink-500 text-white text-sm py-2 rounded-b-2xl"
+                  tabIndex={0}
+                  aria-label={`Iniciar chat con ${profile.name}`}
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Iniciar Chat
+                </Button>
+              </div>
             </div>
           ))}
         </div>

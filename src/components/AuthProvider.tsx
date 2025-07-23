@@ -66,8 +66,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   };
 
-  // Función para cargar usuario (mejorada: no sobrescribe isPremium a false si falla la consulta)
-  const loadUser = async (supabaseUser: SupabaseUser, prevUser?: User | null): Promise<User> => {
+  // Función para cargar usuario (mejorada: no sobrescribe isPremium a false si falla la consulta, y no crea usuario nuevo si no hay prevUser)
+  const loadUser = async (supabaseUser: SupabaseUser, prevUser?: User | null): Promise<User | null> => {
     try {
       console.log("📊 Cargando usuario:", supabaseUser.email);
       // Intentar obtener datos adicionales de la BD con timeout
@@ -101,32 +101,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (dbError) {
         console.log("⚠️ Error/timeout en BD, usando datos básicos y manteniendo premium anterior si existe:", dbError);
       }
-      // Si no se puede cargar desde BD, usar datos básicos y mantener premium anterior
-      const basicUser = createUserFromSupabase(supabaseUser);
-      return {
-        ...basicUser,
-        isPremium: prevUser?.isPremium || false // Mantener premium si ya era true
-      };
+      // Si no se puede cargar desde BD:
+      if (prevUser) {
+        // Mantener usuario anterior
+        return prevUser;
+      } else {
+        // No hay datos, no actualizar el usuario
+        return null;
+      }
     } catch (error) {
       console.error('❌ Error cargando usuario:', error);
-      const basicUser = createUserFromSupabase(supabaseUser);
-      return {
-        ...basicUser,
-        isPremium: prevUser?.isPremium || false
-      };
+      if (prevUser) {
+        return prevUser;
+      } else {
+        return null;
+      }
     }
   };
 
-  // Función para refrescar usuario (mejorada: pasa el usuario anterior a loadUser)
+  // Función para refrescar usuario (mejorada: solo actualiza si hay datos válidos)
   const refreshUser = async (): Promise<void> => {
     try {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       if (currentSession?.user) {
         console.log("🔄 Refrescando datos del usuario...");
         const userData = await loadUser(currentSession.user, user); // pasar usuario anterior
-        setUser(userData);
-        setSession(currentSession);
-        console.log("✅ Usuario refrescado:", userData.email);
+        if (userData) {
+          setUser(userData);
+          setSession(currentSession);
+          console.log("✅ Usuario refrescado:", userData.email);
+        } else {
+          // No actualizar el usuario si no hay datos válidos
+          console.warn("⚠️ No se pudo refrescar el usuario, manteniendo el estado anterior");
+        }
       } else {
         console.log("❌ No hay sesión activa para refrescar");
         setUser(null);
@@ -148,8 +155,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (currentSession?.user && mounted) {
           console.log("✅ Sesión encontrada:", currentSession.user.email);
           const userData = await loadUser(currentSession.user, user); // pasar usuario anterior
-          setUser(userData);
-          setSession(currentSession);
+          if (userData) {
+            setUser(userData);
+            setSession(currentSession);
+          } else {
+            // No actualizar el usuario si no hay datos válidos
+            console.warn("⚠️ No se pudo inicializar el usuario, manteniendo el estado anterior");
+          }
         } else {
           console.log("ℹ️ No hay sesión activa");
           setUser(null);
@@ -175,8 +187,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (event === 'SIGNED_IN' && session?.user) {
           console.log("✅ Usuario logueado:", session.user.email);
           const userData = await loadUser(session.user, user); // pasar usuario anterior
-          setUser(userData);
-          setSession(session);
+          if (userData) {
+            setUser(userData);
+            setSession(session);
+          } else {
+            console.warn("⚠️ No se pudo refrescar el usuario tras login, manteniendo el estado anterior");
+          }
         } else if (event === 'SIGNED_OUT') {
           console.log("🚪 Usuario deslogueado");
           setUser(null);
@@ -184,8 +200,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log("🔄 Token refrescado");
           const userData = await loadUser(session.user, user); // pasar usuario anterior
-          setUser(userData);
-          setSession(session);
+          if (userData) {
+            setUser(userData);
+            setSession(session);
+          } else {
+            console.warn("⚠️ No se pudo refrescar el usuario tras token refresh, manteniendo el estado anterior");
+          }
         }
         setIsLoading(false);
       }

@@ -31,6 +31,7 @@ const Home = () => {
 
   // Filtros
   const [genderFilter, setGenderFilter] = useState<'hombre' | 'mujer' | 'ambos'>('ambos');
+  const [filteredProfiles, setFilteredProfiles] = useState<any[]>([]);
 
   // Actualizar filtro de género si cambia el perfil del usuario
   useEffect(() => {
@@ -38,6 +39,15 @@ const Home = () => {
       setGenderFilter(userProfile.gender_preference);
     }
   }, [userProfile]);
+
+  // Filtrar perfiles según el filtro de género
+  useEffect(() => {
+    if (genderFilter === 'ambos') {
+      setFilteredProfiles(compatibleProfiles);
+    } else {
+      setFilteredProfiles(compatibleProfiles.filter((profile: any) => profile.gender === genderFilter));
+    }
+  }, [genderFilter, compatibleProfiles]);
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -387,7 +397,7 @@ const Home = () => {
 
         {/* Grid de perfiles */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {compatibleProfiles.map((profile, idx) => (
+          {filteredProfiles.map((profile, idx) => (
             <div
               key={profile.id}
               className="relative flex flex-col justify-between h-full rounded-2xl bg-[rgba(20,20,40,0.85)] shadow-[0_0_16px_4px_rgba(0,255,255,0.13)] border border-cyan-400/20 backdrop-blur-md overflow-hidden group hover:shadow-[0_0_32px_8px_rgba(80,200,255,0.25)] transition-shadow duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"

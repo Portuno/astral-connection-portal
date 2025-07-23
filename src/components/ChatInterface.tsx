@@ -102,12 +102,69 @@ const ChatInterface = () => {
       console.log('[Realtime] Chat artificial, no se subscribe a realtime');
       return;
     }
-    // Temporalmente deshabilitado debido a problemas de WebSocket
-    console.log('[Realtime] Suscripción realtime deshabilitada temporalmente');
+    console.log(`[Realtime] Subscribiendo a canal: messages-chat-${chat.id}`);
+    
+    // Crear canal con configuración más robusta
+    const channel = supabase.channel(`messages-chat-${chat.id}`, {
+      config: {
+        presence: {
+          key: user?.id,
+        },
+      },
+    })
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `chat_id=eq.${chat.id}`,
+        },
+        (payload) => {
+          const newMsg = payload.new;
+          console.log('[Realtime] Recibido payload:', payload);
+          
+          // Validar que el mensaje tenga los campos requeridos
+          if (!newMsg || !newMsg.id || !newMsg.chat_id || !newMsg.sender_id || !newMsg.content || !newMsg.created_at) {
+            console.log('[Realtime] Mensaje recibido inválido:', newMsg);
+            return;
+          }
+          
+          setMessages((prev) => {
+            // Filtrar duplicados por id y por contenido+timestamp
+            if (prev.some((m) => m.id === newMsg.id)) {
+              console.log('[Realtime] Mensaje duplicado por id:', newMsg.id);
+              return prev;
+            }
+            if (prev.some((m) => m.content === newMsg.content && m.created_at === newMsg.created_at && m.sender_id === newMsg.sender_id)) {
+              console.log('[Realtime] Mensaje duplicado por contenido+timestamp:', newMsg.content);
+              return prev;
+            }
+            console.log('[Realtime] Mensaje nuevo agregado:', newMsg);
+            return [...prev, newMsg as Message];
+          });
+        }
+      )
+      .on('system', { event: 'error' }, (error) => {
+        console.error('[Realtime] Error en canal:', error);
+      })
+      .on('system', { event: 'close' }, () => {
+        console.log('[Realtime] Canal cerrado');
+      })
+      .subscribe((status) => {
+        console.log('[Realtime] Estado de suscripción:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('[Realtime] Suscripción exitosa');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[Realtime] Error en canal');
+        }
+      });
+    
     return () => {
-      console.log('[Realtime] No hay suscripción activa para desuscribir');
+      console.log(`[Realtime] Desuscribiendo canal: messages-chat-${chat.id}`);
+      supabase.removeChannel(channel);
     };
-  }, [chat?.id, isArtificial]);
+  }, [chat?.id, isArtificial, user?.id]);
 
   // Marcar mensajes recibidos como leídos al abrir el chat
   useEffect(() => {

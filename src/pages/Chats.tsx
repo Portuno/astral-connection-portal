@@ -41,7 +41,7 @@ interface ChatWithProfile {
 const Chats = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [chats, setChats] = useState<ChatWithProfile[]>([]);
   const [filteredChats, setFilteredChats] = useState<ChatWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,8 +50,9 @@ const Chats = () => {
   const currentUserId = user?.id || localStorage.getItem("sessionId") || "temp_user";
   const chatsLoadedRef = useRef(false);
 
-  // Cargar chats del usuario
+  // Cargar chats del usuario solo si user está cargado
   useEffect(() => {
+    if (!isAuthenticated || !user?.id) return;
     const loadChats = async () => {
       setLoading(true);
       try {
@@ -146,7 +147,7 @@ const Chats = () => {
     };
 
     loadChats();
-  }, [currentUserId, toast]);
+  }, [currentUserId, toast, isAuthenticated, user?.id]);
 
   // Suscripción realtime a mensajes para actualizar los badges
   useEffect(() => {
@@ -271,7 +272,7 @@ const Chats = () => {
     navigate(`/chat/${profileId}`);
   };
 
-  if (loading) {
+  if (loading || isLoading || !isAuthenticated || !user?.id) {
     return (
       <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-cosmic-magenta border-t-transparent"></div>

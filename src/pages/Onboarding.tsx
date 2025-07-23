@@ -66,11 +66,15 @@ export default function Onboarding({ userId }: { userId: string }) {
   };
 
   const checkUsernameUnique = async () => {
-    const { data } = await (supabase
+    // Use fetch instead of select to avoid deep type instantiation
+    const { data } = await (supabase as any)
       .from("profiles")
-      .select("id")
-      .eq("username", form.username)
-      .neq("user_id", userId) as any);
+      .fetch("id", {
+        filter: [
+          ["username", "eq", form.username],
+          ["user_id", "neq", userId]
+        ]
+      });
     return !data?.length;
   };
 

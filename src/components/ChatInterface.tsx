@@ -46,7 +46,7 @@ const ChatInterface = () => {
   const { profileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [profile, setProfile] = useState<any | null>(null); // Changed type to any as Profile is removed
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -59,6 +59,7 @@ const ChatInterface = () => {
 
   // Verificar autenticación al cargar
   useEffect(() => {
+    if (isLoading) return; // Esperar a que cargue el usuario
     if (!isAuthenticated || !user?.isPremium) {
       toast({
         title: "🔐 Acceso Premium Requerido",
@@ -68,7 +69,7 @@ const ChatInterface = () => {
       navigate('/home');
       return;
     }
-  }, [isAuthenticated, user, navigate, toast]);
+  }, [isAuthenticated, user, navigate, toast, isLoading]);
 
   // Scroll automático al final de los mensajes
   const scrollToBottom = () => {
@@ -98,7 +99,10 @@ const ChatInterface = () => {
           // Validar que el mensaje tenga los campos requeridos
           if (!newMsg || !newMsg.id || !newMsg.chat_id || !newMsg.sender_id || !newMsg.content || !newMsg.created_at) return;
           setMessages((prev) => {
+            // Filtrar duplicados por id y por contenido+timestamp
             if (prev.some((m) => m.id === newMsg.id)) return prev;
+            // Si el mensaje ya está por contenido y timestamp, no agregar
+            if (prev.some((m) => m.content === newMsg.content && m.created_at === newMsg.created_at && m.sender_id === newMsg.sender_id)) return prev;
             return [...prev, newMsg as Message];
           });
         }
@@ -425,8 +429,8 @@ const ChatInterface = () => {
     }
   };
 
-  // Si no está autenticado, mostrar loading
-  if (!isAuthenticated || !user?.isPremium) {
+  // Si no está autenticado o premium, mostrar loading mientras carga
+  if (isLoading || !isAuthenticated || !user?.isPremium) {
     return (
       <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
         <div className="text-center">

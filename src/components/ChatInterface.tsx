@@ -118,11 +118,14 @@ const ChatInterface = () => {
       }
       
       if (messagesData && messagesData.length > 0) {
-        const lastMessage = messagesData[messagesData.length - 1];
-        if (lastMessage.created_at !== lastMessageTimestampRef.current) {
-          console.log('[Polling] Nuevos mensajes detectados:', messagesData.length);
-          setMessages(messagesData);
-          lastMessageTimestampRef.current = lastMessage.created_at;
+        const validMessages = messagesData.filter((msg: any) => msg && typeof msg === 'object' && 'created_at' in msg);
+        if (validMessages.length > 0) {
+          const lastMessage = validMessages[validMessages.length - 1];
+          if (lastMessage.created_at !== lastMessageTimestampRef.current) {
+            console.log('[Polling] Nuevos mensajes detectados:', validMessages.length);
+            setMessages(validMessages);
+            lastMessageTimestampRef.current = lastMessage.created_at;
+          }
         }
       } else if (messagesData && messagesData.length === 0) {
         // Si no hay mensajes, actualizar el estado
@@ -307,9 +310,9 @@ const ChatInterface = () => {
       const { data: unreadMessages } = await supabase
         .from('messages')
         .select('id')
-        .eq('chat_id', chat.id)
+        .eq('chat_id', chat.id as any)
         .eq('read_at', null)
-        .neq('sender_id', user.id);
+        .neq('sender_id', user.id as any);
       if (unreadMessages && unreadMessages.length > 0) {
         const ids = unreadMessages.map((m: any) => m.id);
         await supabase

@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const queryPromise = supabase
         .from('users')
         .select('*')
-        .eq('id', supabaseUser.id)
+        .eq('id', supabaseUser.id as any)
         .single();
       try {
         const { data: userData, error } = await Promise.race([queryPromise, timeoutPromise]);
@@ -302,9 +302,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       console.log("🔄 Actualizando perfil...");
-      const { error } = await supabase
-        .from('users')
-        .update({
+      const updateData = Object.fromEntries(
+        Object.entries({
           full_name: updates.name,
           avatar_url: updates.avatar_url,
           birth_date: updates.birth_date,
@@ -313,8 +312,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           gender: updates.gender,
           looking_for: updates.looking_for,
           onboarding_completed: updates.onboardingCompleted
-        })
-        .eq('id', user.id);
+        }).filter(([_, v]) => v !== undefined)
+      );
+      const { error } = await supabase
+        .from('users')
+        .update(updateData as any)
+        .eq('id', user.id as any);
 
       if (error) {
         console.error('❌ Error actualizando perfil:', error);

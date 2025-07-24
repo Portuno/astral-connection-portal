@@ -460,6 +460,18 @@ const ChatInterface = () => {
     loadChatData();
   }, [profileId, isAuthenticated, user, navigate, toast]);
 
+  // Redirigir a premium si el usuario no es premium
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user && !user.isPremium) {
+      toast({
+        title: 'Funcionalidad Premium',
+        description: 'Necesitas ser usuario premium para chatear.',
+        variant: 'destructive',
+      });
+      navigate('/premium');
+    }
+  }, [isLoading, isAuthenticated, user, navigate, toast]);
+
   // Debug: log ids relevantes
   useEffect(() => {
     console.log('[Debug] user.id:', user?.id, 'profileId:', profileId, 'chat?.id:', chat?.id, 'isArtificial:', isArtificial);
@@ -685,32 +697,38 @@ const ChatInterface = () => {
 
        {/* Input de mensaje mejorado - FIXED */}
        <div className="p-4 border-t border-cosmic-gold/30 bg-white/5 backdrop-blur-md flex-shrink-0">
-         <form
-           className="flex items-center gap-2"
-           onSubmit={e => {
-             e.preventDefault();
-             handleSendMessage();
-           }}
-         >
-           <input
-             type="text"
-             placeholder="Escribe un mensaje cósmico..."
-             value={newMessage}
-             onChange={e => setNewMessage(e.target.value)}
-             className="flex-1 bg-gradient-to-r from-[#2a0a3c]/60 to-[#a78bfa]/20 text-white placeholder-cosmic-gold rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border border-cosmic-magenta/30 shadow"
-             tabIndex={0}
-             aria-label="Escribir mensaje"
-             autoComplete="off"
-           />
-           <button
-             type="submit"
-             className="bg-cosmic-magenta hover:bg-fuchsia-600 text-white rounded-full p-3 shadow transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
-             disabled={sending || !user || !newMessage.trim()}
-             aria-label="Enviar mensaje"
+         {user?.isPremium ? (
+           <form
+             className="flex items-center gap-2"
+             onSubmit={e => {
+               e.preventDefault();
+               handleSendMessage();
+             }}
            >
-             <Send className="h-5 w-5" />
-           </button>
-         </form>
+             <input
+               type="text"
+               placeholder="Escribe un mensaje cósmico..."
+               value={newMessage}
+               onChange={e => setNewMessage(e.target.value)}
+               className="flex-1 bg-gradient-to-r from-[#2a0a3c]/60 to-[#a78bfa]/20 text-white placeholder-cosmic-gold rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border border-cosmic-magenta/30 shadow"
+               tabIndex={0}
+               aria-label="Escribir mensaje"
+               autoComplete="off"
+             />
+             <button
+               type="submit"
+               className="bg-cosmic-magenta hover:bg-fuchsia-600 text-white rounded-full p-3 shadow transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+               disabled={sending || !user || !newMessage.trim()}
+               aria-label="Enviar mensaje"
+             >
+               <Send className="h-5 w-5" />
+             </button>
+           </form>
+         ) : (
+           <div className="w-full text-center text-cosmic-gold font-semibold py-4">
+             Debes ser <span className="text-cosmic-magenta font-bold">usuario premium</span> para enviar mensajes.
+           </div>
+         )}
        </div>
      </div>
    );

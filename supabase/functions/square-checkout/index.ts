@@ -11,8 +11,10 @@ Deno.serve(async (req) => {
     });
   }
 
-  const SQUARE_ACCESS_TOKEN = Deno.env.get('SQUARE_SANDBOX_ACCESS_TOKEN') ?? "";
-  const SQUARE_LOCATION_ID = Deno.env.get('SQUARE_SANDBOX_LOCATION_ID') ?? "";
+  const SQUARE_ACCESS_TOKEN = Deno.env.get('SQUARE_ACCESS_TOKEN');
+  const SQUARE_LOCATION_ID = Deno.env.get('SQUARE_LOCATION_ID');
+  console.log('DEBUG SQUARE_ACCESS_TOKEN:', SQUARE_ACCESS_TOKEN ? 'OK' : 'MISSING');
+  console.log('DEBUG SQUARE_LOCATION_ID:', SQUARE_LOCATION_ID ? 'OK' : 'MISSING');
 
   if (!SQUARE_ACCESS_TOKEN || !SQUARE_LOCATION_ID) {
     return new Response(JSON.stringify({ error: "Faltan variables de entorno" }), {

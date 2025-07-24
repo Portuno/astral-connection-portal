@@ -73,9 +73,9 @@ const Home = () => {
         .select('*')
         .eq('is_premium', true);
       
-      // Si el usuario está autenticado, excluir su propio perfil
+      // Si el usuario está autenticado, usar OR para incluir perfiles artificiales Y perfiles reales de otros usuarios
       if (isAuthenticated && user?.id) {
-        query = query.neq('user_id', user.id);
+        query = query.or(`user_id.is.null,user_id.neq.${user.id}`);
       }
       
       const { data, error } = await query;

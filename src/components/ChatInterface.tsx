@@ -124,6 +124,10 @@ const ChatInterface = () => {
           setMessages(messagesData);
           lastMessageTimestampRef.current = lastMessage.created_at;
         }
+      } else if (messagesData && messagesData.length === 0) {
+        // Si no hay mensajes, actualizar el estado
+        setMessages([]);
+        lastMessageTimestampRef.current = '';
       }
     } catch (error) {
       console.error('[Polling] Error inesperado cargando mensajes:', error);
@@ -179,6 +183,11 @@ const ChatInterface = () => {
     // Limpiar polling si existe
     stopPolling();
     
+    // Forzar uso de polling por ahora para evitar problemas de Realtime
+    console.log('[Realtime] Usando polling en lugar de Realtime para evitar problemas');
+    startPolling();
+    return;
+    
     console.log(`[Realtime] Subscribiendo a canal: messages-chat-${chat.id}`);
     
     // Crear canal con configuración más robusta
@@ -192,34 +201,45 @@ const ChatInterface = () => {
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*', // Escuchar todos los eventos (INSERT, UPDATE, DELETE)
           schema: 'public',
           table: 'messages',
           filter: `chat_id=eq.${chat.id}`,
         },
         (payload) => {
-          const newMsg = payload.new;
           console.log('[Realtime] Recibido payload:', payload);
           
-          // Validar que el mensaje tenga los campos requeridos
-          if (!newMsg || !newMsg.id || !newMsg.chat_id || !newMsg.sender_id || !newMsg.content || !newMsg.created_at) {
-            console.log('[Realtime] Mensaje recibido inválido:', newMsg);
-            return;
+          if (payload.eventType === 'INSERT') {
+            const newMsg = payload.new;
+            
+            // Validar que el mensaje tenga los campos requeridos
+            if (!newMsg || !newMsg.id || !newMsg.chat_id || !newMsg.sender_id || !newMsg.content || !newMsg.created_at) {
+              console.log('[Realtime] Mensaje recibido inválido:', newMsg);
+              return;
+            }
+            
+            setMessages((prev) => {
+              // Filtrar duplicados por id
+              if (prev.some((m) => m.id === newMsg.id)) {
+                console.log('[Realtime] Mensaje duplicado por id:', newMsg.id);
+                return prev;
+              }
+              console.log('[Realtime] Mensaje nuevo agregado:', newMsg);
+              return [...prev, newMsg as Message];
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedMsg = payload.new;
+            setMessages((prev) => {
+              return prev.map((msg) => 
+                msg.id === updatedMsg.id ? { ...msg, ...updatedMsg } : msg
+              );
+            });
+          } else if (payload.eventType === 'DELETE') {
+            const deletedMsg = payload.old;
+            setMessages((prev) => {
+              return prev.filter((msg) => msg.id !== deletedMsg.id);
+            });
           }
-          
-          setMessages((prev) => {
-            // Filtrar duplicados por id y por contenido+timestamp
-            if (prev.some((m) => m.id === newMsg.id)) {
-              console.log('[Realtime] Mensaje duplicado por id:', newMsg.id);
-              return prev;
-            }
-            if (prev.some((m) => m.content === newMsg.content && m.created_at === newMsg.created_at && m.sender_id === newMsg.sender_id)) {
-              console.log('[Realtime] Mensaje duplicado por contenido+timestamp:', newMsg.content);
-              return prev;
-            }
-            console.log('[Realtime] Mensaje nuevo agregado:', newMsg);
-            return [...prev, newMsg as Message];
-          });
         }
       )
       .on('system', { event: 'error' }, (error) => {

@@ -73,15 +73,9 @@ const Home = () => {
         .select('*')
         .eq('is_premium', true);
       
-      // Si el usuario NO está autenticado, mostrar solo perfiles artificiales
-      if (!isAuthenticated) {
-        query = query.is('user_id', null);
-      } else {
-        // Si está autenticado, mostrar perfiles artificiales + perfiles reales excepto el suyo propio
-        if (user?.id) {
-          // Usar OR para incluir perfiles artificiales (user_id IS NULL) Y perfiles reales que no sean del usuario actual
-          query = query.or(`user_id.is.null,user_id.neq.${user.id}`);
-        }
+      // Si el usuario está autenticado, excluir su propio perfil
+      if (isAuthenticated && user?.id) {
+        query = query.neq('user_id', user.id);
       }
       
       const { data, error } = await query;

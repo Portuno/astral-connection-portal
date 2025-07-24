@@ -227,7 +227,7 @@ const ChatInterface = () => {
         setRealtimeError(error.message || 'Error de conexión');
         setIsRealtimeConnected(false);
         
-        // Cambiar a polling después de 3 errores consecutivos
+        // Cambiar a polling inmediatamente en caso de error
         if (!usePolling) {
           startPolling();
         }

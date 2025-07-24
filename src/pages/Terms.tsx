@@ -8,7 +8,7 @@ const Terms = () => (
       <p className="mb-6 text-gray-300 text-sm text-center">Última actualización: {new Date().toLocaleDateString()}</p>
       <div className="space-y-6 text-gray-200 text-justify">
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Titular de la plataforma</h2>
-        <p>AYN RAND CAPITAL SL<br/>CIF: B72705221</p>
+        <p>AYN RAND CAPITAL SL<br/>CIF: B72705221<br/>Dirección: Calle romani, 3 - p. 1 pta. 3, polinya, 08213, barcelona<br/>Correo de contacto: clombardo196@gmail.com</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">1. Objeto</h2>
         <p>Estos términos regulan el acceso y uso de la plataforma de compatibilidad y chat astrológico “Amor Astral”.</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">2. Condiciones de uso</h2>

@@ -376,11 +376,7 @@ const ChatInterface = () => {
           .from('ai_chats' as any)
           .update({ messages: updatedMessages })
           .eq('id', (chat as any).id);
-        // No enviar respuesta automática - el usuario artificial no responde
-        toast({
-          title: "💬 Mensaje enviado",
-          description: "Tu mensaje ha sido guardado. Este perfil no responde automáticamente.",
-        });
+                 // No enviar respuesta automática - el usuario artificial no responde
       } else {
         // Manejar envío de mensajes reales
         console.log('[Send] Enviando mensaje real a chat:', chat?.id);
@@ -423,12 +419,7 @@ const ChatInterface = () => {
         } catch (updateError) {
           console.error('[Chat] Error inesperado actualizando chat:', updateError);
         }
-        // Recargar mensajes para mostrar el nuevo mensaje
-        await reloadMessages();
-        toast({
-          title: "💬 Mensaje enviado",
-          description: "Tu mensaje ha sido enviado correctamente.",
-        });
+                 // El realtime se encargará de mostrar el mensaje automáticamente
       }
     } catch (error) {
       console.error('Error in handleSendMessage:', error);
@@ -442,104 +433,104 @@ const ChatInterface = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a1440] via-[#2a0a3c] to-[#0a1033] flex flex-col">
-      {/* Header con botón de volver */}
-      <div className="flex items-center p-4 border-b border-cosmic-gold/30 bg-white/5 backdrop-blur-md">
-        <button
-          onClick={() => navigate('/home')}
-          className="flex items-center gap-2 text-cosmic-gold hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-cosmic-gold rounded-full p-2"
-          tabIndex={0}
-          aria-label="Volver a Home"
-        >
-          <ArrowLeft className="h-6 w-6" />
-          <span className="font-semibold hidden sm:inline">Volver</span>
-        </button>
-        <h2 className="text-xl text-white ml-4 font-bold drop-shadow">Chat con {profile?.name || ''}</h2>
-        {!isArtificial && (
-          <button
-            onClick={reloadMessages}
-            className="ml-auto flex items-center gap-2 text-cosmic-gold hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-cosmic-gold rounded-full p-2"
-            tabIndex={0}
-            aria-label="Recargar mensajes"
-          >
-            <RefreshCw className="h-5 w-5" />
-            <span className="font-semibold hidden sm:inline">Recargar</span>
-          </button>
-        )}
-      </div>
+     return (
+     <div className="h-screen bg-gradient-to-br from-[#1a1440] via-[#2a0a3c] to-[#0a1033] flex flex-col overflow-hidden">
+       {/* Header con botón de volver - FIXED */}
+       <div className="flex items-center p-4 border-b border-cosmic-gold/30 bg-white/5 backdrop-blur-md flex-shrink-0">
+         <button
+           onClick={() => navigate('/home')}
+           className="flex items-center gap-2 text-cosmic-gold hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-cosmic-gold rounded-full p-2"
+           tabIndex={0}
+           aria-label="Volver a Home"
+         >
+           <ArrowLeft className="h-6 w-6" />
+           <span className="font-semibold hidden sm:inline">Volver</span>
+         </button>
+         <h2 className="text-xl text-white ml-4 font-bold drop-shadow">Chat con {profile?.name || ''}</h2>
+         {!isArtificial && (
+           <button
+             onClick={reloadMessages}
+             className="ml-auto flex items-center gap-2 text-cosmic-gold hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-cosmic-gold rounded-full p-2"
+             tabIndex={0}
+             aria-label="Recargar mensajes"
+           >
+             <RefreshCw className="h-5 w-5" />
+             <span className="font-semibold hidden sm:inline">Recargar</span>
+           </button>
+         )}
+       </div>
 
-      {/* Área de mensajes */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <ScrollArea className="h-full">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex mb-4 ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.sender_id !== user?.id && (
-                <Avatar className="mr-2 w-8 h-8">
-                  <AvatarImage src={profile?.avatar_url} />
-                  <AvatarFallback>{profile?.name?.[0]}</AvatarFallback>
-                </Avatar>
-              )}
-              <div
-                className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-md text-sm break-words ${
-                  message.sender_id === user?.id
-                    ? 'bg-gradient-to-br from-cosmic-magenta to-fuchsia-500 text-white rounded-br-none'
-                    : 'bg-gradient-to-br from-cosmic-gold/80 to-yellow-200 text-cosmic-dark-blue rounded-bl-none'
-                }`}
-                tabIndex={0}
-                aria-label={`Mensaje de ${message.sender_id === user?.id ? 'tú' : profile?.name}`}
-              >
-                <span>{message.content}</span>
-                <div className="text-[10px] text-right mt-1 opacity-60">
-                  {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>
-              </div>
-              {message.sender_id === user?.id && (
-                <Avatar className="ml-2 w-8 h-8">
-                  <AvatarImage src={user?.avatar_url} />
-                  <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
-                </Avatar>
-              )}
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </ScrollArea>
-      </div>
+       {/* Área de mensajes - SCROLLABLE */}
+       <div className="flex-1 overflow-hidden p-4">
+         <ScrollArea className="h-full">
+           {messages.map((message) => (
+             <div
+               key={message.id}
+               className={`flex mb-4 ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
+             >
+               {message.sender_id !== user?.id && (
+                 <Avatar className="mr-2 w-8 h-8">
+                   <AvatarImage src={profile?.avatar_url} />
+                   <AvatarFallback>{profile?.name?.[0]}</AvatarFallback>
+                 </Avatar>
+               )}
+               <div
+                 className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-md text-sm break-words ${
+                   message.sender_id === user?.id
+                     ? 'bg-gradient-to-br from-cosmic-magenta to-fuchsia-500 text-white rounded-br-none'
+                     : 'bg-gradient-to-br from-cosmic-gold/80 to-yellow-200 text-cosmic-dark-blue rounded-bl-none'
+                 }`}
+                 tabIndex={0}
+                 aria-label={`Mensaje de ${message.sender_id === user?.id ? 'tú' : profile?.name}`}
+               >
+                 <span>{message.content}</span>
+                 <div className="text-[10px] text-right mt-1 opacity-60">
+                   {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                 </div>
+               </div>
+               {message.sender_id === user?.id && (
+                 <Avatar className="ml-2 w-8 h-8">
+                   <AvatarImage src={user?.avatar_url} />
+                   <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+                 </Avatar>
+               )}
+             </div>
+           ))}
+           <div ref={messagesEndRef} />
+         </ScrollArea>
+       </div>
 
-      {/* Input de mensaje mejorado */}
-      <div className="p-4 border-t border-cosmic-gold/30 bg-white/5 backdrop-blur-md">
-        <form
-          className="flex items-center gap-2"
-          onSubmit={e => {
-            e.preventDefault();
-            handleSendMessage();
-          }}
-        >
-          <input
-            type="text"
-            placeholder="Escribe un mensaje cósmico..."
-            value={newMessage}
-            onChange={e => setNewMessage(e.target.value)}
-            className="flex-1 bg-gradient-to-r from-[#2a0a3c]/60 to-[#a78bfa]/20 text-white placeholder-cosmic-gold rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border border-cosmic-magenta/30 shadow"
-            tabIndex={0}
-            aria-label="Escribir mensaje"
-            autoComplete="off"
-          />
-          <button
-            type="submit"
-            className="bg-cosmic-magenta hover:bg-fuchsia-600 text-white rounded-full p-3 shadow transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
-            disabled={sending || !user || !newMessage.trim()}
-            aria-label="Enviar mensaje"
-          >
-            <Send className="h-5 w-5" />
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+       {/* Input de mensaje mejorado - FIXED */}
+       <div className="p-4 border-t border-cosmic-gold/30 bg-white/5 backdrop-blur-md flex-shrink-0">
+         <form
+           className="flex items-center gap-2"
+           onSubmit={e => {
+             e.preventDefault();
+             handleSendMessage();
+           }}
+         >
+           <input
+             type="text"
+             placeholder="Escribe un mensaje cósmico..."
+             value={newMessage}
+             onChange={e => setNewMessage(e.target.value)}
+             className="flex-1 bg-gradient-to-r from-[#2a0a3c]/60 to-[#a78bfa]/20 text-white placeholder-cosmic-gold rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border border-cosmic-magenta/30 shadow"
+             tabIndex={0}
+             aria-label="Escribir mensaje"
+             autoComplete="off"
+           />
+           <button
+             type="submit"
+             className="bg-cosmic-magenta hover:bg-fuchsia-600 text-white rounded-full p-3 shadow transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+             disabled={sending || !user || !newMessage.trim()}
+             aria-label="Enviar mensaje"
+           >
+             <Send className="h-5 w-5" />
+           </button>
+         </form>
+       </div>
+     </div>
+   );
 };
 
 export default ChatInterface;

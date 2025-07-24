@@ -95,7 +95,7 @@ const Home = () => {
       
       // Si el usuario está autenticado, excluir su propio perfil
       if (isAuthenticated && user?.id) {
-        // Primero intentar excluir por user_id
+        // Excluir perfiles que tengan el user_id del usuario actual
         query = query.neq('user_id', user.id);
         
         // También excluir si el perfil actual del usuario coincide con algún perfil
@@ -107,10 +107,12 @@ const Home = () => {
       
       const { data, error } = await query;
       console.log("📋 Perfiles encontrados después del filtrado:", data?.length || 0);
+      console.log("📋 Perfiles encontrados:", data);
       if (!error && data) {
         // Filtro adicional para excluir el perfil actual del usuario
         let filteredData = data;
         if (userProfile?.id) {
+          console.log("🚫 userProfile.id:", userProfile.id);
           filteredData = data.filter((profile: any) => profile.id !== userProfile.id);
           console.log("🚫 Perfiles después del filtro adicional:", filteredData.length);
         }

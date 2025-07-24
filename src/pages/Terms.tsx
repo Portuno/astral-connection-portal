@@ -8,7 +8,7 @@ const Terms = () => (
       <p className="mb-6 text-gray-300 text-sm text-center">Última actualización: {new Date().toLocaleDateString()}</p>
       <div className="space-y-6 text-gray-200 text-justify">
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Titular de la plataforma</h2>
-        <p>AYN RAND CAPITAL SL<br/>CIF: B72705221<br/>[Dirección de la empresa]<br/>Contacto: [email de contacto]</p>
+        <p>AYN RAND CAPITAL SL<br/>CIF: B72705221</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">1. Objeto</h2>
         <p>Estos términos regulan el acceso y uso de la plataforma de compatibilidad y chat astrológico “Amor Astral”.</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">2. Condiciones de uso</h2>
@@ -38,7 +38,7 @@ const Terms = () => (
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">6. Suspensión y cancelación</h2>
         <p>Nos reservamos el derecho de suspender o cancelar cuentas que incumplan estos términos.</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">7. Legislación aplicable</h2>
-        <p>Estos términos se rigen por la legislación española y europea. Para cualquier controversia, las partes se someten a los juzgados de [Ciudad].</p>
+        <p>Estos términos se rigen por la legislación española y europea. Para cualquier controversia, las partes se someten a los juzgados de Barcelona.</p>
       </div>
     </div>
   </div>

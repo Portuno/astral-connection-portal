@@ -59,14 +59,6 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-      <footer className="w-full py-6 flex flex-col items-center gap-2 bg-transparent text-gray-300 text-sm">
-        <div className="flex gap-4">
-          <a href="/terms" className="hover:text-cosmic-magenta underline focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" tabIndex={0} aria-label="Términos y Condiciones">Términos</a>
-          <a href="/privacy-policy" className="hover:text-cosmic-magenta underline focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" tabIndex={0} aria-label="Política de Privacidad">Política de Privacidad</a>
-          <a href="/legal-notice" className="hover:text-cosmic-magenta underline focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" tabIndex={0} aria-label="Aviso Legal">Aviso Legal</a>
-        </div>
-        <div className="text-xs text-gray-500">&copy; {new Date().getFullYear()} AYN RAND CAPITAL SL</div>
-      </footer>
     </AuthProvider>
   </QueryClientProvider>
 );

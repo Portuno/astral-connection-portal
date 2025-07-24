@@ -8,7 +8,7 @@ const LegalNotice = () => (
       <p className="mb-6 text-gray-300 text-sm text-center">Última actualización: {new Date().toLocaleDateString()}</p>
       <div className="space-y-6 text-gray-200 text-justify">
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Titularidad del sitio web</h2>
-        <p>Este sitio web es propiedad de AYN RAND CAPITAL SL, con CIF B72705221, [Dirección de la empresa], contacto: [email de contacto].</p>
+        <p>AYN RAND CAPITAL SL<br/>CIF: B72705221</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Objeto</h2>
         <p>El presente Aviso Legal regula el acceso, navegación y uso de la plataforma “Amor Astral”.</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Propiedad intelectual e industrial</h2>
@@ -27,7 +27,7 @@ const LegalNotice = () => (
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Contacto</h2>
         <p>Para cualquier consulta legal, puedes contactarnos en [email de contacto].</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Jurisdicción y legislación aplicable</h2>
-        <p>Este Aviso Legal se rige por la legislación española y europea. Para cualquier controversia, las partes se someten a los juzgados de [Ciudad].</p>
+        <p>Este Aviso Legal se rige por la legislación española y europea. Para cualquier controversia, las partes se someten a los juzgados de Barcelona.</p>
       </div>
     </div>
   </div>

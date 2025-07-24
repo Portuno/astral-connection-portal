@@ -59,24 +59,6 @@ const Home = () => {
           setUserProfile(profile);
           console.log("✅ Perfil cargado desde localStorage:", profile);
         }
-        
-        // Si hay usuario autenticado, intentar cargar desde BD
-        if (isAuthenticated && user) {
-          try {
-            const { data: profiles, error } = await supabase
-              .from('temporary_profiles')
-              .select('*')
-              .eq('session_id', user.id)
-              .limit(1);
-            
-            if (profiles && profiles.length > 0) {
-              setUserProfile(profiles[0]);
-              console.log("✅ Perfil cargado desde BD:", profiles[0]);
-            }
-          } catch (error) {
-            console.log("⚠️ Error cargando perfil desde BD:", error);
-          }
-        }
       } catch (error) {
         console.error("Error cargando perfil:", error);
       }
@@ -87,7 +69,9 @@ const Home = () => {
 
   useEffect(() => {
     const fetchProfiles = async () => {
+      console.log("🔄 useEffect fetchProfiles ejecutándose - isAuthenticated:", isAuthenticated, "user?.id:", user?.id);
       setLoading(true);
+      
       // Mostrar todos los perfiles premium (reales y artificiales)
       let query = supabase
         .from('profiles')
@@ -96,15 +80,15 @@ const Home = () => {
       
       console.log("🔍 Consulta inicial: buscando perfiles premium");
       
-      // Si el usuario está autenticado, excluir su propio perfil
+      // Si el usuario está autenticado, excluir su propio perfil real
       if (isAuthenticated && user?.id) {
-        // Excluir perfiles que tengan el user_id del usuario actual (solo perfiles reales)
+        // Solo excluir perfiles reales que tengan el user_id del usuario actual
         query = query.neq('user_id', user.id);
+        console.log("🚫 Excluyendo user_id:", user.id);
       }
       
       const { data, error } = await query;
       console.log("📋 Perfiles encontrados después del filtrado:", data?.length || 0);
-      console.log("📋 Perfiles encontrados:", data);
       
       // Debug: mostrar qué perfiles son artificiales vs reales
       if (data) {
@@ -113,24 +97,21 @@ const Home = () => {
         console.log("🤖 Perfiles artificiales:", artificialProfiles.length, artificialProfiles.map((p: any) => p.name));
         console.log("👤 Perfiles reales:", realProfiles.length, realProfiles.map((p: any) => p.name));
       }
+      
       if (!error && data) {
-        // Filtro adicional para excluir el perfil actual del usuario (solo si es un perfil real)
-        let filteredData = data;
-        if (userProfile?.id && userProfile.id !== null && userProfile.id !== undefined) {
-          console.log("🚫 userProfile.id:", userProfile.id);
-          // Solo excluir si el perfil del usuario es real (tiene user_id)
-          if (userProfile.user_id) {
-            filteredData = data.filter((profile: any) => profile.id !== userProfile.id);
-            console.log("🚫 Perfiles después del filtro adicional:", filteredData.length);
-          }
-        }
-        setCompatibleProfiles(filteredData);
+        console.log("✅ Estableciendo compatibleProfiles con", data.length, "perfiles");
+        setCompatibleProfiles(data);
       } else {
+        console.log("❌ Error en consulta, estableciendo compatibleProfiles vacío");
         setCompatibleProfiles([]);
       }
       setLoading(false);
     };
-    fetchProfiles();
+    
+    // Solo ejecutar si hay usuario autenticado
+    if (isAuthenticated) {
+      fetchProfiles();
+    }
   }, [isAuthenticated, user?.id]);
 
   // Cargar chats del usuario

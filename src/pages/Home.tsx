@@ -52,12 +52,10 @@ const Home = () => {
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        // Intentar cargar desde localStorage primero
         const storedProfile = localStorage.getItem("userProfile");
         if (storedProfile) {
           const profile = JSON.parse(storedProfile);
           setUserProfile(profile);
-          console.log("✅ Perfil cargado desde localStorage:", profile);
         }
       } catch (error) {
         console.error("Error cargando perfil:", error);
@@ -69,7 +67,6 @@ const Home = () => {
 
   useEffect(() => {
     const fetchProfiles = async () => {
-      console.log("🔄 useEffect fetchProfiles ejecutándose - isAuthenticated:", isAuthenticated, "user?.id:", user?.id);
       setLoading(true);
       
       // Mostrar todos los perfiles premium (reales y artificiales)
@@ -78,37 +75,21 @@ const Home = () => {
         .select('*')
         .eq('is_premium', true);
       
-      console.log("🔍 Consulta inicial: buscando perfiles premium");
-      
       // Si el usuario está autenticado, excluir su propio perfil real
       if (isAuthenticated && user?.id) {
-        // Solo excluir perfiles reales que tengan el user_id del usuario actual
         query = query.neq('user_id', user.id);
-        console.log("🚫 Excluyendo user_id:", user.id);
       }
       
       const { data, error } = await query;
-      console.log("📋 Perfiles encontrados después del filtrado:", data?.length || 0);
-      
-      // Debug: mostrar qué perfiles son artificiales vs reales
-      if (data) {
-        const artificialProfiles = data.filter((profile: any) => !profile.user_id);
-        const realProfiles = data.filter((profile: any) => profile.user_id);
-        console.log("🤖 Perfiles artificiales:", artificialProfiles.length, artificialProfiles.map((p: any) => p.name));
-        console.log("👤 Perfiles reales:", realProfiles.length, realProfiles.map((p: any) => p.name));
-      }
       
       if (!error && data) {
-        console.log("✅ Estableciendo compatibleProfiles con", data.length, "perfiles");
         setCompatibleProfiles(data);
       } else {
-        console.log("❌ Error en consulta, estableciendo compatibleProfiles vacío");
         setCompatibleProfiles([]);
       }
       setLoading(false);
     };
     
-    // Ejecutar siempre, no solo cuando hay usuario autenticado
     fetchProfiles();
   }, [isAuthenticated, user?.id]);
 
@@ -117,7 +98,6 @@ const Home = () => {
     if (!isAuthenticated || !user?.id) return;
     const loadChats = async () => {
       try {
-        console.log("🔄 Cargando chats para usuario:", user.id);
         const { data: chatsData, error: chatsError } = await supabase
           .from('chats')
           .select('*')
@@ -125,11 +105,9 @@ const Home = () => {
           .order('last_message_at', { ascending: false, nullsFirst: false });
         
         if (chatsError) {
-          console.error("❌ Error cargando chats:", chatsError);
+          console.error("Error cargando chats:", chatsError);
           return;
         }
-        
-        console.log("📋 Chats encontrados:", chatsData?.length || 0, chatsData);
         
         if (!chatsData || chatsData.length === 0) {
           setUserChats([]);
@@ -141,7 +119,6 @@ const Home = () => {
           chatsData.map(async (chat: any) => {
             try {
               const otherUserId = chat.user1_id === user.id ? chat.user2_id : chat.user1_id;
-              console.log("👤 Buscando perfil para:", otherUserId);
               
               const { data: profile, error: profileError } = await supabase
                 .from('profiles')
@@ -150,7 +127,6 @@ const Home = () => {
                 .single();
               
               if (profileError) {
-                console.error("❌ Error cargando perfil:", profileError, "para usuario:", otherUserId);
                 return null;
               }
               
@@ -161,27 +137,20 @@ const Home = () => {
                 .order('created_at', { ascending: false })
                 .limit(1);
               
-              if (messageError) {
-                console.error("❌ Error cargando último mensaje:", messageError);
-              }
-              
               return {
                 ...chat,
                 profile,
                 lastMessage: lastMessage?.[0] || null,
               };
             } catch (error) {
-              console.error("❌ Error procesando chat:", error);
               return null;
             }
           })
         );
         
         const validChats = chatsWithProfiles.filter(Boolean);
-        console.log("✅ Chats procesados:", validChats.length, validChats);
         setUserChats(validChats);
       } catch (error) {
-        console.error("❌ Error general cargando chats:", error);
         setUserChats([]);
       }
     };

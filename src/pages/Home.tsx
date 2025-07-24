@@ -71,7 +71,7 @@ const Home = () => {
       let query = supabase
         .from('profiles')
         .select('*')
-        .eq('is_premium', true);
+        .is('is_premium', true);
       
       // Si el usuario está autenticado, usar OR para incluir perfiles artificiales Y perfiles reales de otros usuarios
       if (isAuthenticated && user?.id) {
@@ -233,6 +233,18 @@ const Home = () => {
               Mis chats
             </Button>
           )}
+          {/* Botón Activar Premium en header */}
+          {isAuthenticated && !user?.isPremium && (
+            <Button
+              onClick={handleActivatePremium}
+              className="bg-gradient-to-r from-yellow-400 to-cosmic-gold text-cosmic-dark-blue font-bold px-4 py-2 rounded-xl shadow border border-yellow-200/40 hover:from-yellow-300 hover:to-yellow-400 transition-all"
+              tabIndex={0}
+              aria-label="Activar Premium"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Activar Premium
+            </Button>
+          )}
           {/* Botón/perfil de usuario */}
           {isAuthenticated && (
             <DropdownMenu>
@@ -290,6 +302,18 @@ const Home = () => {
                >
                  Editar perfil
                </Button>
+               {/* Botón Activar Premium en sección de perfil */}
+               {!user?.isPremium && (
+                 <Button
+                   onClick={handleActivatePremium}
+                   className="mt-2 bg-gradient-to-r from-yellow-400 to-cosmic-gold text-cosmic-dark-blue font-bold px-4 py-2 rounded-xl shadow border border-yellow-200/40 hover:from-yellow-300 hover:to-yellow-400 transition-all"
+                   tabIndex={0}
+                   aria-label="Activar Premium"
+                 >
+                   <Crown className="w-4 h-4 mr-2" />
+                   Activar Premium
+                 </Button>
+               )}
              </div>
            </div>
          )}

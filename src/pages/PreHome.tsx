@@ -127,13 +127,26 @@ export default function PreHome() {
         {/* Estrellas y constelaciones */}
         <svg className="absolute left-0 top-0 w-full h-full" width="100%" height="100%" viewBox="0 0 800 600" fill="none">
           {/* Estrellas */}
-          <circle cx="100" cy="120" r="2" fill="#fff8dc" />
-          <circle cx="200" cy="80" r="1.5" fill="#ffe4e1" />
-          <circle cx="700" cy="100" r="2.5" fill="#fffbe6" />
-          <circle cx="600" cy="500" r="1.7" fill="#fffbe6" />
-          <circle cx="400" cy="550" r="1.2" fill="#fffbe6" />
-          <circle cx="300" cy="400" r="1.8" fill="#fffbe6" />
-          {/* Constelación simple */}
+          {[...Array(18)].map((_, i) => (
+            <circle
+              key={i}
+              cx={`${Math.random() * 100}%`}
+              cy={`${Math.random() * 100}%`}
+              r={Math.random() * 1.2 + 0.6}
+              fill="url(#star-glow)"
+              opacity={0.7}
+            />
+          ))}
+          {[...Array(80)].map((_, i) => (
+            <circle
+              key={100 + i}
+              cx={`${Math.random() * 100}%`}
+              cy={`${Math.random() * 100}%`}
+              r={Math.random() * 0.4 + 0.2}
+              fill="#fff"
+              opacity={0.3 + Math.random() * 0.5}
+            />
+          ))}
           <polyline points="100,120 200,80 300,400 400,550" stroke="#ffe4e1" strokeWidth="0.7" opacity="0.5" />
         </svg>
         {/* Fases lunares */}
@@ -169,8 +182,8 @@ export default function PreHome() {
           </defs>
         </svg>
       </div>
-      */}
       {/* Fin fondo artístico */}
+      */}
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/10 relative z-20"

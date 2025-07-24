@@ -62,7 +62,7 @@ const Premium = () => {
         access_token: session.access_token
       });
       const response = await fetch(
-        "https://mfwvjjemxzgaddzlzodt.supabase.co/functions/v1/square-checkout",
+        "https://mfwvjjemxzgaddzlzodt.supabase.co/functions/v1/stripe-checkout",
         {
           method: "POST",
           headers: {
@@ -76,11 +76,11 @@ const Premium = () => {
       const data = await response.json();
       console.log("[DEBUG] JSON recibido de Supabase:", data);
       const url =
+        data.checkout_url ||
         data.checkout_session?.checkout_page_url ||
         data.checkout_session?.checkout_url ||
         data.checkout_session?.payment_link?.url ||
-        data.checkout_session?.url ||
-        data.checkout_url;
+        data.checkout_session?.url;
       if (url) {
         console.log("[DEBUG] Redirigiendo a:", url);
         window.location.href = url;

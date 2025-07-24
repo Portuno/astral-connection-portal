@@ -106,6 +106,7 @@ export default function PreHome() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1440] via-[#2a0a3c] to-[#0a1033] relative overflow-hidden">
       {/* Fondo artístico etéreo */}
+      {/*
       <div
         aria-hidden="true"
         className="absolute inset-0 z-0 pointer-events-none select-none"
@@ -168,6 +169,7 @@ export default function PreHome() {
           </defs>
         </svg>
       </div>
+      */}
       {/* Fin fondo artístico */}
       <form
         onSubmit={handleSubmit}

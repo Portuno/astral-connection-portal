@@ -108,10 +108,8 @@ const Home = () => {
       setLoading(false);
     };
     
-    // Solo ejecutar si hay usuario autenticado
-    if (isAuthenticated) {
-      fetchProfiles();
-    }
+    // Ejecutar siempre, no solo cuando hay usuario autenticado
+    fetchProfiles();
   }, [isAuthenticated, user?.id]);
 
   // Cargar chats del usuario

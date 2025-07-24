@@ -8,7 +8,7 @@ const PrivacyPolicy = () => (
       <p className="mb-6 text-gray-300 text-sm text-center">Última actualización: {new Date().toLocaleDateString()}</p>
       <div className="space-y-6 text-gray-200 text-justify">
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Responsable del tratamiento</h2>
-        <p>AYN RAND CAPITAL SL<br/>CIF: B72705221<br/>[Dirección de la empresa]<br/>Contacto: [email de contacto]</p>
+        <p>AYN RAND CAPITAL SL<br/>CIF: B72705221</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">1. Qué datos personales se recopilan</h2>
         <ul className="list-disc ml-6">
           <li>Nombre, apellidos y datos de perfil</li>

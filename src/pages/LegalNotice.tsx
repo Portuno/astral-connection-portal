@@ -24,8 +24,6 @@ const LegalNotice = () => (
         </ul>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Enlaces externos</h2>
         <p>La plataforma puede contener enlaces a sitios de terceros. AYN RAND CAPITAL SL no se responsabiliza de los contenidos ni de las políticas de privacidad de dichos sitios.</p>
-        <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Contacto</h2>
-        <p>Para cualquier consulta legal, puedes contactarnos en [email de contacto].</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Jurisdicción y legislación aplicable</h2>
         <p>Este Aviso Legal se rige por la legislación española y europea. Para cualquier controversia, las partes se someten a los juzgados de Barcelona.</p>
       </div>

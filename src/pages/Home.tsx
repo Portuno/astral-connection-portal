@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Sparkles, MapPin, Calendar, X } from "lucide-react";
+import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Sparkles, MapPin, Calendar, X, Wrench } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
 import AuthModal from "@/components/AuthModal";
@@ -118,21 +118,21 @@ const Home = () => {
           return;
         }
         
-        // Obtener perfil y último mensaje de cada chat
-        const chatsWithProfiles = await Promise.all(
-          chatsData.map(async (chat: any) => {
-            try {
-              const otherUserId = chat.user1_id === user.id ? chat.user2_id : chat.user1_id;
-              
-              const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', otherUserId)
-                .single();
-              
-              if (profileError) {
-                return null;
-              }
+                 // Obtener perfil y último mensaje de cada chat
+         const chatsWithProfiles = await Promise.all(
+           chatsData.map(async (chat: any) => {
+             try {
+               const otherUserId = chat.user1_id === user.id ? chat.user2_id : chat.user1_id;
+               
+               const { data: profile, error: profileError } = await supabase
+                 .from('profiles')
+                 .select('*')
+                 .eq('user_id', otherUserId)
+                 .single();
+               
+               if (profileError) {
+                 return null;
+               }
               
               const { data: lastMessage, error: messageError } = await supabase
                 .from('messages')
@@ -320,6 +320,10 @@ const Home = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleEditProfile} tabIndex={0} aria-label="Editar perfil">Editar perfil</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/diagnostic')} tabIndex={0} aria-label="Diagnóstico de sistema">
+                  <Wrench className="h-4 w-4 mr-2" />
+                  Diagnóstico
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogoutClick} tabIndex={0} aria-label="Cerrar sesión">Cerrar sesión</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

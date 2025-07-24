@@ -19,6 +19,7 @@ import PreHome from "./pages/PreHome";
 import Preloading from "./pages/Preloading";
 import Premium from "./pages/Premium";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import Diagnostic from "./pages/Diagnostic";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/profile/:profileId" element={<ProfilePage />} />
             <Route path="/premium" element={<Premium />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/diagnostic" element={<Diagnostic />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

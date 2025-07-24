@@ -109,7 +109,7 @@ const ChatInterface = () => {
       const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
         .select('*')
-        .eq('chat_id', chat.id)
+        .eq('chat_id', chat.id as any)
         .order('created_at', { ascending: true });
       
       if (messagesError) {
@@ -117,18 +117,22 @@ const ChatInterface = () => {
         return;
       }
       
-      if (messagesData && messagesData.length > 0) {
-        const validMessages = messagesData.filter((msg: any) => msg && typeof msg === 'object' && 'created_at' in msg);
-        if (validMessages.length > 0) {
-          const lastMessage = validMessages[validMessages.length - 1];
-          if (lastMessage.created_at !== lastMessageTimestampRef.current) {
-            console.log('[Polling] Nuevos mensajes detectados:', validMessages.length);
-            setMessages(validMessages);
-            lastMessageTimestampRef.current = lastMessage.created_at;
-          }
+      let validMessages: Message[] = [];
+      if (Array.isArray(messagesData)) {
+        validMessages = messagesData.filter((msg: any) =>
+          msg && typeof msg === 'object' &&
+          !('error' in msg) &&
+          'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
+        );
+      }
+      if (validMessages.length > 0) {
+        const lastMessage = validMessages[validMessages.length - 1];
+        if (lastMessage.created_at !== lastMessageTimestampRef.current) {
+          console.log('[Polling] Nuevos mensajes detectados:', validMessages.length);
+          setMessages(validMessages);
+          lastMessageTimestampRef.current = lastMessage.created_at;
         }
-      } else if (messagesData && messagesData.length === 0) {
-        // Si no hay mensajes, actualizar el estado
+      } else if (Array.isArray(messagesData) && messagesData.length === 0) {
         setMessages([]);
         lastMessageTimestampRef.current = '';
       }
@@ -313,19 +317,27 @@ const ChatInterface = () => {
         .eq('chat_id', chat.id as any)
         .eq('read_at', null)
         .neq('sender_id', user.id as any);
-      if (unreadMessages && unreadMessages.length > 0) {
+      if (unreadMessages && Array.isArray(unreadMessages) && unreadMessages.length > 0) {
         const ids = unreadMessages.map((m: any) => m.id);
         await supabase
           .from('messages')
-          .update({ read_at: new Date().toISOString() })
-          .in('id', ids);
+          .update({ read_at: new Date().toISOString() } as any)
+          .in('id', ids as any);
         // Refrescar mensajes
         const { data: refreshed } = await supabase
           .from('messages')
           .select('*')
-          .eq('chat_id', chat.id)
+          .eq('chat_id', chat.id as any)
           .order('created_at', { ascending: true });
-        setMessages(refreshed || []);
+        let validRefreshed: Message[] = [];
+        if (Array.isArray(refreshed)) {
+          validRefreshed = refreshed.filter((msg: any) =>
+            msg && typeof msg === 'object' &&
+            !('error' in msg) &&
+            'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
+          );
+        }
+        setMessages(validRefreshed);
       }
     }
     markAsRead();
@@ -341,9 +353,9 @@ const ChatInterface = () => {
         const { data: profileData, error } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', profileId)
+          .eq('id', profileId as any)
           .single();
-        if (!profileData) {
+        if (!profileData || (profileData as any).error) {
           console.error('Profile not found:', profileId);
           toast({
             title: "Error",
@@ -360,7 +372,7 @@ const ChatInterface = () => {
         setIsArtificial(isArtificialProfile);
         // Definir identificadores correctos
         const myUserId = user.id; // siempre el id de users
-        const otherId = isArtificialProfile ? profileData.id : (profileData as any).user_id;
+        const otherId = isArtificialProfile ? (profileData as any).id : (profileData as any).user_id;
 
         if (isArtificialProfile) {
           // Buscar o crear chat artificial en ai_chats (sin cambios)
@@ -368,15 +380,15 @@ const ChatInterface = () => {
           const { data: existingAiChat } = await supabase
             .from('ai_chats' as any)
             .select('*')
-            .eq('user_id', user.id)
-            .eq('profile_id', profileId)
+            .eq('user_id', user.id as any)
+            .eq('profile_id', profileId as any)
             .single();
-          if (existingAiChat) {
+          if (existingAiChat && !(existingAiChat as any).error) {
             aiChat = existingAiChat as unknown as AIChat;
           } else {
             const { data: newAiChat, error: aiChatError } = await supabase
               .from('ai_chats' as any)
-              .insert({ user_id: user.id, profile_id: profileId, messages: [] })
+              .insert({ user_id: user.id, profile_id: profileId, messages: [] } as any)
               .select()
               .single();
             if (aiChatError) {
@@ -404,26 +416,23 @@ const ChatInterface = () => {
             .select('*')
             .or(`user1_id.eq.${myUserId},user1_id.eq.${otherId}`)
             .or(`user2_id.eq.${myUserId},user2_id.eq.${otherId}`);
-          
           console.log('[Chat] Chats existentes encontrados:', existingChats);
-          
           // Filtrar para encontrar el chat específico entre estos dos usuarios
           let chatData = null;
-          if (existingChats) {
-            const validChats = existingChats.filter((chat: any) => chat && typeof chat === 'object' && 'user1_id' in chat && 'user2_id' in chat);
-            chatData = validChats.find((chat: any) => 
+          if (Array.isArray(existingChats)) {
+            const validChats = existingChats.filter((chat: any) => chat && typeof chat === 'object' && !('error' in chat) && 'user1_id' in chat && 'user2_id' in chat);
+            chatData = validChats.find((chat: any) =>
               (chat.user1_id === myUserId && chat.user2_id === otherId) ||
               (chat.user1_id === otherId && chat.user2_id === myUserId)
             );
           }
-          
           console.log('[Chat] Chat encontrado:', chatData);
           if (!chatData) {
             console.log('[Chat] Creando nuevo chat entre:', myUserId, 'y', otherId);
             // Solo crear si no existe ninguno
             const { data: newChat, error: createError } = await supabase
               .from('chats')
-              .insert({ user1_id: myUserId, user2_id: otherId })
+              .insert({ user1_id: myUserId, user2_id: otherId } as any)
               .select()
               .single();
             if (createError) {
@@ -441,17 +450,24 @@ const ChatInterface = () => {
             const { data: messagesData, error: messagesError } = await supabase
               .from('messages')
               .select('*')
-              .eq('chat_id', chatData.id)
+              .eq('chat_id', chatData.id as any)
               .order('created_at', { ascending: true });
             if (messagesError) {
               console.error('[Chat] Error cargando mensajes:', messagesError);
             }
-            console.log('[Chat] Mensajes cargados:', messagesData?.length || 0);
-            setMessages(messagesData || []);
-            
+            let validMessages: Message[] = [];
+            if (Array.isArray(messagesData)) {
+              validMessages = messagesData.filter((msg: any) =>
+                msg && typeof msg === 'object' &&
+                !('error' in msg) &&
+                'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
+              );
+            }
+            console.log('[Chat] Mensajes cargados:', validMessages.length);
+            setMessages(validMessages);
             // Guardar timestamp del último mensaje para polling
-            if (messagesData && messagesData.length > 0) {
-              lastMessageTimestampRef.current = messagesData[messagesData.length - 1].created_at;
+            if (validMessages.length > 0) {
+              lastMessageTimestampRef.current = validMessages[validMessages.length - 1].created_at;
             }
           }
         }
@@ -490,20 +506,25 @@ const ChatInterface = () => {
       const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
         .select('*')
-        .eq('chat_id', chat.id)
+        .eq('chat_id', chat.id as any)
         .order('created_at', { ascending: true });
-      
       if (messagesError) {
         console.error('[Reload] Error recargando mensajes:', messagesError);
         return;
       }
-      
-      console.log('[Reload] Mensajes recargados:', messagesData?.length || 0);
-      setMessages(messagesData || []);
-      
+      let validMessages: Message[] = [];
+      if (Array.isArray(messagesData)) {
+        validMessages = messagesData.filter((msg: any) =>
+          msg && typeof msg === 'object' &&
+          !('error' in msg) &&
+          'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
+        );
+      }
+      console.log('[Reload] Mensajes recargados:', validMessages.length);
+      setMessages(validMessages);
       // Actualizar timestamp del último mensaje
-      if (messagesData && messagesData.length > 0) {
-        lastMessageTimestampRef.current = messagesData[messagesData.length - 1].created_at;
+      if (validMessages.length > 0) {
+        lastMessageTimestampRef.current = validMessages[validMessages.length - 1].created_at;
       }
     } catch (error) {
       console.error('[Reload] Error inesperado recargando mensajes:', error);
@@ -531,23 +552,21 @@ const ChatInterface = () => {
         // Actualizar en Supabase
         await supabase
           .from('ai_chats' as any)
-          .update({ messages: updatedMessages })
-          .eq('id', (chat as any).id);
+          .update({ messages: updatedMessages } as any)
+          .eq('id', (chat as any).id as any);
                  // No enviar respuesta automática - el usuario artificial no responde
       } else {
         // Manejar envío de mensajes reales
         console.log('[Send] Enviando mensaje real a chat:', chat?.id);
         console.log('[Send] Contenido:', newMessage.trim());
         console.log('[Send] Sender ID:', user.id);
-        
         const { error } = await supabase
           .from('messages')
           .insert({
             chat_id: chat?.id,
             sender_id: user.id,
             content: newMessage.trim(),
-          });
-
+          } as any);
         if (error) {
           console.error('Error sending message:', error);
           toast({
@@ -559,15 +578,13 @@ const ChatInterface = () => {
         }
         console.log('[Send] Mensaje enviado exitosamente');
         setNewMessage("");
-        
         // Actualizar última actividad del chat
         try {
           console.log('[Chat] Actualizando last_message_at para chat:', chat?.id);
           const { error: updateError } = await supabase
             .from('chats')
-            .update({ last_message_at: new Date().toISOString() })
-            .eq('id', chat?.id);
-          
+            .update({ last_message_at: new Date().toISOString() } as any)
+            .eq('id', chat?.id as any);
           if (updateError) {
             console.error('[Chat] Error actualizando last_message_at:', updateError);
             // No mostrar error al usuario, solo log
@@ -577,7 +594,6 @@ const ChatInterface = () => {
         } catch (updateError) {
           console.error('[Chat] Error inesperado actualizando chat:', updateError);
         }
-        
         // Si no está conectado a Realtime, recargar mensajes inmediatamente
         if (!isRealtimeConnected && !isArtificial) {
           setTimeout(() => {

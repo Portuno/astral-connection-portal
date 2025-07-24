@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Send, MoreVertical, Crown, RefreshCw } from "lucide-react";
+import { ArrowLeft, Send, MoreVertical, Crown, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "./AuthProvider";
@@ -47,7 +47,7 @@ const ChatInterface = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
-  const [profile, setProfile] = useState<any | null>(null); // Changed type to any as Profile is removed
+  const [profile, setProfile] = useState<any | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [chat, setChat] = useState<Chat | null>(null);
@@ -56,10 +56,18 @@ const ChatInterface = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentUserId = user?.id || localStorage.getItem("sessionId") || "temp_user";
   const [isArtificial, setIsArtificial] = useState(false);
+  
+  // Estados para manejo de conectividad
+  const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
+  const [realtimeError, setRealtimeError] = useState<string | null>(null);
+  const [usePolling, setUsePolling] = useState(false);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastMessageTimestampRef = useRef<string>('');
 
   // Verificar autenticación al cargar
   useEffect(() => {
-    if (isLoading) return; // Esperar a que cargue el usuario
+    if (isLoading) return;
     if (!isAuthenticated) {
       toast({
         title: "🔒 Acceso Requerido",
@@ -92,6 +100,71 @@ const ChatInterface = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Función para cargar mensajes manualmente (fallback)
+  const loadMessages = useCallback(async () => {
+    if (!chat?.id || isArtificial) return;
+    
+    try {
+      console.log('[Polling] Cargando mensajes para chat:', chat.id);
+      const { data: messagesData, error: messagesError } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('chat_id', chat.id)
+        .order('created_at', { ascending: true });
+      
+      if (messagesError) {
+        console.error('[Polling] Error cargando mensajes:', messagesError);
+        return;
+      }
+      
+      if (messagesData && messagesData.length > 0) {
+        const lastMessage = messagesData[messagesData.length - 1];
+        if (lastMessage.created_at !== lastMessageTimestampRef.current) {
+          console.log('[Polling] Nuevos mensajes detectados:', messagesData.length);
+          setMessages(messagesData);
+          lastMessageTimestampRef.current = lastMessage.created_at;
+        }
+      }
+    } catch (error) {
+      console.error('[Polling] Error inesperado cargando mensajes:', error);
+    }
+  }, [chat?.id, isArtificial]);
+
+  // Iniciar polling cuando Realtime falla
+  const startPolling = useCallback(() => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+    
+    console.log('[Polling] Iniciando polling cada 3 segundos');
+    setUsePolling(true);
+    pollingIntervalRef.current = setInterval(loadMessages, 3000);
+  }, [loadMessages]);
+
+  // Detener polling
+  const stopPolling = useCallback(() => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+    setUsePolling(false);
+  }, []);
+
+  // Función de reconexión para Realtime
+  const reconnectRealtime = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+    
+    console.log('[Realtime] Intentando reconexión en 5 segundos...');
+    reconnectTimeoutRef.current = setTimeout(() => {
+      console.log('[Realtime] Reintentando conexión...');
+      // Forzar re-render del useEffect de Realtime
+      setIsRealtimeConnected(false);
+      setRealtimeError(null);
+    }, 5000);
+  }, []);
+
   // Suscripción realtime a mensajes del chat actual
   useEffect(() => {
     if (!chat?.id) {
@@ -102,6 +175,10 @@ const ChatInterface = () => {
       console.log('[Realtime] Chat artificial, no se subscribe a realtime');
       return;
     }
+
+    // Limpiar polling si existe
+    stopPolling();
+    
     console.log(`[Realtime] Subscribiendo a canal: messages-chat-${chat.id}`);
     
     // Crear canal con configuración más robusta
@@ -147,24 +224,58 @@ const ChatInterface = () => {
       )
       .on('system', { event: 'error' }, (error) => {
         console.error('[Realtime] Error en canal:', error);
+        setRealtimeError(error.message || 'Error de conexión');
+        setIsRealtimeConnected(false);
+        
+        // Cambiar a polling después de 3 errores consecutivos
+        if (!usePolling) {
+          startPolling();
+        }
       })
       .on('system', { event: 'close' }, () => {
         console.log('[Realtime] Canal cerrado');
+        setIsRealtimeConnected(false);
+        
+        // Intentar reconexión automática
+        reconnectRealtime();
       })
       .subscribe((status) => {
         console.log('[Realtime] Estado de suscripción:', status);
         if (status === 'SUBSCRIBED') {
           console.log('[Realtime] Suscripción exitosa');
+          setIsRealtimeConnected(true);
+          setRealtimeError(null);
+          stopPolling(); // Detener polling si Realtime funciona
         } else if (status === 'CHANNEL_ERROR') {
           console.error('[Realtime] Error en canal');
+          setIsRealtimeConnected(false);
+          setRealtimeError('Error de canal');
+          
+          // Cambiar a polling
+          if (!usePolling) {
+            startPolling();
+          }
+        } else if (status === 'TIMED_OUT') {
+          console.error('[Realtime] Timeout de conexión');
+          setIsRealtimeConnected(false);
+          setRealtimeError('Timeout de conexión');
+          
+          // Cambiar a polling
+          if (!usePolling) {
+            startPolling();
+          }
         }
       });
     
     return () => {
       console.log(`[Realtime] Desuscribiendo canal: messages-chat-${chat.id}`);
       supabase.removeChannel(channel);
+      stopPolling();
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
     };
-  }, [chat?.id, isArtificial, user?.id]);
+  }, [chat?.id, isArtificial, user?.id, usePolling, startPolling, stopPolling, reconnectRealtime]);
 
   // Marcar mensajes recibidos como leídos al abrir el chat
   useEffect(() => {
@@ -313,6 +424,11 @@ const ChatInterface = () => {
             }
             console.log('[Chat] Mensajes cargados:', messagesData?.length || 0);
             setMessages(messagesData || []);
+            
+            // Guardar timestamp del último mensaje para polling
+            if (messagesData && messagesData.length > 0) {
+              lastMessageTimestampRef.current = messagesData[messagesData.length - 1].created_at;
+            }
           }
         }
       } catch (error) {
@@ -348,6 +464,11 @@ const ChatInterface = () => {
       
       console.log('[Reload] Mensajes recargados:', messagesData?.length || 0);
       setMessages(messagesData || []);
+      
+      // Actualizar timestamp del último mensaje
+      if (messagesData && messagesData.length > 0) {
+        lastMessageTimestampRef.current = messagesData[messagesData.length - 1].created_at;
+      }
     } catch (error) {
       console.error('[Reload] Error inesperado recargando mensajes:', error);
     }
@@ -402,6 +523,7 @@ const ChatInterface = () => {
         }
         console.log('[Send] Mensaje enviado exitosamente');
         setNewMessage("");
+        
         // Actualizar última actividad del chat
         try {
           console.log('[Chat] Actualizando last_message_at para chat:', chat?.id);
@@ -419,7 +541,13 @@ const ChatInterface = () => {
         } catch (updateError) {
           console.error('[Chat] Error inesperado actualizando chat:', updateError);
         }
-                 // El realtime se encargará de mostrar el mensaje automáticamente
+        
+        // Si no está conectado a Realtime, recargar mensajes inmediatamente
+        if (!isRealtimeConnected && !isArtificial) {
+          setTimeout(() => {
+            loadMessages();
+          }, 500);
+        }
       }
     } catch (error) {
       console.error('Error in handleSendMessage:', error);
@@ -432,6 +560,18 @@ const ChatInterface = () => {
       setSending(false);
     }
   };
+
+  // Limpiar intervalos al desmontar
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+    };
+  }, []);
 
      return (
      <div className="h-screen bg-gradient-to-br from-[#1a1440] via-[#2a0a3c] to-[#0a1033] flex flex-col overflow-hidden">
@@ -447,17 +587,33 @@ const ChatInterface = () => {
            <span className="font-semibold hidden sm:inline">Volver</span>
          </button>
          <h2 className="text-xl text-white ml-4 font-bold drop-shadow">Chat con {profile?.name || ''}</h2>
-         {!isArtificial && (
-           <button
-             onClick={reloadMessages}
-             className="ml-auto flex items-center gap-2 text-cosmic-gold hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-cosmic-gold rounded-full p-2"
-             tabIndex={0}
-             aria-label="Recargar mensajes"
-           >
-             <RefreshCw className="h-5 w-5" />
-             <span className="font-semibold hidden sm:inline">Recargar</span>
-           </button>
-         )}
+         
+         {/* Indicador de estado de conexión */}
+         <div className="ml-auto flex items-center gap-2">
+           {!isArtificial && (
+             <>
+               <div className="flex items-center gap-1 text-xs">
+                 {isRealtimeConnected ? (
+                   <Wifi className="h-4 w-4 text-green-400" />
+                 ) : (
+                   <WifiOff className="h-4 w-4 text-yellow-400" />
+                 )}
+                 <span className={`text-xs ${isRealtimeConnected ? 'text-green-400' : 'text-yellow-400'}`}>
+                   {isRealtimeConnected ? 'En línea' : usePolling ? 'Sincronizando...' : 'Desconectado'}
+                 </span>
+               </div>
+               <button
+                 onClick={reloadMessages}
+                 className="flex items-center gap-2 text-cosmic-gold hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-cosmic-gold rounded-full p-2"
+                 tabIndex={0}
+                 aria-label="Recargar mensajes"
+               >
+                 <RefreshCw className="h-5 w-5" />
+                 <span className="font-semibold hidden sm:inline">Recargar</span>
+               </button>
+             </>
+           )}
+         </div>
        </div>
 
        {/* Área de mensajes - SCROLLABLE */}

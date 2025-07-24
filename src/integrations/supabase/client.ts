@@ -19,10 +19,16 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     params: {
       eventsPerSecond: 10,
     },
+    heartbeatIntervalMs: 30000, // 30 segundos
+    reconnectAfterMs: (tries) => Math.min(tries * 1000, 10000), // Backoff exponencial hasta 10 segundos
+    timeoutMs: 20000, // 20 segundos de timeout
   },
   global: {
     headers: {
       'X-Client-Info': 'amor-astral-web',
     },
+  },
+  db: {
+    schema: 'public',
   },
 })

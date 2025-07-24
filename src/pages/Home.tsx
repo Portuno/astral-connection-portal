@@ -69,15 +69,19 @@ const Home = () => {
     const fetchProfiles = async () => {
       setLoading(true);
       
-      // Mostrar todos los perfiles premium (reales y artificiales)
       let query = supabase
         .from('profiles')
         .select('*')
         .eq('is_premium', true);
       
-      // Si el usuario está autenticado, excluir su propio perfil real
-      if (isAuthenticated && user?.id) {
-        query = query.neq('user_id', user.id);
+      // Si el usuario NO está autenticado, mostrar solo perfiles artificiales
+      if (!isAuthenticated) {
+        query = query.is('user_id', null);
+      } else {
+        // Si está autenticado, excluir su propio perfil real
+        if (user?.id) {
+          query = query.neq('user_id', user.id);
+        }
       }
       
       const { data, error } = await query;

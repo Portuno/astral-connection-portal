@@ -25,8 +25,7 @@ const Home = () => {
   // Eliminar PremiumModal y toda lógica de showPremiumModal
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
-  // Estado para los chats del usuario
-  const [userChats, setUserChats] = useState<any[]>([]);
+
 
   // Filtros
   const [genderFilter, setGenderFilter] = useState<'hombre' | 'mujer' | 'ambos'>('ambos');
@@ -97,69 +96,7 @@ const Home = () => {
     fetchProfiles();
   }, [isAuthenticated, user?.id]);
 
-  // Cargar chats del usuario
-  useEffect(() => {
-    if (!isAuthenticated || !user?.id) return;
-    const loadChats = async () => {
-      try {
-        const { data: chatsData, error: chatsError } = await supabase
-          .from('chats')
-          .select('*')
-          .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-          .order('last_message_at', { ascending: false, nullsFirst: false });
-        
-        if (chatsError) {
-          console.error("Error cargando chats:", chatsError);
-          return;
-        }
-        
-        if (!chatsData || chatsData.length === 0) {
-          setUserChats([]);
-          return;
-        }
-        
-                 // Obtener perfil y último mensaje de cada chat
-         const chatsWithProfiles = await Promise.all(
-           chatsData.map(async (chat: any) => {
-             try {
-               const otherUserId = chat.user1_id === user.id ? chat.user2_id : chat.user1_id;
-               
-               const { data: profile, error: profileError } = await supabase
-                 .from('profiles')
-                 .select('*')
-                 .eq('user_id', otherUserId)
-                 .single();
-               
-               if (profileError) {
-                 return null;
-               }
-              
-              const { data: lastMessage, error: messageError } = await supabase
-                .from('messages')
-                .select('content, created_at, sender_id')
-                .eq('chat_id', chat.id)
-                .order('created_at', { ascending: false })
-                .limit(1);
-              
-              return {
-                ...chat,
-                profile,
-                lastMessage: lastMessage?.[0] || null,
-              };
-            } catch (error) {
-              return null;
-            }
-          })
-        );
-        
-        const validChats = chatsWithProfiles.filter(Boolean);
-        setUserChats(validChats);
-      } catch (error) {
-        setUserChats([]);
-      }
-    };
-    loadChats();
-  }, [isAuthenticated, user?.id]);
+  
 
   const handleChatClick = async (profile: any) => {
     if (!isAuthenticated) {
@@ -342,60 +279,25 @@ const Home = () => {
       </header>
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
-        {/* Fila horizontal: Mis chats + Mi perfil */}
-        {isAuthenticated && user && (
-          <div className="flex flex-row gap-4 w-full mb-8">
-            {/* Mis chats */}
-            <div className="rounded-2xl bg-gradient-to-br from-[#2a0a3c]/80 to-[#1a1440]/80 p-4 w-[320px] min-w-[200px] max-h-[400px] overflow-y-auto shadow-lg">
-              <h3 className="text-lg font-bold text-white mb-3">Mis chats</h3>
-              {userChats.length === 0 ? (
-                <p className="text-gray-400 text-sm">No tienes chats activos.</p>
-              ) : (
-                userChats.map(chat => (
-                  <div
-                    key={chat.id}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer transition"
-                    onClick={() => navigate(`/chat/${chat.profile.id}`)}
-                    tabIndex={0}
-                    aria-label={`Abrir chat con ${chat.profile.name}`}
-                  >
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={chat.profile.photo_url || undefined} alt={chat.profile.name} />
-                      <AvatarFallback className="bg-cosmic-magenta text-white">
-                        {chat.profile.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white font-semibold truncate">{chat.profile.name}</span>
-                      </div>
-                      <span className="text-xs text-gray-300 truncate block">
-                        {chat.lastMessage ? (chat.lastMessage.sender_id === user.id ? "Tú: " : "") + chat.lastMessage.content : "Chat iniciado"}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            {/* Mi perfil */}
-            {userProfile && (
-            <div className="rounded-3xl bg-[#a78bfa]/30 p-6 flex-1 shadow-lg flex flex-col items-center">
-              <Avatar className="w-16 h-16 mb-2">
-                <AvatarImage src={userProfile?.avatar_url || ''} alt={userProfile?.full_name || 'Avatar'} />
-                <AvatarFallback>{userProfile?.full_name?.[0]?.toUpperCase() || '?'}</AvatarFallback>
-              </Avatar>
-              <p className="text-white font-bold text-lg">{userProfile?.full_name}</p>
-              <p className="text-gray-300 text-sm">{userProfile?.birth_place}</p>
-              <Button
-                onClick={handleEditProfile}
-                className="mt-4 bg-cosmic-magenta hover:bg-cosmic-magenta/80 text-white"
-              >
-                Editar perfil
-              </Button>
-            </div>
-            )}
-          </div>
-        )}
+                 {/* Mi perfil */}
+         {isAuthenticated && user && userProfile && (
+           <div className="flex justify-center mb-8">
+             <div className="rounded-3xl bg-[#a78bfa]/30 p-6 shadow-lg flex flex-col items-center">
+               <Avatar className="w-16 h-16 mb-2">
+                 <AvatarImage src={userProfile?.avatar_url || ''} alt={userProfile?.full_name || 'Avatar'} />
+                 <AvatarFallback>{userProfile?.full_name?.[0]?.toUpperCase() || '?'}</AvatarFallback>
+               </Avatar>
+               <p className="text-white font-bold text-lg">{userProfile?.full_name}</p>
+               <p className="text-gray-300 text-sm">{userProfile?.birth_place}</p>
+               <Button
+                 onClick={handleEditProfile}
+                 className="mt-4 bg-cosmic-magenta hover:bg-cosmic-magenta/80 text-white"
+               >
+                 Editar perfil
+               </Button>
+             </div>
+           </div>
+         )}
         {/* Filtro mejorado */}
         <div className="mb-4 flex items-center justify-center w-full">
           <div className="flex flex-row items-center gap-3 bg-gradient-to-r from-[#2a0a3c]/80 to-[#1a1440]/80 px-4 py-2 rounded-xl shadow-lg">

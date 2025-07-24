@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { Heart, Star, Users, Sparkles, Moon, Sun } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -218,9 +219,9 @@ const Landing = () => {
             </Button>
 
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm mt-6">
-              <a href="/terms" className="text-gray-400 hover:text-cosmic-magenta underline focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" tabIndex={0} aria-label="Términos y Condiciones">Términos y Condiciones</a>
-              <a href="/privacy-policy" className="text-gray-400 hover:text-cosmic-magenta underline focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" tabIndex={0} aria-label="Política de Privacidad">Política de Privacidad</a>
-              <a href="/legal-notice" className="text-gray-400 hover:text-cosmic-magenta underline focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" tabIndex={0} aria-label="Aviso Legal">Aviso Legal</a>
+              <Link to="/terms" className="text-gray-400 hover:text-cosmic-magenta underline focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" tabIndex={0} aria-label="Términos y Condiciones">Términos y Condiciones</Link>
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-cosmic-magenta underline focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" tabIndex={0} aria-label="Política de Privacidad">Política de Privacidad</Link>
+              <Link to="/legal-notice" className="text-gray-400 hover:text-cosmic-magenta underline focus:outline-none focus:ring-2 focus:ring-cosmic-magenta" tabIndex={0} aria-label="Aviso Legal">Aviso Legal</Link>
             </div>
 
             <p className="text-gray-500 text-xs sm:text-sm mt-4">© 2025 Amor Astral. Todos los derechos reservados.</p>

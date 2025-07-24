@@ -44,6 +44,7 @@ const Home = () => {
     if (genderFilter === 'ambos') {
       setFilteredProfiles(compatibleProfiles);
     } else {
+      // Ahora los valores del filtro coinciden con los de la base de datos
       setFilteredProfiles(compatibleProfiles.filter((profile: any) => profile.gender === genderFilter));
     }
   }, [genderFilter, compatibleProfiles]);
@@ -87,19 +88,21 @@ const Home = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       setLoading(true);
-      // Solo mostrar perfiles premium y excluir al usuario actual
+      // Mostrar todos los perfiles premium (reales y artificiales)
       let query = supabase
         .from('profiles')
         .select('*')
         .eq('is_premium', true);
       
+      console.log("🔍 Consulta inicial: buscando perfiles premium");
+      
       // Si el usuario está autenticado, excluir su propio perfil
       if (isAuthenticated && user?.id) {
-        // Excluir perfiles que tengan el user_id del usuario actual
+        // Excluir perfiles que tengan el user_id del usuario actual (solo perfiles reales)
         query = query.neq('user_id', user.id);
         
-        // También excluir si el perfil actual del usuario coincide con algún perfil
-        if (userProfile?.id) {
+        // Solo excluir por id si el userProfile tiene un id válido y no es null
+        if (userProfile?.id && userProfile.id !== null && userProfile.id !== undefined) {
           console.log("🚫 Excluyendo perfil del usuario actual:", userProfile.id);
           query = query.neq('id', userProfile.id);
         }
@@ -108,10 +111,18 @@ const Home = () => {
       const { data, error } = await query;
       console.log("📋 Perfiles encontrados después del filtrado:", data?.length || 0);
       console.log("📋 Perfiles encontrados:", data);
+      
+      // Debug: mostrar qué perfiles son artificiales vs reales
+      if (data) {
+        const artificialProfiles = data.filter((profile: any) => !profile.user_id);
+        const realProfiles = data.filter((profile: any) => profile.user_id);
+        console.log("🤖 Perfiles artificiales:", artificialProfiles.length, artificialProfiles.map((p: any) => p.name));
+        console.log("👤 Perfiles reales:", realProfiles.length, realProfiles.map((p: any) => p.name));
+      }
       if (!error && data) {
         // Filtro adicional para excluir el perfil actual del usuario
         let filteredData = data;
-        if (userProfile?.id) {
+        if (userProfile?.id && userProfile.id !== null && userProfile.id !== undefined) {
           console.log("🚫 userProfile.id:", userProfile.id);
           filteredData = data.filter((profile: any) => profile.id !== userProfile.id);
           console.log("🚫 Perfiles después del filtro adicional:", filteredData.length);

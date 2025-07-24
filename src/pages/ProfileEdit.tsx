@@ -10,8 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const GENDER_OPTIONS = [
   { value: '', label: 'Selecciona tu género' },
-  { value: 'masculino', label: 'Masculino' },
-  { value: 'femenino', label: 'Femenino' },
+  { value: 'hombre', label: 'Masculino' },
+  { value: 'mujer', label: 'Femenino' },
   { value: 'no-binario', label: 'No binario' },
   { value: 'otro', label: 'Otro' },
 ];

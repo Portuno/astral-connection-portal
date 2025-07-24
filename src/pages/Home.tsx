@@ -100,12 +100,6 @@ const Home = () => {
       if (isAuthenticated && user?.id) {
         // Excluir perfiles que tengan el user_id del usuario actual (solo perfiles reales)
         query = query.neq('user_id', user.id);
-        
-        // Solo excluir por id si el userProfile tiene un id válido y no es null
-        if (userProfile?.id && userProfile.id !== null && userProfile.id !== undefined) {
-          console.log("🚫 Excluyendo perfil del usuario actual:", userProfile.id);
-          query = query.neq('id', userProfile.id);
-        }
       }
       
       const { data, error } = await query;
@@ -120,12 +114,15 @@ const Home = () => {
         console.log("👤 Perfiles reales:", realProfiles.length, realProfiles.map((p: any) => p.name));
       }
       if (!error && data) {
-        // Filtro adicional para excluir el perfil actual del usuario
+        // Filtro adicional para excluir el perfil actual del usuario (solo si es un perfil real)
         let filteredData = data;
         if (userProfile?.id && userProfile.id !== null && userProfile.id !== undefined) {
           console.log("🚫 userProfile.id:", userProfile.id);
-          filteredData = data.filter((profile: any) => profile.id !== userProfile.id);
-          console.log("🚫 Perfiles después del filtro adicional:", filteredData.length);
+          // Solo excluir si el perfil del usuario es real (tiene user_id)
+          if (userProfile.user_id) {
+            filteredData = data.filter((profile: any) => profile.id !== userProfile.id);
+            console.log("🚫 Perfiles después del filtro adicional:", filteredData.length);
+          }
         }
         setCompatibleProfiles(filteredData);
       } else {
@@ -134,7 +131,7 @@ const Home = () => {
       setLoading(false);
     };
     fetchProfiles();
-  }, [isAuthenticated, user?.id, userProfile?.id]);
+  }, [isAuthenticated, user?.id]);
 
   // Cargar chats del usuario
   useEffect(() => {

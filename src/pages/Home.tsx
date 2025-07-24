@@ -77,25 +77,18 @@ const Home = () => {
       if (!isAuthenticated) {
         query = query.is('user_id', null);
       } else {
-        // Si está autenticado, mostrar todos los perfiles premium excepto el suyo propio
+        // Si está autenticado, mostrar perfiles artificiales + perfiles reales excepto el suyo propio
         if (user?.id) {
-          query = query.neq('user_id', user.id);
+          // Usar OR para incluir perfiles artificiales (user_id IS NULL) Y perfiles reales que no sean del usuario actual
+          query = query.or(`user_id.is.null,user_id.neq.${user.id}`);
         }
       }
       
       const { data, error } = await query;
       
-      console.log("🔍 Query result:", { data: data?.length, error, isAuthenticated, userId: user?.id });
-      
       if (!error && data) {
-        console.log("📋 Profiles found:", data.length);
-        const artificialProfiles = data.filter((profile: any) => !profile.user_id);
-        const realProfiles = data.filter((profile: any) => profile.user_id);
-        console.log("🤖 Artificial profiles:", artificialProfiles.length);
-        console.log("👤 Real profiles:", realProfiles.length);
         setCompatibleProfiles(data);
       } else {
-        console.log("❌ Error or no data:", error);
         setCompatibleProfiles([]);
       }
       setLoading(false);

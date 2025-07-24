@@ -8,7 +8,7 @@ const LegalNotice = () => (
       <p className="mb-6 text-gray-300 text-sm text-center">Última actualización: {new Date().toLocaleDateString()}</p>
       <div className="space-y-6 text-gray-200 text-justify">
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Titularidad del sitio web</h2>
-        <p>AYN RAND CAPITAL SL<br/>CIF: B72705221<br/>Dirección: Calle romani, 3 - p. 1 pta. 3, polinya, 08213, barcelona<br/>Correo de contacto: clombardo196@gmail.com</p>
+        <p>AYN RAND CAPITAL SL<br/>CIF: B72705221<br/>Dirección: Romani 3 1 3 Polinya, 08213 . Barcelona.<br/>Correo de contacto: clombardo196@gmail.com</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Objeto</h2>
         <p>El presente Aviso Legal regula el acceso, navegación y uso de la plataforma “Amor Astral”.</p>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Propiedad intelectual e industrial</h2>

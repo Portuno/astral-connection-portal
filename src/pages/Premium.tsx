@@ -114,7 +114,7 @@ const Premium = () => {
           Hazte Premium y desbloquea conversaciones cósmicas
         </h1>
         <p className="text-cyan-100 text-center mb-4 max-w-lg">
-          Accede a todas las funciones exclusivas de Amor Astral:
+          Accede a todas las funciones exclusivas de Amor Astral y realiza tu pago premium de forma segura a través de Stripe:
         </p>
         <ul className="mb-6 space-y-3 w-full max-w-md mx-auto">
           <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🔓</span> Desbloquear conversaciones cósmicas</li>
@@ -127,10 +127,10 @@ const Premium = () => {
             onClick={handleActivatePremium}
             className="w-full max-w-md bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold py-4 rounded-2xl shadow-lg text-xl tracking-wide border-2 border-cyan-200 animate-pulse focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
             tabIndex={0}
-            aria-label="Activar Premium"
+            aria-label="Activar Premium con Stripe"
             style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}
           >
-            Activa tu suscripción por 29,9€
+            Activa tu suscripción por 29,9€ con pago seguro Stripe
           </button>
         </div>
         <div className="pointer-events-none absolute inset-0 rounded-3xl" style={{boxShadow:'0 0 96px 24px #38bdf855, 0 0 192px 48px #a78bfa22'}}></div>

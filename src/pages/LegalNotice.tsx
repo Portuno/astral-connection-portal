@@ -21,6 +21,7 @@ const LegalNotice = () => (
           <li>El titular no se responsabiliza del mal uso de la plataforma por parte de los usuarios.</li>
           <li>No se garantiza la ausencia de virus u otros elementos dañinos.</li>
           <li>El acceso y uso de la web se realiza bajo la exclusiva responsabilidad del usuario.</li>
+          <li>Los pagos de suscripción premium se procesan de forma segura a través de Stripe.</li>
         </ul>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Enlaces externos</h2>
         <p>La plataforma puede contener enlaces a sitios de terceros. AYN RAND CAPITAL SL no se responsabiliza de los contenidos ni de las políticas de privacidad de dichos sitios.</p>

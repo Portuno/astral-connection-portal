@@ -22,7 +22,7 @@ const Terms = () => (
         <ul className="list-disc ml-6">
           <li>Creación de perfil astrológico y búsqueda de compatibilidades</li>
           <li>Chat entre usuarios registrados</li>
-          <li>Acceso a funciones premium mediante suscripción</li>
+          <li>Acceso a funciones premium mediante suscripción y pago seguro a través de Stripe</li>
         </ul>
         <h2 className="text-xl font-bold text-cosmic-magenta mb-2">4. Propiedad intelectual</h2>
         <ul className="list-disc ml-6">

@@ -119,11 +119,21 @@ const ChatInterface = () => {
       
       let validMessages: Message[] = [];
       if (Array.isArray(messagesData)) {
-        validMessages = messagesData.filter((msg: any) =>
-          msg && typeof msg === 'object' &&
-          !('error' in msg) &&
-          'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
-        );
+        validMessages = messagesData
+          .filter((msg: any) =>
+            msg && typeof msg === 'object' &&
+            !msg.error &&
+            !('error' in msg) &&
+            'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
+          )
+          .map((msg: any) => ({
+            id: msg.id,
+            chat_id: msg.chat_id,
+            sender_id: msg.sender_id,
+            content: msg.content,
+            created_at: msg.created_at,
+            read_at: msg.read_at ?? null
+          } as Message));
       }
       if (validMessages.length > 0) {
         const lastMessage = validMessages[validMessages.length - 1];
@@ -331,11 +341,21 @@ const ChatInterface = () => {
           .order('created_at', { ascending: true });
         let validRefreshed: Message[] = [];
         if (Array.isArray(refreshed)) {
-          validRefreshed = refreshed.filter((msg: any) =>
-            msg && typeof msg === 'object' &&
-            !('error' in msg) &&
-            'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
-          );
+          validRefreshed = refreshed
+            .filter((msg: any) =>
+              msg && typeof msg === 'object' &&
+              !msg.error &&
+              !('error' in msg) &&
+              'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
+            )
+            .map((msg: any) => ({
+              id: msg.id,
+              chat_id: msg.chat_id,
+              sender_id: msg.sender_id,
+              content: msg.content,
+              created_at: msg.created_at,
+              read_at: msg.read_at ?? null
+            } as Message));
         }
         setMessages(validRefreshed);
       }
@@ -457,11 +477,21 @@ const ChatInterface = () => {
             }
             let validMessages: Message[] = [];
             if (Array.isArray(messagesData)) {
-              validMessages = messagesData.filter((msg: any) =>
-                msg && typeof msg === 'object' &&
-                !('error' in msg) &&
-                'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
-              );
+              validMessages = messagesData
+                .filter((msg: any) =>
+                  msg && typeof msg === 'object' &&
+                  !msg.error &&
+                  !('error' in msg) &&
+                  'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
+                )
+                .map((msg: any) => ({
+                  id: msg.id,
+                  chat_id: msg.chat_id,
+                  sender_id: msg.sender_id,
+                  content: msg.content,
+                  created_at: msg.created_at,
+                  read_at: msg.read_at ?? null
+                } as Message));
             }
             console.log('[Chat] Mensajes cargados:', validMessages.length);
             setMessages(validMessages);
@@ -514,11 +544,21 @@ const ChatInterface = () => {
       }
       let validMessages: Message[] = [];
       if (Array.isArray(messagesData)) {
-        validMessages = messagesData.filter((msg: any) =>
-          msg && typeof msg === 'object' &&
-          !('error' in msg) &&
-          'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
-        );
+        validMessages = messagesData
+          .filter((msg: any) =>
+            msg && typeof msg === 'object' &&
+            !msg.error &&
+            !('error' in msg) &&
+            'id' in msg && 'chat_id' in msg && 'sender_id' in msg && 'content' in msg && 'created_at' in msg
+          )
+          .map((msg: any) => ({
+            id: msg.id,
+            chat_id: msg.chat_id,
+            sender_id: msg.sender_id,
+            content: msg.content,
+            created_at: msg.created_at,
+            read_at: msg.read_at ?? null
+          } as Message));
       }
       console.log('[Reload] Mensajes recargados:', validMessages.length);
       setMessages(validMessages);

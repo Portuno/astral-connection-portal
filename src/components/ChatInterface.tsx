@@ -606,7 +606,14 @@ const ChatInterface = () => {
            <ArrowLeft className="h-6 w-6" />
            <span className="font-semibold hidden sm:inline">Volver</span>
          </button>
-         <h2 className="text-xl text-white ml-4 font-bold drop-shadow">Chat con {profile?.name || ''}</h2>
+                   <button
+            onClick={() => navigate(`/profile/${profile?.id}`)}
+            className="text-xl text-white ml-4 font-bold drop-shadow hover:text-cosmic-gold transition-colors cursor-pointer"
+            tabIndex={0}
+            aria-label={`Ver perfil de ${profile?.name}`}
+          >
+            {profile?.name || ''}
+          </button>
          
          {/* Indicador de estado de conexión */}
          <div className="ml-auto flex items-center gap-2">
@@ -644,12 +651,12 @@ const ChatInterface = () => {
                key={message.id}
                className={`flex mb-4 ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
              >
-               {message.sender_id !== user?.id && (
-                 <Avatar className="mr-2 w-8 h-8">
-                   <AvatarImage src={profile?.avatar_url} />
-                   <AvatarFallback>{profile?.name?.[0]}</AvatarFallback>
-                 </Avatar>
-               )}
+                               {message.sender_id !== user?.id && (
+                  <Avatar className="mr-2 w-8 h-8">
+                    <AvatarImage src={profile?.photo_url} />
+                    <AvatarFallback>{profile?.name?.[0]}</AvatarFallback>
+                  </Avatar>
+                )}
                <div
                  className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-md text-sm break-words ${
                    message.sender_id === user?.id

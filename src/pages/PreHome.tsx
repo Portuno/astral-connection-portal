@@ -104,7 +104,7 @@ export default function PreHome() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cosmic-blue via-indigo-900 to-purple-900 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1440] via-[#2a0a3c] to-[#0a1033] relative overflow-hidden">
       {/* Fondo artístico etéreo */}
       <div
         aria-hidden="true"
@@ -206,7 +206,7 @@ export default function PreHome() {
             type="text"
             value={form.birthTime}
             onChange={handleTimeInput}
-            placeholder="HH:MM"
+            placeholder="Hora de nacimiento"
             inputMode="numeric"
             pattern="\d{2}:\d{2}"
             maxLength={5}
@@ -220,7 +220,7 @@ export default function PreHome() {
             name="birthCity"
             value={form.birthCity}
             onChange={handleChange}
-            placeholder="Ciudad de nacimiento"
+            placeholder="Lugar De Nacimiento"
             required
             autoComplete="off"
             className="w-full rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 placeholder-gray-400 text-lg"

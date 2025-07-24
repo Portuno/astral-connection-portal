@@ -103,7 +103,7 @@ const Premium = () => {
       <GalacticBackground />
       <div className="relative z-10 w-full max-w-2xl mx-auto rounded-3xl border-0 shadow-[0_0_64px_16px_rgba(80,200,255,0.18)] bg-[rgba(20,20,40,0.98)] backdrop-blur-2xl flex flex-col items-center px-6 py-10 mt-16 mb-8">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/home')}
           className="absolute top-4 right-4 text-cyan-200 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/10 p-2 z-20"
           aria-label="Cerrar"
           tabIndex={0}

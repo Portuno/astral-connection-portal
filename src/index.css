@@ -72,6 +72,7 @@
     background-repeat: repeat;
     opacity: 0.3;
     animation: twinkle 10s infinite;
+    pointer-events: none;
   }
   
   .text-cosmic-gold {

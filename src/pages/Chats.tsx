@@ -13,11 +13,14 @@ import { useRef } from "react";
 
 interface ChatWithProfile {
   id: string;
-  user1_id: string;
-  user2_id: string;
+  user1_id?: string;
+  user2_id?: string;
+  user_id?: string;
+  profile_id?: string;
   created_at: string;
   updated_at: string;
-  last_message_at: string | null;
+  last_message_at?: string | null;
+  type: 'real' | 'ai';
   profile: {
     id: string;
     name: string;
@@ -56,68 +59,126 @@ const Chats = () => {
     const loadChats = async () => {
       setLoading(true);
       try {
-        // Obtener todos los chats del usuario
-        const { data: chatsData, error: chatsError } = await supabase
+        // Obtener todos los chats reales del usuario
+        const { data: realChatsData, error: realChatsError } = await supabase
           .from('chats')
           .select('*')
           .or(`user1_id.eq.${currentUserId},user2_id.eq.${currentUserId}`)
           .order('last_message_at', { ascending: false, nullsFirst: false });
 
-        if (chatsError) {
-          console.error('Error loading chats:', chatsError);
+        if (realChatsError) {
+          console.error('Error loading real chats:', realChatsError);
+        }
+
+        // Obtener todos los chats artificiales del usuario
+        const { data: aiChatsData, error: aiChatsError } = await supabase
+          .from('ai_chats')
+          .select('*')
+          .eq('user_id', currentUserId)
+          .order('updated_at', { ascending: false });
+
+        if (aiChatsError) {
+          console.error('Error loading AI chats:', aiChatsError);
+        }
+
+        // Combinar ambos tipos de chats
+        const allChats = [
+          ...(realChatsData || []).map(chat => ({ ...chat, type: 'real' })),
+          ...(aiChatsData || []).map(chat => ({ ...chat, type: 'ai' }))
+        ];
+
+        if (allChats.length === 0) {
+          setChats([]);
+          setFilteredChats([]);
+          setLoading(false);
           return;
         }
 
         // Para cada chat, obtener el perfil del otro usuario y el último mensaje
         const chatsWithProfiles = await Promise.all(
-          chatsData.map(async (chat) => {
-            const otherUserId = chat.user1_id === currentUserId ? chat.user2_id : chat.user1_id;
-            
-            // Obtener perfil
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', otherUserId)
-              .single();
+          allChats.map(async (chat) => {
+            if (chat.type === 'real') {
+              // Chat real
+              const otherUserId = chat.user1_id === currentUserId ? chat.user2_id : chat.user1_id;
+              
+              // Obtener perfil usando user_id (no id)
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', otherUserId)
+                .single();
 
-            if (profileError) {
-              console.error('Error loading profile:', profileError);
-              return null;
+              if (profileError) {
+                console.error('Error loading profile:', profileError);
+                return null;
+              }
+
+              // Obtener último mensaje
+              const { data: lastMessage, error: messageError } = await supabase
+                .from('messages')
+                .select('content, created_at, sender_id')
+                .eq('chat_id', chat.id)
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+              if (messageError) {
+                console.error('Error loading last message:', messageError);
+              }
+
+              // Obtener mensajes no leídos
+              const { data: unreadMessages, error: unreadError } = await supabase
+                .from('messages')
+                .select('id, created_at')
+                .eq('chat_id', chat.id)
+                .eq('read_at', null)
+                .neq('sender_id', currentUserId);
+              let unreadCount = 0;
+              let lastUnreadAt = null;
+              if (unreadMessages && unreadMessages.length > 0) {
+                unreadCount = unreadMessages.length;
+                lastUnreadAt = unreadMessages[unreadMessages.length - 1].created_at;
+              }
+
+              return {
+                ...chat,
+                profile,
+                lastMessage: lastMessage?.[0] || null,
+                unreadCount,
+                lastUnreadAt
+              };
+            } else {
+              // Chat artificial
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', chat.profile_id)
+                .single();
+
+              if (profileError) {
+                console.error('Error loading AI profile:', profileError);
+                return null;
+              }
+
+              // Para chats artificiales, usar los mensajes almacenados en el chat
+              const messages = chat.messages || [];
+              const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+              
+              // Los chats artificiales no tienen mensajes no leídos por ahora
+              const unreadCount = 0;
+              const lastUnreadAt = null;
+
+              return {
+                ...chat,
+                profile,
+                lastMessage: lastMessage ? {
+                  content: lastMessage.content,
+                  created_at: lastMessage.created_at,
+                  sender_id: lastMessage.sender_id
+                } : null,
+                unreadCount,
+                lastUnreadAt
+              };
             }
-
-            // Obtener último mensaje
-            const { data: lastMessage, error: messageError } = await supabase
-              .from('messages')
-              .select('content, created_at, sender_id')
-              .eq('chat_id', chat.id)
-              .order('created_at', { ascending: false })
-              .limit(1);
-
-            if (messageError) {
-              console.error('Error loading last message:', messageError);
-            }
-
-            // Obtener mensajes no leídos
-            const { data: unreadMessages, error: unreadError } = await supabase
-              .from('messages')
-              .select('id, created_at')
-              .eq('chat_id', chat.id)
-              .eq('read_at', null)
-              .neq('sender_id', currentUserId);
-            let unreadCount = 0;
-            let lastUnreadAt = null;
-            if (unreadMessages && unreadMessages.length > 0) {
-              unreadCount = unreadMessages.length;
-              lastUnreadAt = unreadMessages[unreadMessages.length - 1].created_at;
-            }
-
-            return {
-              ...chat,
-              profile,
-              lastMessage: lastMessage?.[0] || null,
-              unreadCount,
-              lastUnreadAt
-            };
           })
         );
 
@@ -125,8 +186,8 @@ const Chats = () => {
         const validChats = chatsWithProfiles
           .filter((chat): chat is ChatWithProfile => chat !== null)
           .sort((a, b) => {
-            const aTime = a.last_message_at || a.created_at;
-            const bTime = b.last_message_at || b.created_at;
+            const aTime = a.type === 'real' ? (a.last_message_at || a.created_at) : a.updated_at;
+            const bTime = b.type === 'real' ? (b.last_message_at || b.created_at) : b.updated_at;
             return new Date(bTime).getTime() - new Date(aTime).getTime();
           });
 
@@ -372,20 +433,29 @@ const Chats = () => {
                       {/* Información del chat */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold text-white truncate">
-                            {chat.profile.name}
-                          </h3>
-                          {chat.unreadCount && chat.unreadCount > 0 && (
-                            <span className="ml-2 bg-cosmic-magenta text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
-                              {chat.unreadCount}
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-white truncate">
+                              {chat.profile.name}
+                            </h3>
+                            {chat.type === 'ai' && (
+                              <span className="bg-cosmic-gold text-cosmic-dark-blue text-xs font-bold px-2 py-0.5 rounded-full">
+                                AI
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {chat.unreadCount && chat.unreadCount > 0 && (
+                              <span className="bg-cosmic-magenta text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                                {chat.unreadCount}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-400 flex-shrink-0">
+                              {chat.lastMessage 
+                                ? formatMessageTime(chat.lastMessage.created_at)
+                                : formatMessageTime(chat.created_at)
+                              }
                             </span>
-                          )}
-                          <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
-                            {chat.lastMessage 
-                              ? formatMessageTime(chat.lastMessage.created_at)
-                              : formatMessageTime(chat.created_at)
-                            }
-                          </span>
+                          </div>
                         </div>
                         
                         <div className="flex items-center justify-between">

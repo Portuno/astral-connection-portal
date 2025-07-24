@@ -45,7 +45,7 @@ export default function PreHome() {
   });
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (e.target.name === 'birthCity') {
       const value = e.target.value.toLowerCase();
@@ -62,14 +62,14 @@ export default function PreHome() {
     }
   };
 
-  const handleDateInput = (e) => {
+  const handleDateInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/[^\d]/g, '');
     if (value.length > 2) value = value.slice(0,2) + '/' + value.slice(2);
     if (value.length > 5) value = value.slice(0,5) + '/' + value.slice(5,9);
     if (value.length > 10) value = value.slice(0,10);
     setForm({ ...form, birthDate: value });
   };
-  const handleTimeInput = (e) => {
+  const handleTimeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/[^\d]/g, '');
     if (value.length > 2) value = value.slice(0,2) + ':' + value.slice(2,4);
     if (value.length > 5) value = value.slice(0,5);
@@ -81,7 +81,7 @@ export default function PreHome() {
     setSuggestions([]);
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Validación de hora y minutos
     const [hh, mm] = form.birthTime.split(':');
@@ -182,8 +182,8 @@ export default function PreHome() {
           </defs>
         </svg>
       </div>
-      {/* Fin fondo artístico */}
       */}
+      {/* Fin fondo artístico */}
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/10 relative z-20"

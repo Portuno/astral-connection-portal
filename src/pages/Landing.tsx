@@ -217,12 +217,6 @@ const Landing = () => {
               Crear mi perfil cósmico
             </Button>
 
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Términos y condiciones</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Política de privacidad</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Contacto</a>
-            </div>
-
             <p className="text-gray-500 text-xs sm:text-sm">© 2025 Amor Astral. Todos los derechos reservados.</p>
           </div>
         </div>

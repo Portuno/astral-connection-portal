@@ -6,11 +6,28 @@ const LegalNotice = () => (
       <h1 className="text-3xl font-bold mb-4 text-cosmic-magenta text-center">Aviso Legal</h1>
       <p className="mb-2 text-center text-cosmic-gold font-semibold">AYN RAND CAPITAL SL &mdash; CIF: B72705221</p>
       <p className="mb-6 text-gray-300 text-sm text-center">Última actualización: {new Date().toLocaleDateString()}</p>
-      <div className="space-y-4 text-gray-200 text-justify">
-        <p>Este sitio web es propiedad de <span className="text-cosmic-gold font-bold">AYN RAND CAPITAL SL</span> con CIF <span className="text-cosmic-gold font-bold">B72705221</span>.</p>
-        <p>El acceso y uso de este sitio implica la aceptación de las condiciones legales aquí expuestas. Nos reservamos el derecho de modificar el contenido en cualquier momento.</p>
-        <p>Queda prohibida la reproducción total o parcial de los contenidos sin autorización expresa del titular.</p>
-        <p>Para cualquier consulta legal, puedes contactarnos a través de los medios indicados en la web.</p>
+      <div className="space-y-6 text-gray-200 text-justify">
+        <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Titularidad del sitio web</h2>
+        <p>Este sitio web es propiedad de AYN RAND CAPITAL SL, con CIF B72705221, [Dirección de la empresa], contacto: [email de contacto].</p>
+        <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Objeto</h2>
+        <p>El presente Aviso Legal regula el acceso, navegación y uso de la plataforma “Amor Astral”.</p>
+        <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Propiedad intelectual e industrial</h2>
+        <ul className="list-disc ml-6">
+          <li>Todos los contenidos, diseños, algoritmos y marcas de la plataforma son propiedad exclusiva de AYN RAND CAPITAL SL o de sus licenciantes.</li>
+          <li>Queda prohibida la reproducción, distribución o comunicación pública sin autorización expresa.</li>
+        </ul>
+        <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Responsabilidad</h2>
+        <ul className="list-disc ml-6">
+          <li>El titular no se responsabiliza del mal uso de la plataforma por parte de los usuarios.</li>
+          <li>No se garantiza la ausencia de virus u otros elementos dañinos.</li>
+          <li>El acceso y uso de la web se realiza bajo la exclusiva responsabilidad del usuario.</li>
+        </ul>
+        <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Enlaces externos</h2>
+        <p>La plataforma puede contener enlaces a sitios de terceros. AYN RAND CAPITAL SL no se responsabiliza de los contenidos ni de las políticas de privacidad de dichos sitios.</p>
+        <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Contacto</h2>
+        <p>Para cualquier consulta legal, puedes contactarnos en [email de contacto].</p>
+        <h2 className="text-xl font-bold text-cosmic-magenta mb-2">Jurisdicción y legislación aplicable</h2>
+        <p>Este Aviso Legal se rige por la legislación española y europea. Para cualquier controversia, las partes se someten a los juzgados de [Ciudad].</p>
       </div>
     </div>
   </div>

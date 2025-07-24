@@ -308,14 +308,21 @@ const Chats = () => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInHours < 24) {
+    if (diffInHours < 1) {
+      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+      if (diffInMinutes < 1) return 'Ahora';
+      return `${diffInMinutes}m`;
+    } else if (diffInHours < 24) {
       return date.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit'
       });
-    } else if (diffInHours < 48) {
+    } else if (diffInDays === 1) {
       return 'Ayer';
+    } else if (diffInDays < 7) {
+      return date.toLocaleDateString('es-ES', { weekday: 'short' });
     } else {
       return date.toLocaleDateString('es-ES', {
         day: '2-digit',
@@ -343,41 +350,43 @@ const Chats = () => {
 
   return (
     <div className="min-h-screen bg-cosmic-blue">
-      {/* Header */}
-      <div className="bg-white/10 backdrop-blur-md border-b border-white/20 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/home')}
-              className="text-white hover:bg-white/20"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Mis Chats</h1>
-              <p className="text-gray-300 text-sm">
-                {chats.length} conversacion{chats.length !== 1 ? 'es' : ''} activa{chats.length !== 1 ? 's' : ''}
-              </p>
-            </div>
-          </div>
-          
-          {/* Barra de búsqueda */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Buscar por nombre o signo..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white/20 border-white/20 text-white placeholder-gray-400 focus:border-cosmic-magenta"
-            />
-          </div>
-        </div>
-      </div>
+             {/* Header */}
+       <div className="bg-white/5 backdrop-blur-md border-b border-white/10 p-6">
+         <div className="max-w-4xl mx-auto">
+           <div className="flex items-center justify-between mb-6">
+             <div className="flex items-center gap-4">
+               <Button
+                 variant="ghost"
+                 size="icon"
+                 onClick={() => navigate('/home')}
+                 className="text-white hover:bg-white/10 rounded-full p-2"
+               >
+                 <ArrowLeft className="h-5 w-5" />
+               </Button>
+               <div>
+                 <h1 className="text-2xl font-bold text-white">Mis Chats</h1>
+                 <p className="text-gray-300 text-sm">
+                   {chats.length} conversacion{chats.length !== 1 ? 'es' : ''} activa{chats.length !== 1 ? 's' : ''}
+                 </p>
+               </div>
+             </div>
+           </div>
+           
+           {/* Barra de búsqueda */}
+           <div className="relative">
+             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+             <Input
+               placeholder="Buscar por nombre..."
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               className="pl-12 bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-cosmic-magenta rounded-xl h-12"
+             />
+           </div>
+         </div>
+       </div>
 
-      {/* Lista de chats */}
-      <div className="max-w-4xl mx-auto p-4">
+             {/* Lista de chats */}
+       <div className="max-w-4xl mx-auto p-6">
         {filteredChats.length === 0 ? (
           <div className="text-center py-12">
             {chats.length === 0 ? (
@@ -410,91 +419,62 @@ const Chats = () => {
           </div>
         ) : (
           <ScrollArea className="h-[calc(100vh-200px)]">
-            <div className="space-y-2">
+                         <div className="space-y-3">
               {filteredChats.map((chat) => (
-                <Card
-                  key={chat.id}
-                  className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-colors cursor-pointer"
-                  onClick={() => handleChatClick(chat.profile.id)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      {/* Avatar */}
-                      <Avatar className="h-12 w-12 flex-shrink-0">
-                        <AvatarImage 
-                          src={chat.profile.photo_url || undefined} 
-                          alt={chat.profile.name} 
-                        />
-                        <AvatarFallback className="bg-cosmic-magenta text-white">
-                          {chat.profile.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
+                                 <Card
+                   key={chat.id}
+                   className="bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 transition-all duration-200 cursor-pointer rounded-xl"
+                   onClick={() => handleChatClick(chat.profile.id)}
+                 >
+                   <CardContent className="p-5">
+                     <div className="flex items-center gap-4">
+                                             {/* Avatar */}
+                       <Avatar className="h-14 w-14 flex-shrink-0 border-2 border-white/20">
+                         <AvatarImage 
+                           src={chat.profile.photo_url || undefined} 
+                           alt={chat.profile.name} 
+                         />
+                         <AvatarFallback className="bg-gradient-to-br from-cosmic-magenta to-fuchsia-500 text-white font-semibold text-lg">
+                           {chat.profile.name.charAt(0)}
+                         </AvatarFallback>
+                       </Avatar>
 
-                      {/* Información del chat */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-white truncate">
-                              {chat.profile.name}
-                            </h3>
-                            {chat.type === 'ai' && (
-                              <span className="bg-cosmic-gold text-cosmic-dark-blue text-xs font-bold px-2 py-0.5 rounded-full">
-                                AI
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {chat.unreadCount && chat.unreadCount > 0 && (
-                              <span className="bg-cosmic-magenta text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
-                                {chat.unreadCount}
-                              </span>
-                            )}
-                            <span className="text-xs text-gray-400 flex-shrink-0">
-                              {chat.lastMessage 
-                                ? formatMessageTime(chat.lastMessage.created_at)
-                                : formatMessageTime(chat.created_at)
-                              }
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            {chat.lastMessage ? (
-                              <p className="text-sm text-gray-300 truncate">
-                                {chat.lastMessage.sender_id === currentUserId ? "Tú: " : ""}
-                                {truncateMessage(chat.lastMessage.content)}
-                              </p>
-                            ) : (
-                              <p className="text-sm text-gray-400 italic">
-                                Chat iniciado
-                              </p>
-                            )}
-                          </div>
-                          
-                          <div className="flex items-center gap-2 flex-shrink-0 ml-3">
-                            <div className="text-xs text-cosmic-gold">
-                              {chat.profile.compatibility_score}%
-                            </div>
-                            <MessageCircle className="h-4 w-4 text-cosmic-magenta" />
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-1 mt-1">
-                          <span className="text-xs text-gray-400">
-                            {chat.profile.sign}
-                          </span>
-                          <span className="text-xs text-gray-500">•</span>
-                          <span className="text-xs text-gray-400">
-                            {chat.profile.age} años
-                          </span>
-                        </div>
-                        {chat.unreadCount && chat.unreadCount > 0 && chat.lastUnreadAt && (
-                          <div className="text-xs text-cosmic-magenta mt-1">
-                            {`Nuevo${chat.unreadCount > 1 ? 's' : ''} mensaje${chat.unreadCount > 1 ? 's' : ''} hace ${formatTimeAgo(chat.lastUnreadAt)}`}
-                          </div>
-                        )}
-                      </div>
+                                             {/* Información del chat */}
+                       <div className="flex-1 min-w-0">
+                         <div className="flex items-center justify-between mb-2">
+                           <h3 className="font-semibold text-white truncate text-base">
+                             {chat.profile.name}
+                           </h3>
+                           <div className="flex items-center gap-2">
+                             <span className="text-xs text-gray-400 flex-shrink-0">
+                               {chat.lastMessage 
+                                 ? formatMessageTime(chat.lastMessage.created_at)
+                                 : formatMessageTime(chat.created_at)
+                               }
+                             </span>
+                             {chat.unreadCount && chat.unreadCount > 0 && (
+                               <div className="w-2 h-2 bg-cosmic-magenta rounded-full animate-pulse flex-shrink-0"></div>
+                             )}
+                           </div>
+                         </div>
+                         
+                         <div className="flex-1 min-w-0">
+                           {chat.lastMessage ? (
+                             <p className={`text-sm truncate ${
+                               chat.unreadCount && chat.unreadCount > 0 
+                                 ? 'text-white font-medium' 
+                                 : 'text-gray-300'
+                             }`}>
+                               {chat.lastMessage.sender_id === currentUserId ? "Tú: " : ""}
+                               {truncateMessage(chat.lastMessage.content, 60)}
+                             </p>
+                           ) : (
+                             <p className="text-sm text-gray-400 italic">
+                               Chat iniciado
+                             </p>
+                           )}
+                         </div>
+                       </div>
                     </div>
                   </CardContent>
                 </Card>

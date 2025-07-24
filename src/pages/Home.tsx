@@ -320,7 +320,7 @@ const Home = () => {
         </div>
 
         {/* Grid de perfiles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProfiles.map((profile, idx) => (
             <div
               key={profile.id}
@@ -352,7 +352,7 @@ const Home = () => {
                       <Heart className="w-5 h-5" />
                     </button>
                   </div>
-                  <Avatar className="w-12 h-12 sm:w-16 sm:h-16 border-2 border-cosmic-gold/30">
+                  <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-2 border-cosmic-gold/30">
                     <AvatarImage src={profile.photo_url} alt={profile.name} />
                     <AvatarFallback className="bg-cosmic-magenta text-white font-bold">
                       {profile.name.charAt(0)}

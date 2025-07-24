@@ -407,7 +407,8 @@ const ChatInterface = () => {
           // Filtrar para encontrar el chat específico entre estos dos usuarios
           let chatData = null;
           if (existingChats) {
-            chatData = existingChats.find(chat => 
+            const validChats = existingChats.filter((chat: any) => chat && typeof chat === 'object' && 'user1_id' in chat && 'user2_id' in chat);
+            chatData = validChats.find((chat: any) => 
               (chat.user1_id === myUserId && chat.user2_id === otherId) ||
               (chat.user1_id === otherId && chat.user2_id === myUserId)
             );

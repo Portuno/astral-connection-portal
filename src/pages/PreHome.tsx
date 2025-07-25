@@ -25,7 +25,6 @@ export default function PreHome() {
           cities
             .filter(city => city.toLowerCase().includes(value))
             .sort((a, b) => {
-              // Prioriza España y Latinoamérica
               const esA = a.includes('España') || a.includes('Argentina') || a.includes('Colombia') || a.includes('México') || a.includes('Perú') || a.includes('Chile') || a.includes('Uruguay') || a.includes('Venezuela') || a.includes('Bolivia') || a.includes('Puerto Rico');
               const esB = b.includes('España') || b.includes('Argentina') || b.includes('Colombia') || b.includes('México') || b.includes('Perú') || b.includes('Chile') || b.includes('Uruguay') || b.includes('Venezuela') || b.includes('Bolivia') || b.includes('Puerto Rico');
               return esA === esB ? 0 : esA ? -1 : 1;
@@ -158,48 +157,28 @@ export default function PreHome() {
         </div>
         <div className="mb-6 relative">
           <label htmlFor="birthCity" className="block text-white mb-1">Lugar de nacimiento</label>
-          <div className="flex gap-2">
-            <input
-              id="birthCity"
-              name="birthCity"
-              value={form.birthCity}
-              onChange={handleChange}
-              placeholder="Lugar de nacimiento (puedes escribir cualquier cosa)"
-              required
-              autoComplete="off"
-              className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 placeholder-gray-400 text-lg"
-              aria-label="Lugar de nacimiento"
-              tabIndex={0}
-            />
-            <button
-              type="button"
-              onClick={handleSuggestCities}
-              className="bg-cosmic-magenta text-white px-3 py-2 rounded-lg hover:bg-cosmic-magenta/90 focus:outline-none"
-              aria-label="Sugerir ciudades"
-              tabIndex={0}
-            >
-              Sugerir
-            </button>
-            <button
-              type="button"
-              onClick={handleGoogleMaps}
-              className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 focus:outline-none"
-              aria-label="Buscar en Google Maps"
-              tabIndex={0}
-            >
-              Google Maps
-            </button>
-          </div>
-          {showSuggestions && suggestions.length > 0 && (
+          <input
+            id="birthCity"
+            name="birthCity"
+            value={form.birthCity}
+            onChange={handleChange}
+            placeholder="Lugar de nacimiento (puedes escribir cualquier cosa)"
+            required
+            autoComplete="off"
+            className="w-full rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 placeholder-gray-400 text-lg"
+            aria-label="Lugar de nacimiento"
+            tabIndex={0}
+          />
+          {suggestions.length > 0 && (
             <ul className="absolute z-10 w-full bg-white border border-cosmic-magenta rounded-lg mt-1 max-h-40 overflow-y-auto">
               {suggestions.map((city, idx) => (
                 <li
                   key={idx}
                   className="p-2 hover:bg-cosmic-magenta hover:text-white cursor-pointer"
-                  onClick={() => { handleSelectCity(city); setShowSuggestions(false); }}
+                  onClick={() => { handleSelectCity(city); }}
                   tabIndex={0}
                   aria-label={`Sugerencia: ${city}`}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { handleSelectCity(city); setShowSuggestions(false); } }}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { handleSelectCity(city); } }}
                 >
                   {city}
                 </li>

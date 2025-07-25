@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const cities = [
   'Madrid, España', 'Barcelona, España', 'Valencia, España', 'Sevilla, España', 'Zaragoza, España', 'Málaga, España', 'Murcia, España', 'Palma, España', 'Bilbao, España', 'Alicante, España',
@@ -7,6 +8,7 @@ const cities = [
 ];
 
 export default function PreHome() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: '',
     birthDate: '',
@@ -103,8 +105,8 @@ export default function PreHome() {
       alert('Por favor ingresa una fecha válida (DD/MM/AAAA)');
       return;
     }
-    // Aquí puedes guardar en localStorage o navegar
-    alert('¡Datos enviados correctamente!');
+    // Navegar a Loading
+    navigate('/loading');
   };
 
   return (
@@ -116,7 +118,9 @@ export default function PreHome() {
         <h2 className="text-3xl font-bold text-cosmic-gold mb-2 text-center">Tus datos cósmicos</h2>
         <p className="text-white text-center mb-6">Completa estos datos para calcular tu carta natal y encontrar tu conexión perfecta</p>
         <div className="mb-4">
+          <label htmlFor="name" className="block text-white mb-1">Nombre completo</label>
           <input
+            id="name"
             name="name"
             value={form.name}
             onChange={handleChange}
@@ -125,8 +129,10 @@ export default function PreHome() {
             className="w-full rounded-lg p-3 mb-2 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
           />
         </div>
-        <div className="mb-4 flex gap-2">
+        <div className="mb-4 flex gap-2 flex-col">
+          <label htmlFor="birthDate" className="block text-white mb-1">Fecha de nacimiento</label>
           <input
+            id="birthDate"
             name="birthDate"
             type="text"
             value={form.birthDate}
@@ -135,13 +141,15 @@ export default function PreHome() {
             inputMode="numeric"
             pattern="\d{2}/\d{2}/\d{4}"
             maxLength={10}
-            className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            className="rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
             aria-label="Fecha de nacimiento"
             required
           />
         </div>
-        <div className="mb-4 flex gap-2 items-center">
+        <div className="mb-4 flex gap-2 flex-col">
+          <label htmlFor="birthTime" className="block text-white mb-1">Hora de nacimiento</label>
           <input
+            id="birthTime"
             name="birthTime"
             type="text"
             value={form.birthTime}
@@ -150,7 +158,7 @@ export default function PreHome() {
             inputMode="numeric"
             pattern="\d{2}:\d{2}"
             maxLength={5}
-            className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
+            className="rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 text-lg"
             aria-label="Hora de nacimiento"
             required
           />
@@ -188,7 +196,7 @@ export default function PreHome() {
         </div>
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white font-semibold text-lg py-3 rounded-lg shadow-lg transition-all duration-300"
+          className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white font-semibold text-lg py-3 rounded-full shadow-lg transition-all duration-300"
         >
           Ver compatibilidades
         </button>

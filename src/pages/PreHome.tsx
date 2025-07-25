@@ -14,6 +14,7 @@ export default function PreHome() {
     birthCity: ''
   });
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -57,6 +58,32 @@ export default function PreHome() {
     setSuggestions([]);
   };
 
+  const handleSuggestCities = () => {
+    const value = form.birthCity.toLowerCase();
+    if (value.length >= 2) {
+      setSuggestions(
+        cities
+          .filter(city => city.toLowerCase().includes(value))
+          .sort((a, b) => {
+            const esA = a.includes('España') || a.includes('Argentina') || a.includes('Colombia') || a.includes('México') || a.includes('Perú') || a.includes('Chile') || a.includes('Uruguay') || a.includes('Venezuela') || a.includes('Bolivia') || a.includes('Puerto Rico');
+            const esB = b.includes('España') || b.includes('Argentina') || b.includes('Colombia') || b.includes('México') || b.includes('Perú') || b.includes('Chile') || b.includes('Uruguay') || b.includes('Venezuela') || b.includes('Bolivia') || b.includes('Puerto Rico');
+            return esA === esB ? 0 : esA ? -1 : 1;
+          })
+          .slice(0, 8)
+      );
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(true);
+    }
+  };
+
+  const handleGoogleMaps = () => {
+    if (form.birthCity.trim().length === 0) return;
+    const query = encodeURIComponent(form.birthCity);
+    window.open(`https://www.google.com/maps/search/${query}`, '_blank');
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Validación de hora y minutos
@@ -75,10 +102,6 @@ export default function PreHome() {
     const [d, m, y] = form.birthDate.split('/');
     if (!d || !m || !y || d.length !== 2 || m.length !== 2 || y.length !== 4) {
       alert('Por favor ingresa una fecha válida (DD/MM/AAAA)');
-      return;
-    }
-    if (!cities.some(city => city === form.birthCity)) {
-      alert('Por favor selecciona una ciudad de la lista.');
       return;
     }
     // Aquí puedes guardar en localStorage o navegar
@@ -134,22 +157,49 @@ export default function PreHome() {
           />
         </div>
         <div className="mb-6 relative">
-          <input
-            name="birthCity"
-            value={form.birthCity}
-            onChange={handleChange}
-            placeholder="Lugar De Nacimiento"
-            required
-            autoComplete="off"
-            className="w-full rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 placeholder-gray-400 text-lg"
-          />
-          {suggestions.length > 0 && (
+          <label htmlFor="birthCity" className="block text-white mb-1">Lugar de nacimiento</label>
+          <div className="flex gap-2">
+            <input
+              id="birthCity"
+              name="birthCity"
+              value={form.birthCity}
+              onChange={handleChange}
+              placeholder="Lugar de nacimiento (puedes escribir cualquier cosa)"
+              required
+              autoComplete="off"
+              className="flex-1 rounded-lg p-3 border border-cosmic-magenta bg-white/80 text-gray-900 placeholder-gray-400 text-lg"
+              aria-label="Lugar de nacimiento"
+              tabIndex={0}
+            />
+            <button
+              type="button"
+              onClick={handleSuggestCities}
+              className="bg-cosmic-magenta text-white px-3 py-2 rounded-lg hover:bg-cosmic-magenta/90 focus:outline-none"
+              aria-label="Sugerir ciudades"
+              tabIndex={0}
+            >
+              Sugerir
+            </button>
+            <button
+              type="button"
+              onClick={handleGoogleMaps}
+              className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 focus:outline-none"
+              aria-label="Buscar en Google Maps"
+              tabIndex={0}
+            >
+              Google Maps
+            </button>
+          </div>
+          {showSuggestions && suggestions.length > 0 && (
             <ul className="absolute z-10 w-full bg-white border border-cosmic-magenta rounded-lg mt-1 max-h-40 overflow-y-auto">
               {suggestions.map((city, idx) => (
                 <li
                   key={idx}
                   className="p-2 hover:bg-cosmic-magenta hover:text-white cursor-pointer"
-                  onClick={() => handleSelectCity(city)}
+                  onClick={() => { handleSelectCity(city); setShowSuggestions(false); }}
+                  tabIndex={0}
+                  aria-label={`Sugerencia: ${city}`}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { handleSelectCity(city); setShowSuggestions(false); } }}
                 >
                   {city}
                 </li>

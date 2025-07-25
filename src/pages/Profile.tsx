@@ -30,23 +30,39 @@ const ProfilePage = () => {
   const { profileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileWithGallery | null>(null);
+  const [loading, setLoading] = useState(true);
   const [currentPhoto, setCurrentPhoto] = useState(0);
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    if (!profileId) return;
+    if (!profileId || typeof profileId !== 'string') return;
+    setLoading(true);
     const fetchProfile = async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', profileId)
+        .eq('id', profileId as string)
         .single();
-      if (data) {
-        setProfile(data);
+      if (data && !error) {
+        setProfile(data as ProfileWithGallery);
+      } else {
+        setProfile(null);
       }
+      setLoading(false);
     };
     fetchProfile();
   }, [profileId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-cosmic-blue flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cosmic-gold mx-auto mb-4"></div>
+          <p className="text-white">Cargando perfil...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!profile) {
     return (

@@ -101,11 +101,11 @@ const Chats = () => {
               // Chat real
               const otherUserId = chat.user1_id === currentUserId ? chat.user2_id : chat.user1_id;
               
-              // Obtener perfil usando user_id (no id)
+              // Obtener perfil usando id directamente (no user_id)
               const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('user_id', otherUserId)
+                .eq('id', otherUserId)
                 .single();
 
               if (profileError) {

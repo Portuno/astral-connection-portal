@@ -74,8 +74,8 @@ const Chats = () => {
         const { data: aiChatsData, error: aiChatsError } = await supabase
           .from('ai_chats')
           .select('*')
-          .eq('user_id', currentUserId)
-          .order('updated_at', { ascending: false });
+          .eq('user_id', currentUserId as any)
+          .order('created_at', { ascending: false });
 
         if (aiChatsError) {
           console.error('Error loading AI chats:', aiChatsError);
@@ -83,8 +83,8 @@ const Chats = () => {
 
         // Combinar ambos tipos de chats
         const allChats = [
-          ...(realChatsData || []).map(chat => ({ ...chat, type: 'real' })),
-          ...(aiChatsData || []).map(chat => ({ ...chat, type: 'ai' }))
+          ...(realChatsData || []).map((chat: any) => ({ ...chat, type: 'real' })),
+          ...(aiChatsData || []).map((chat: any) => ({ ...chat, type: 'ai' }))
         ];
 
         if (allChats.length === 0) {
@@ -101,11 +101,11 @@ const Chats = () => {
               // Chat real
               const otherUserId = chat.user1_id === currentUserId ? chat.user2_id : chat.user1_id;
               
-              // Obtener perfil usando id directamente (no user_id)
+              // Obtener perfil usando user_id para perfiles reales
               const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', otherUserId)
+                .eq('user_id', otherUserId)
                 .single();
 
               if (profileError) {
@@ -131,12 +131,12 @@ const Chats = () => {
                 .select('id, created_at')
                 .eq('chat_id', chat.id)
                 .eq('read_at', null)
-                .neq('sender_id', currentUserId);
+                .neq('sender_id', currentUserId as any);
               let unreadCount = 0;
               let lastUnreadAt = null;
               if (unreadMessages && unreadMessages.length > 0) {
                 unreadCount = unreadMessages.length;
-                lastUnreadAt = unreadMessages[unreadMessages.length - 1].created_at;
+                lastUnreadAt = (unreadMessages[unreadMessages.length - 1] as any).created_at;
               }
 
               return {
@@ -186,8 +186,8 @@ const Chats = () => {
         const validChats = chatsWithProfiles
           .filter((chat): chat is ChatWithProfile => chat !== null)
           .sort((a, b) => {
-            const aTime = a.type === 'real' ? (a.last_message_at || a.created_at) : a.updated_at;
-            const bTime = b.type === 'real' ? (b.last_message_at || b.created_at) : b.updated_at;
+            const aTime = a.type === 'real' ? (a.last_message_at || a.created_at) : a.created_at;
+            const bTime = b.type === 'real' ? (b.last_message_at || b.created_at) : b.created_at;
             return new Date(bTime).getTime() - new Date(aTime).getTime();
           });
 
@@ -237,32 +237,32 @@ const Chats = () => {
               if (!chatsData) return;
               const chatsWithProfiles = await Promise.all(
                 chatsData.map(async (chat) => {
-                  const otherUserId = chat.user1_id === currentUserId ? chat.user2_id : chat.user1_id;
+                  const otherUserId = (chat as any).user1_id === currentUserId ? (chat as any).user2_id : (chat as any).user1_id;
                   const { data: profile } = await supabase
                     .from('profiles')
                     .select('*')
-                    .eq('id', otherUserId)
+                    .eq('user_id', otherUserId as any)
                     .single();
                   const { data: lastMessage } = await supabase
                     .from('messages')
                     .select('content, created_at, sender_id')
-                    .eq('chat_id', chat.id)
+                    .eq('chat_id', (chat as any).id)
                     .order('created_at', { ascending: false })
                     .limit(1);
                   const { data: unreadMessages } = await supabase
                     .from('messages')
                     .select('id, created_at')
-                    .eq('chat_id', chat.id)
+                    .eq('chat_id', (chat as any).id)
                     .eq('read_at', null)
-                    .neq('sender_id', currentUserId);
+                    .neq('sender_id', currentUserId as any);
                   let unreadCount = 0;
                   let lastUnreadAt = null;
                   if (unreadMessages && unreadMessages.length > 0) {
                     unreadCount = unreadMessages.length;
-                    lastUnreadAt = unreadMessages[unreadMessages.length - 1].created_at;
+                    lastUnreadAt = (unreadMessages[unreadMessages.length - 1] as any).created_at;
                   }
                   return {
-                    ...chat,
+                    ...(chat as any),
                     profile,
                     lastMessage: lastMessage?.[0] || null,
                     unreadCount,

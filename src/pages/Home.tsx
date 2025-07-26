@@ -264,10 +264,6 @@ const Home = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleEditProfile} tabIndex={0} aria-label="Editar perfil">Editar perfil</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/diagnostic')} tabIndex={0} aria-label="Diagnóstico de sistema">
-                  <Wrench className="h-4 w-4 mr-2" />
-                  Diagnóstico
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogoutClick} tabIndex={0} aria-label="Cerrar sesión">Cerrar sesión</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

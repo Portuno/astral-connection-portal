@@ -41,10 +41,10 @@ const ProfilePage = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', profileId as string)
+        .eq('id', profileId as any)
         .single();
       if (data && !error) {
-        setProfile(data as ProfileWithGallery);
+        setProfile(data as unknown as ProfileWithGallery);
       } else {
         setProfile(null);
       }

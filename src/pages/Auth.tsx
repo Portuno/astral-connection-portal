@@ -259,66 +259,40 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Contenido principal simplificado */}
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md mx-auto">
+      {/* Contenido principal optimizado */}
+      <div className="flex-1 flex items-center justify-center px-4 py-6">
+        <div className="w-full max-w-sm mx-auto">
           {/* Título principal */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Registro
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-white mb-2">
+              REGISTRO
             </h1>
-            <p className="text-gray-300 text-base">
-              Únete a Amor Astral y encuentra tu conexión cósmica
+            <p className="text-gray-300 text-sm">
+              Únete para encontrar tu amor astral
             </p>
           </div>
 
           {/* Tabs simplificados */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/10 p-1 rounded-2xl">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
+            <TabsList className="grid w-full grid-cols-2 bg-white/10 p-1 rounded-xl">
               <TabsTrigger 
                 value="register" 
-                className="text-sm font-medium rounded-xl data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200 text-white"
+                className="text-xs font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200 text-white"
               >
                 Registrarse
               </TabsTrigger>
               <TabsTrigger 
                 value="login" 
-                className="text-sm font-medium rounded-xl data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200 text-white"
+                className="text-xs font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200 text-white"
               >
                 Iniciar Sesión
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="register" className="space-y-6">
-              {/* Botón de Google Auth */}
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full border-2 border-white/20 hover:border-white/40 hover:bg-white/10 h-12 rounded-xl font-medium text-white transition-all duration-200"
-                onClick={handleGoogleAuth}
-                disabled={isLoading}
-              >
-                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                {isLoading ? "Conectando..." : "Registrarse con Google"}
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full bg-white/20" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-gradient-to-br from-[#0a1033] via-[#1a1440] to-[#2a0a3c] px-4 text-gray-300 font-medium">o regístrate con email</span>
-                </div>
-              </div>
-
-              <form ref={formRef} onSubmit={handleRegister} id="register-form" className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="register-name" className="text-sm font-semibold text-white">Nombre completo</Label>
+            <TabsContent value="register" className="space-y-4">
+              <form ref={formRef} onSubmit={handleRegister} id="register-form" className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="register-name" className="text-xs font-semibold text-white">Nombre Completo</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
@@ -329,13 +303,13 @@ const Auth = () => {
                       onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
                       onKeyPress={(e) => handleKeyPress(e, 'register-email')}
                       onFocus={() => handleFieldFocus('register-name')}
-                      className="pl-10 h-12 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-10 h-11 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-sm"
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="register-email" className="text-sm font-semibold text-white">Email</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="register-email" className="text-xs font-semibold text-white">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
@@ -346,13 +320,13 @@ const Auth = () => {
                       onChange={(e) => handleEmailChange(e, false)}
                       onKeyPress={(e) => handleKeyPress(e, 'register-password')}
                       onFocus={() => handleFieldFocus('register-email')}
-                      className="pl-10 h-12 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-10 h-11 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-sm"
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="register-password" className="text-sm font-semibold text-white">Contraseña</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="register-password" className="text-xs font-semibold text-white">Contraseña</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
@@ -363,7 +337,7 @@ const Auth = () => {
                       onChange={(e) => handlePasswordChange(e, false)}
                       onKeyPress={(e) => handleKeyPress(e, 'register-confirm-password')}
                       onFocus={() => handleFieldFocus('register-password')}
-                      className="pl-10 pr-10 h-12 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-10 pr-10 h-11 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-sm"
                       required
                       minLength={6}
                     />
@@ -376,8 +350,8 @@ const Auth = () => {
                     </button>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="register-confirm-password" className="text-sm font-semibold text-white">Confirmar contraseña</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="register-confirm-password" className="text-xs font-semibold text-white">Confirmar contraseña</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
@@ -388,7 +362,7 @@ const Auth = () => {
                       onChange={handleConfirmPasswordChange}
                       onKeyPress={(e) => handleKeyPress(e)}
                       onFocus={() => handleFieldFocus('register-confirm-password')}
-                      className="pl-10 pr-10 h-12 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-10 pr-10 h-11 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-sm"
                       required
                     />
                     <button
@@ -401,14 +375,32 @@ const Auth = () => {
                   </div>
                 </div>
               </form>
-            </TabsContent>
 
-            <TabsContent value="login" className="space-y-6">
+              {/* Botón Crear Cuenta */}
+              <Button
+                type="submit"
+                form="register-form"
+                className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-11 rounded-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                disabled={isLoading}
+              >
+                {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
+              </Button>
+
+              {/* Separador */}
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full bg-white/20" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-gradient-to-br from-[#0a1033] via-[#1a1440] to-[#2a0a3c] px-3 text-gray-300 font-medium">o</span>
+                </div>
+              </div>
+
               {/* Botón de Google Auth */}
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-2 border-white/20 hover:border-white/40 hover:bg-white/10 h-12 rounded-xl font-medium text-white transition-all duration-200"
+                className="w-full border-2 border-white/20 hover:border-white/40 hover:bg-white/10 h-11 rounded-lg font-medium text-white transition-all duration-200"
                 onClick={handleGoogleAuth}
                 disabled={isLoading}
               >
@@ -418,21 +410,14 @@ const Auth = () => {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                {isLoading ? "Conectando..." : "Continuar con Google"}
+                {isLoading ? "Conectando..." : "Regístrate con Google"}
               </Button>
+            </TabsContent>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full bg-white/20" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-gradient-to-br from-[#0a1033] via-[#1a1440] to-[#2a0a3c] px-4 text-gray-300 font-medium">o continúa con email</span>
-                </div>
-              </div>
-
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email" className="text-sm font-semibold text-white">Email</Label>
+            <TabsContent value="login" className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="login-email" className="text-xs font-semibold text-white">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
@@ -443,13 +428,13 @@ const Auth = () => {
                       onChange={(e) => handleEmailChange(e, true)}
                       onKeyPress={(e) => handleKeyPress(e, 'login-password')}
                       onFocus={() => handleFieldFocus('login-email')}
-                      className="pl-10 h-12 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-10 h-11 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-sm"
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="login-password" className="text-sm font-semibold text-white">Contraseña</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="login-password" className="text-xs font-semibold text-white">Contraseña</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
@@ -460,7 +445,7 @@ const Auth = () => {
                       onChange={(e) => handlePasswordChange(e, true)}
                       onKeyPress={(e) => handleKeyPress(e)}
                       onFocus={() => handleFieldFocus('login-password')}
-                      className="pl-10 pr-10 h-12 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-10 pr-10 h-11 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-sm"
                       required
                     />
                     <button
@@ -474,36 +459,50 @@ const Auth = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-12 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 mt-4"
+                  className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-11 rounded-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
                   disabled={isLoading}
                 >
                   {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
                 </Button>
               </form>
+
+              {/* Separador */}
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full bg-white/20" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-gradient-to-br from-[#0a1033] via-[#1a1440] to-[#2a0a3c] px-3 text-gray-300 font-medium">o</span>
+                </div>
+              </div>
+
+              {/* Botón de Google Auth */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-2 border-white/20 hover:border-white/40 hover:bg-white/10 h-11 rounded-lg font-medium text-white transition-all duration-200"
+                onClick={handleGoogleAuth}
+                disabled={isLoading}
+              >
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                {isLoading ? "Conectando..." : "Continuar con Google"}
+              </Button>
             </TabsContent>
           </Tabs>
 
-          <div className="mt-8 text-center">
+          {/* Términos y condiciones */}
+          <div className="mt-6 text-center">
             <p className="text-xs text-gray-400 leading-relaxed">
               Al continuar, aceptas nuestros términos de servicio y política de privacidad
             </p>
           </div>
         </div>
       </div>
-
-      {/* Botón flotante siempre visible para registro */}
-      {activeTab === 'register' && (
-        <div className="sticky bottom-0 bg-gradient-to-br from-[#0a1033] via-[#1a1440] to-[#2a0a3c] border-t border-white/10 p-4">
-          <Button
-            type="submit"
-            form="register-form"
-            className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-12 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
-            disabled={isLoading}
-          >
-            {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

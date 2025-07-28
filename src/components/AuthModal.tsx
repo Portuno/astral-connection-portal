@@ -195,7 +195,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     }
   };
 
-  // Función para navegación automática al completar email
+  // Función para manejar cambios en email (sin navegación automática)
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>, isLogin: boolean = false) => {
     const email = e.target.value;
     
@@ -204,16 +204,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     } else {
       setRegisterForm({...registerForm, email});
     }
-
-    // Navegar automáticamente al siguiente campo si el email está completo
-    if (email.includes('@') && email.includes('.') && email.length > 5) {
-      setTimeout(() => {
-        const nextField = document.getElementById(isLogin ? 'login-password' : 'register-password');
-        if (nextField) {
-          nextField.focus();
-        }
-      }, 100);
-    }
+    // No navegación automática - el usuario debe navegar manualmente
   };
 
   // Función para manejar cambios en contraseña (sin navegación automática)
@@ -228,20 +219,11 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     // No navegación automática - el usuario debe navegar manualmente
   };
 
-  // Función para navegación automática al completar confirmar contraseña
+  // Función para manejar cambios en confirmar contraseña (sin navegación automática)
   const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const confirmPassword = e.target.value;
     setRegisterForm({...registerForm, confirmPassword});
-
-    // Si las contraseñas coinciden y tienen al menos 6 caracteres, enviar automáticamente
-    if (confirmPassword === registerForm.password && confirmPassword.length >= 6) {
-      setTimeout(() => {
-        const form = document.querySelector('form[data-form="register"]');
-        if (form) {
-          (form as HTMLFormElement).requestSubmit();
-        }
-      }, 300);
-    }
+    // No navegación automática - el usuario debe navegar manualmente
   };
 
   return (

@@ -293,7 +293,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
       <DialogContent 
         ref={modalRef}
         className={`w-[95vw] max-w-md mx-auto bg-white border-0 rounded-3xl shadow-2xl overflow-y-auto transition-all duration-300 ${
-          isKeyboardVisible ? 'max-h-[70vh]' : 'max-h-[90vh]'
+          isKeyboardVisible ? 'max-h-[60vh]' : 'max-h-[90vh]'
         }`}
       >
         <DialogHeader className={`text-center pb-4 sticky top-0 bg-white z-10 transition-all duration-300 ${
@@ -362,7 +362,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 </div>
               </div>
 
-              <form ref={formRef} onSubmit={handleRegister} data-form="register" className="space-y-3">
+              <form ref={formRef} onSubmit={handleRegister} data-form="register" id="register-form" className="space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="register-name" className="text-sm font-semibold text-gray-800">Nombre completo</Label>
                   <div className="relative">
@@ -446,13 +446,6 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                     </button>
                   </div>
                 </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-12 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 mt-4"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
-                </Button>
               </form>
             </TabsContent>
 
@@ -542,6 +535,22 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
             </p>
           </div>
         </div>
+
+        {/* Botón flotante siempre visible para registro */}
+        {activeTab === 'register' && (
+          <div className={`sticky bottom-0 bg-white border-t border-gray-200 p-4 transition-all duration-300 ${
+            isKeyboardVisible ? 'pb-6' : 'pb-4'
+          }`}>
+            <Button
+              type="submit"
+              form="register-form"
+              className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-12 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              disabled={isLoading}
+            >
+              {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

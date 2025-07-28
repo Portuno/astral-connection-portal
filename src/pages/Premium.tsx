@@ -112,11 +112,12 @@ const Premium = () => {
         </button>
         
         <div className="text-center mb-5">
-          <h1 className="text-2xl md:text-3xl font-bold text-cosmic-magenta mb-3 leading-tight drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">
-            Hazte Premium y desbloquea conversaciones cósmicas
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-cosmic-magenta mb-3 leading-tight drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">
+            Hazte Premium y desbloquea<br className="hidden sm:block" />
+            conversaciones cósmicas
           </h1>
           <p className="text-cyan-100 text-sm md:text-base leading-relaxed max-w-sm mx-auto">
-            Accede a todas las funciones exclusivas de Amor Astral y realiza tu pago premium de forma segura:
+            Accede a todas las funciones exclusivas de Amor Astral
           </p>
         </div>
 
@@ -149,7 +150,7 @@ const Premium = () => {
             aria-label="Activar Premium"
             style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}
           >
-            Activa tu suscripción por 29,90€ con pago seguro
+            Activa tu suscripción por 29,90€
           </button>
         </div>
 

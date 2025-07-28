@@ -176,14 +176,14 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto bg-white/98 backdrop-blur-xl border-0 rounded-3xl shadow-2xl">
+      <DialogContent className="w-[95vw] max-w-md mx-auto bg-white border-0 rounded-3xl shadow-2xl">
         <DialogHeader className="text-center pb-4">
           <div className="flex items-center justify-center mb-4">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cosmic-magenta via-purple-500 to-cosmic-gold rounded-full shadow-lg">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
           </div>
-          <DialogTitle className="text-2xl font-bold text-gray-800 mb-2">
+          <DialogTitle className="text-2xl font-bold text-gray-900 mb-2">
             Únete a Amor Astral
           </DialogTitle>
           <DialogDescription className="text-center text-gray-600 text-base leading-relaxed">
@@ -196,13 +196,13 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
             <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-100 p-1 rounded-2xl">
               <TabsTrigger 
                 value="login" 
-                className="text-sm font-medium rounded-xl data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200"
+                className="text-sm font-medium rounded-xl data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200 text-gray-600"
               >
                 Iniciar Sesión
               </TabsTrigger>
               <TabsTrigger 
                 value="register" 
-                className="text-sm font-medium rounded-xl data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200"
+                className="text-sm font-medium rounded-xl data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200 text-gray-600"
               >
                 Registrarse
               </TabsTrigger>
@@ -213,7 +213,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 h-14 rounded-2xl font-medium text-gray-700 transition-all duration-200"
+                className="w-full border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 h-14 rounded-2xl font-medium text-gray-700 transition-all duration-200"
                 onClick={handleGoogleAuth}
                 disabled={isLoading}
               >
@@ -237,37 +237,37 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
 
               <form onSubmit={handleLogin} className="space-y-5">
                 <div className="space-y-3">
-                  <Label htmlFor="login-email" className="text-sm font-semibold text-gray-700">Email</Label>
+                  <Label htmlFor="login-email" className="text-sm font-semibold text-gray-800">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
                     <Input
                       id="login-email"
                       type="email"
                       placeholder="tu@email.com"
                       value={loginForm.email}
                       onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
-                      className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <Label htmlFor="login-password" className="text-sm font-semibold text-gray-700">Contraseña</Label>
+                  <Label htmlFor="login-password" className="text-sm font-semibold text-gray-800">Contraseña</Label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
                     <Input
                       id="login-password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Tu contraseña"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                      className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -288,7 +288,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 h-14 rounded-2xl font-medium text-gray-700 transition-all duration-200"
+                className="w-full border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 h-14 rounded-2xl font-medium text-gray-700 transition-all duration-200"
                 onClick={handleGoogleAuth}
                 disabled={isLoading}
               >
@@ -312,75 +312,75 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
 
               <form onSubmit={handleRegister} className="space-y-5">
                 <div className="space-y-3">
-                  <Label htmlFor="register-name" className="text-sm font-semibold text-gray-700">Nombre completo</Label>
+                  <Label htmlFor="register-name" className="text-sm font-semibold text-gray-800">Nombre completo</Label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
                     <Input
                       id="register-name"
                       type="text"
                       placeholder="Tu nombre"
                       value={registerForm.name}
                       onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
-                      className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <Label htmlFor="register-email" className="text-sm font-semibold text-gray-700">Email</Label>
+                  <Label htmlFor="register-email" className="text-sm font-semibold text-gray-800">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
                     <Input
                       id="register-email"
                       type="email"
                       placeholder="tu@email.com"
                       value={registerForm.email}
                       onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
-                      className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <Label htmlFor="register-password" className="text-sm font-semibold text-gray-700">Contraseña</Label>
+                  <Label htmlFor="register-password" className="text-sm font-semibold text-gray-800">Contraseña</Label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
                     <Input
                       id="register-password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Mínimo 6 caracteres"
                       value={registerForm.password}
                       onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
-                      className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                       minLength={6}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <Label htmlFor="register-confirm-password" className="text-sm font-semibold text-gray-700">Confirmar contraseña</Label>
+                  <Label htmlFor="register-confirm-password" className="text-sm font-semibold text-gray-800">Confirmar contraseña</Label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
                     <Input
                       id="register-confirm-password"
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirma tu contraseña"
                       value={registerForm.confirmPassword}
                       onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
-                      className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base"
+                      className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                     >
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -398,7 +398,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
           </Tabs>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500 leading-relaxed">
+            <p className="text-sm text-gray-600 leading-relaxed">
               Al continuar, aceptas nuestros términos de servicio y política de privacidad
             </p>
           </div>

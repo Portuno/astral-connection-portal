@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Sparkles, MapPin, Calendar, X, Wrench } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
-import AuthModal from "@/components/AuthModal";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
@@ -22,8 +22,7 @@ const Home = () => {
   const [compatibleProfiles, setCompatibleProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
-  // Eliminar PremiumModal y toda lógica de showPremiumModal
-  const [showAuthModal, setShowAuthModal] = useState(false);
+
   const [selectedProfileForChat, setSelectedProfileForChat] = useState<{id: string, name: string} | null>(null);
 
 
@@ -95,7 +94,7 @@ const Home = () => {
 
   const handleChatClick = async (profile: any) => {
     if (!isAuthenticated) {
-      setShowAuthModal(true);
+      navigate('/auth');
       return;
     }
     if (!user?.isPremium) {
@@ -109,20 +108,7 @@ const Home = () => {
     navigate('/premium');
   };
 
-  const handleAuthSuccess = () => {
-    if (selectedProfileForChat) {
-      toast({
-        title: "🎉 ¡Bienvenido a Amor Astral!",
-        description: `Ahora puedes chatear con ${selectedProfileForChat.name}`,
-      });
-      
-      setTimeout(() => {
-        navigate(`/chat/${selectedProfileForChat.id}`);
-      }, 1000);
-      
-      setSelectedProfileForChat(null);
-    }
-  };
+
 
   const handleLikeClick = (profileName: string) => {
     toast({
@@ -133,11 +119,7 @@ const Home = () => {
 
   const handleViewChats = () => {
     if (!isAuthenticated) {
-      setShowAuthModal(true);
-      toast({
-        title: "🔐 Acceso Premium Requerido",
-        description: "Necesitas una suscripción premium para ver tus chats",
-      });
+      navigate('/auth');
       return;
     }
     navigate('/chats');
@@ -272,7 +254,7 @@ const Home = () => {
           )}
           {!isAuthenticated && (
             <button
-              onClick={() => setShowAuthModal(true)}
+              onClick={() => navigate('/auth')}
               className="bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-cosmic-magenta border-2 border-cyan-200 text-xs sm:text-sm"
               tabIndex={0}
               aria-label="Iniciar Sesión"
@@ -421,14 +403,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Modal de autenticación */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={handleAuthSuccess}
-      />
 
-      {/* Eliminar PremiumModal y toda lógica de showPremiumModal */}
     </>
   );
 };

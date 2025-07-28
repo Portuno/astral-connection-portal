@@ -25,6 +25,7 @@ import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import LegalNotice from "./pages/LegalNotice";
 import RegistrationLoading from "./pages/RegistrationLoading";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/prehome" element={<PreHome />} />
               <Route path="/preloading" element={<Preloading />} />
               <Route path="/registration-loading" element={<RegistrationLoading />} />
+              <Route path="/auth" element={<Auth />} />
               <Route path="/onboarding" element={<OnboardingWrapper />} />
               <Route path="/loading" element={<Loading />} />
               <Route path="/home" element={<Home />} />

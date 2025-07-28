@@ -23,6 +23,7 @@ import Diagnostic from "./pages/Diagnostic";
 import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import LegalNotice from "./pages/LegalNotice";
+import RegistrationLoading from "./pages/RegistrationLoading";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/prehome" element={<PreHome />} />
             <Route path="/preloading" element={<Preloading />} />
+            <Route path="/registration-loading" element={<RegistrationLoading />} />
             <Route path="/onboarding" element={<OnboardingWrapper />} />
             <Route path="/loading" element={<Loading />} />
             <Route path="/home" element={<Home />} />

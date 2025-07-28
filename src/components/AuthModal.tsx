@@ -216,7 +216,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     }
   };
 
-  // Función para navegación automática al completar contraseña
+  // Función para manejar cambios en contraseña (sin navegación automática)
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>, isLogin: boolean = false) => {
     const password = e.target.value;
     
@@ -225,16 +225,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     } else {
       setRegisterForm({...registerForm, password});
     }
-
-    // Navegar automáticamente al campo de confirmar contraseña si la contraseña tiene al menos 6 caracteres
-    if (!isLogin && password.length >= 6) {
-      setTimeout(() => {
-        const nextField = document.getElementById('register-confirm-password');
-        if (nextField) {
-          nextField.focus();
-        }
-      }, 100);
-    }
+    // No navegación automática - el usuario debe navegar manualmente
   };
 
   // Función para navegación automática al completar confirmar contraseña

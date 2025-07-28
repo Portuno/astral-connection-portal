@@ -99,43 +99,43 @@ const Premium = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-2">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-1">
       <GalacticBackground />
-      <div className="relative z-10 w-full max-w-sm mx-auto rounded-3xl border-0 shadow-[0_0_64px_16px_rgba(80,200,255,0.18)] bg-[rgba(20,20,40,0.98)] backdrop-blur-2xl flex flex-col items-center px-4 py-6">
+      <div className="relative z-10 w-full max-w-md mx-auto rounded-3xl border-0 shadow-[0_0_64px_16px_rgba(80,200,255,0.18)] bg-[rgba(20,20,40,0.98)] backdrop-blur-2xl flex flex-col items-center px-5 py-7">
         <button
           onClick={() => navigate('/home')}
-          className="absolute top-2 right-2 text-cyan-200 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/10 p-1 z-20"
+          className="absolute top-3 right-3 text-cyan-200 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/10 p-1.5 z-20"
           aria-label="Cerrar"
           tabIndex={0}
         >
-          <X className="w-4 h-4" />
+          <X className="w-5 h-5" />
         </button>
         
-        <div className="text-center mb-4">
-          <h1 className="text-xl md:text-2xl font-bold text-cosmic-magenta mb-2 leading-tight drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">
+        <div className="text-center mb-5">
+          <h1 className="text-2xl md:text-3xl font-bold text-cosmic-magenta mb-3 leading-tight drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">
             Hazte Premium y desbloquea conversaciones cósmicas
           </h1>
-          <p className="text-cyan-100 text-xs md:text-sm leading-relaxed max-w-xs mx-auto">
+          <p className="text-cyan-100 text-sm md:text-base leading-relaxed max-w-sm mx-auto">
             Accede a todas las funciones exclusivas de Amor Astral y realiza tu pago premium de forma segura a través de Stripe:
           </p>
         </div>
 
-        <div className="w-full mb-4">
-          <ul className="space-y-2">
-            <li className="flex items-start gap-2 text-cyan-100 text-xs md:text-sm leading-relaxed">
-              <span className="text-cosmic-magenta font-bold text-base flex-shrink-0 mt-0.5">🔓</span>
+        <div className="w-full mb-5">
+          <ul className="space-y-3">
+            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
+              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">🔓</span>
               <span>Desbloquear conversaciones cósmicas</span>
             </li>
-            <li className="flex items-start gap-2 text-cyan-100 text-xs md:text-sm leading-relaxed">
-              <span className="text-cosmic-magenta font-bold text-base flex-shrink-0 mt-0.5">💬</span>
+            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
+              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">💬</span>
               <span>Acceso ilimitado a chats</span>
             </li>
-            <li className="flex items-start gap-2 text-cyan-100 text-xs md:text-sm leading-relaxed">
-              <span className="text-cosmic-magenta font-bold text-base flex-shrink-0 mt-0.5">🌟</span>
+            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
+              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">🌟</span>
               <span>Funciones exclusivas y soporte prioritario</span>
             </li>
-            <li className="flex items-start gap-2 text-cyan-100 text-xs md:text-sm leading-relaxed">
-              <span className="text-cosmic-magenta font-bold text-base flex-shrink-0 mt-0.5">🚫</span>
+            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
+              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">🚫</span>
               <span>Sin anuncios</span>
             </li>
           </ul>
@@ -144,7 +144,7 @@ const Premium = () => {
         <div className="w-full">
           <button
             onClick={handleActivatePremium}
-            className="w-full bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-bold py-3 px-3 rounded-2xl shadow-lg text-sm md:text-base tracking-wide border-2 border-cyan-200 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta transition-all duration-200"
+            className="w-full bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-bold py-4 px-4 rounded-2xl shadow-lg text-base md:text-lg tracking-wide border-2 border-cyan-200 focus:outline-none focus:ring-2 focus:ring-cosmic-magenta transition-all duration-200"
             tabIndex={0}
             aria-label="Activar Premium con Stripe"
             style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}

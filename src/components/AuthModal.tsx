@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "./AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, User, Eye, EyeOff, Sparkles, Heart } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Sparkles, Heart, ChevronDown } from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -21,9 +21,13 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('register'); // Cambiar a registro por defecto
+  const [activeTab, setActiveTab] = useState('register');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [currentField, setCurrentField] = useState<string>('');
+  const formRef = useRef<HTMLFormElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   
   // Formularios
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -42,9 +46,55 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
       setShowConfirmPassword(false);
       setLoginForm({ email: '', password: '' });
       setRegisterForm({ name: '', email: '', password: '', confirmPassword: '' });
-      setActiveTab('register'); // Siempre empezar en registro
+      setActiveTab('register');
+      setCurrentField('');
+      setIsKeyboardVisible(false);
     }
   }, [isOpen]);
+
+  // Detectar cambios en el viewport (teclado)
+  useEffect(() => {
+    const handleViewportChange = () => {
+      if (window.visualViewport) {
+        const viewportHeight = window.visualViewport.height;
+        const windowHeight = window.innerHeight;
+        const keyboardHeight = windowHeight - viewportHeight;
+        
+        setIsKeyboardVisible(keyboardHeight > 150); // Teclado visible si hay más de 150px de diferencia
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+      return () => window.visualViewport.removeEventListener('resize', handleViewportChange);
+    }
+  }, []);
+
+  // Scroll automático cuando cambia el campo activo
+  useEffect(() => {
+    if (currentField && modalRef.current) {
+      const fieldElement = document.getElementById(currentField);
+      if (fieldElement) {
+        const modalRect = modalRef.current.getBoundingClientRect();
+        const fieldRect = fieldElement.getBoundingClientRect();
+        
+        // Calcular si el campo está fuera de la vista
+        const isFieldVisible = fieldRect.top >= modalRect.top && fieldRect.bottom <= modalRect.bottom;
+        
+        if (!isFieldVisible) {
+          fieldElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
+        }
+      }
+    }
+  }, [currentField]);
+
+  const handleFieldFocus = (fieldId: string) => {
+    setCurrentField(fieldId);
+  };
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
@@ -156,7 +206,6 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
           description: "Preparando tu experiencia astral...",
         });
         onClose();
-        // Redirigir directamente a la página de loading de registro
         navigate("/registration-loading");
       } else {
         toast({
@@ -189,7 +238,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
         // Si es el último campo, enviar el formulario
         const form = e.currentTarget.closest('form');
         if (form) {
-          form.requestSubmit();
+          (form as HTMLFormElement).requestSubmit();
         }
       }
     }
@@ -220,7 +269,6 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     } else {
       setRegisterForm({...registerForm, email});
     }
-    // No navegación automática - el usuario debe navegar manualmente
   };
 
   // Función para manejar cambios en contraseña (sin navegación automática)
@@ -232,29 +280,40 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     } else {
       setRegisterForm({...registerForm, password});
     }
-    // No navegación automática - el usuario debe navegar manualmente
   };
 
   // Función para manejar cambios en confirmar contraseña (sin navegación automática)
   const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const confirmPassword = e.target.value;
     setRegisterForm({...registerForm, confirmPassword});
-    // No navegación automática - el usuario debe navegar manualmente
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto bg-white border-0 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="text-center pb-4 sticky top-0 bg-white z-10">
-          <div className="flex items-center justify-center mb-3">
+      <DialogContent 
+        ref={modalRef}
+        className={`w-[95vw] max-w-md mx-auto bg-white border-0 rounded-3xl shadow-2xl overflow-y-auto transition-all duration-300 ${
+          isKeyboardVisible ? 'max-h-[70vh]' : 'max-h-[90vh]'
+        }`}
+      >
+        <DialogHeader className={`text-center pb-4 sticky top-0 bg-white z-10 transition-all duration-300 ${
+          isKeyboardVisible ? 'pb-2' : 'pb-4'
+        }`}>
+          <div className={`flex items-center justify-center mb-3 ${
+            isKeyboardVisible ? 'mb-2' : 'mb-3'
+          }`}>
             <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-cosmic-magenta via-purple-500 to-cosmic-gold rounded-full shadow-lg">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
           </div>
-          <DialogTitle className="text-xl font-bold text-gray-900 mb-2">
+          <DialogTitle className={`font-bold text-gray-900 mb-2 ${
+            isKeyboardVisible ? 'text-lg mb-1' : 'text-xl mb-2'
+          }`}>
             Únete a Amor Astral
           </DialogTitle>
-          <DialogDescription className="text-center text-gray-600 text-sm leading-relaxed">
+          <DialogDescription className={`text-center text-gray-600 leading-relaxed ${
+            isKeyboardVisible ? 'text-xs' : 'text-sm'
+          }`}>
             Descubre tu conexión cósmica perfecta
           </DialogDescription>
         </DialogHeader>
@@ -303,7 +362,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 </div>
               </div>
 
-              <form onSubmit={handleRegister} data-form="register" className="space-y-3" style={{ paddingBottom: '120px' }}>
+              <form ref={formRef} onSubmit={handleRegister} data-form="register" className="space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="register-name" className="text-sm font-semibold text-gray-800">Nombre completo</Label>
                   <div className="relative">
@@ -315,6 +374,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={registerForm.name}
                       onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
                       onKeyPress={(e) => handleKeyPress(e, 'register-email')}
+                      onFocus={() => handleFieldFocus('register-name')}
                       className="pl-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
@@ -331,6 +391,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={registerForm.email}
                       onChange={(e) => handleEmailChange(e, false)}
                       onKeyPress={(e) => handleKeyPress(e, 'register-password')}
+                      onFocus={() => handleFieldFocus('register-email')}
                       className="pl-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
@@ -347,6 +408,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={registerForm.password}
                       onChange={(e) => handlePasswordChange(e, false)}
                       onKeyPress={(e) => handleKeyPress(e, 'register-confirm-password')}
+                      onFocus={() => handleFieldFocus('register-password')}
                       className="pl-10 pr-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                       minLength={6}
@@ -371,6 +433,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={registerForm.confirmPassword}
                       onChange={handleConfirmPasswordChange}
                       onKeyPress={(e) => handleKeyPress(e)}
+                      onFocus={() => handleFieldFocus('register-confirm-password')}
                       className="pl-10 pr-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
@@ -420,7 +483,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 </div>
               </div>
 
-              <form onSubmit={handleLogin} data-form="login" className="space-y-3" style={{ paddingBottom: '120px' }}>
+              <form onSubmit={handleLogin} data-form="login" className="space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="login-email" className="text-sm font-semibold text-gray-800">Email</Label>
                   <div className="relative">
@@ -432,6 +495,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={loginForm.email}
                       onChange={(e) => handleEmailChange(e, true)}
                       onKeyPress={(e) => handleKeyPress(e, 'login-password')}
+                      onFocus={() => handleFieldFocus('login-email')}
                       className="pl-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
@@ -448,6 +512,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={loginForm.password}
                       onChange={(e) => handlePasswordChange(e, true)}
                       onKeyPress={(e) => handleKeyPress(e)}
+                      onFocus={() => handleFieldFocus('login-password')}
                       className="pl-10 pr-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />

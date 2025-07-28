@@ -255,24 +255,24 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto bg-white border-0 rounded-3xl shadow-2xl">
-        <DialogHeader className="text-center pb-4">
-          <div className="flex items-center justify-center mb-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cosmic-magenta via-purple-500 to-cosmic-gold rounded-full shadow-lg">
-              <Sparkles className="w-8 h-8 text-white" />
+      <DialogContent className="w-[95vw] max-w-md mx-auto bg-white border-0 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="text-center pb-4 sticky top-0 bg-white z-10">
+          <div className="flex items-center justify-center mb-3">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-cosmic-magenta via-purple-500 to-cosmic-gold rounded-full shadow-lg">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
           </div>
-          <DialogTitle className="text-2xl font-bold text-gray-900 mb-2">
+          <DialogTitle className="text-xl font-bold text-gray-900 mb-2">
             Únete a Amor Astral
           </DialogTitle>
-          <DialogDescription className="text-center text-gray-600 text-base leading-relaxed">
+          <DialogDescription className="text-center text-gray-600 text-sm leading-relaxed">
             Descubre tu conexión cósmica perfecta
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-2">
+        <div className="px-2 pb-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-100 p-1 rounded-2xl">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-2xl">
               <TabsTrigger 
                 value="register" 
                 className="text-sm font-medium rounded-xl data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200 text-gray-600"
@@ -287,16 +287,16 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="register" className="space-y-6">
+            <TabsContent value="register" className="space-y-4">
               {/* Botón de Google Auth */}
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 h-14 rounded-2xl font-medium text-gray-700 transition-all duration-200"
+                className="w-full border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 h-12 rounded-2xl font-medium text-gray-700 transition-all duration-200"
                 onClick={handleGoogleAuth}
                 disabled={isLoading}
               >
-                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -314,11 +314,11 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 </div>
               </div>
 
-              <form onSubmit={handleRegister} data-form="register" className="space-y-5">
-                <div className="space-y-3">
+              <form onSubmit={handleRegister} data-form="register" className="space-y-3">
+                <div className="space-y-2">
                   <Label htmlFor="register-name" className="text-sm font-semibold text-gray-800">Nombre completo</Label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <Input
                       id="register-name"
                       type="text"
@@ -326,15 +326,15 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={registerForm.name}
                       onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
                       onKeyPress={(e) => handleKeyPress(e, 'register-email')}
-                      className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      className="pl-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <Label htmlFor="register-email" className="text-sm font-semibold text-gray-800">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <Input
                       id="register-email"
                       type="email"
@@ -342,15 +342,15 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={registerForm.email}
                       onChange={(e) => handleEmailChange(e, false)}
                       onKeyPress={(e) => handleKeyPress(e, 'register-password')}
-                      className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      className="pl-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <Label htmlFor="register-password" className="text-sm font-semibold text-gray-800">Contraseña</Label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <Input
                       id="register-password"
                       type={showPassword ? "text" : "password"}
@@ -358,23 +358,23 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={registerForm.password}
                       onChange={(e) => handlePasswordChange(e, false)}
                       onKeyPress={(e) => handleKeyPress(e, 'register-confirm-password')}
-                      className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      className="pl-10 pr-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                       minLength={6}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                     >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <Label htmlFor="register-confirm-password" className="text-sm font-semibold text-gray-800">Confirmar contraseña</Label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <Input
                       id="register-confirm-password"
                       type={showConfirmPassword ? "text" : "password"}
@@ -382,21 +382,21 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={registerForm.confirmPassword}
                       onChange={handleConfirmPasswordChange}
                       onKeyPress={(e) => handleKeyPress(e)}
-                      className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      className="pl-10 pr-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                     >
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-14 rounded-2xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-12 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 mt-4"
                   disabled={isLoading}
                 >
                   {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
@@ -404,16 +404,16 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
               </form>
             </TabsContent>
 
-            <TabsContent value="login" className="space-y-6">
+            <TabsContent value="login" className="space-y-4">
               {/* Botón de Google Auth */}
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 h-14 rounded-2xl font-medium text-gray-700 transition-all duration-200"
+                className="w-full border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 h-12 rounded-2xl font-medium text-gray-700 transition-all duration-200"
                 onClick={handleGoogleAuth}
                 disabled={isLoading}
               >
-                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -431,11 +431,11 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 </div>
               </div>
 
-              <form onSubmit={handleLogin} data-form="login" className="space-y-5">
-                <div className="space-y-3">
+              <form onSubmit={handleLogin} data-form="login" className="space-y-3">
+                <div className="space-y-2">
                   <Label htmlFor="login-email" className="text-sm font-semibold text-gray-800">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <Input
                       id="login-email"
                       type="email"
@@ -443,15 +443,15 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={loginForm.email}
                       onChange={(e) => handleEmailChange(e, true)}
                       onKeyPress={(e) => handleKeyPress(e, 'login-password')}
-                      className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      className="pl-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <Label htmlFor="login-password" className="text-sm font-semibold text-gray-800">Contraseña</Label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <Input
                       id="login-password"
                       type={showPassword ? "text" : "password"}
@@ -459,21 +459,21 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       value={loginForm.password}
                       onChange={(e) => handlePasswordChange(e, true)}
                       onKeyPress={(e) => handleKeyPress(e)}
-                      className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      className="pl-10 pr-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                     >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-14 rounded-2xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-12 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 mt-4"
                   disabled={isLoading}
                 >
                   {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
@@ -482,8 +482,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
             </TabsContent>
           </Tabs>
 
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600 leading-relaxed">
+          <div className="mt-6 text-center">
+            <p className="text-xs text-gray-600 leading-relaxed">
               Al continuar, aceptas nuestros términos de servicio y política de privacidad
             </p>
           </div>

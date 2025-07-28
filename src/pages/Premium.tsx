@@ -99,33 +99,52 @@ const Premium = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-4">
       <GalacticBackground />
-      <div className="relative z-10 w-full max-w-2xl mx-auto rounded-3xl border-0 shadow-[0_0_64px_16px_rgba(80,200,255,0.18)] bg-[rgba(20,20,40,0.98)] backdrop-blur-2xl flex flex-col items-center px-6 py-10 mt-16 mb-8">
+      <div className="relative z-10 w-full max-w-md mx-auto rounded-3xl border-0 shadow-[0_0_64px_16px_rgba(80,200,255,0.18)] bg-[rgba(20,20,40,0.98)] backdrop-blur-2xl flex flex-col items-center px-6 py-8">
         <button
           onClick={() => navigate('/home')}
-          className="absolute top-4 right-4 text-cyan-200 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/10 p-2 z-20"
+          className="absolute top-3 right-3 text-cyan-200 hover:text-cosmic-magenta focus:outline-none focus:ring-2 focus:ring-cosmic-magenta rounded-full bg-white/10 p-1.5 z-20"
           aria-label="Cerrar"
           tabIndex={0}
         >
-          <X className="w-6 h-6" />
+          <X className="w-5 h-5" />
         </button>
-        <h1 className="text-3xl font-extrabold text-cosmic-magenta text-center mb-2 drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">
-          Hazte Premium y desbloquea conversaciones cósmicas
-        </h1>
-        <p className="text-cyan-100 text-center mb-4 max-w-lg">
-          Accede a todas las funciones exclusivas de Amor Astral y realiza tu pago premium de forma segura a través de Stripe:
-        </p>
-        <ul className="mb-6 space-y-3 w-full max-w-md mx-auto">
-          <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🔓</span> Desbloquear conversaciones cósmicas</li>
-          <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">💬</span> Acceso ilimitado a chats</li>
-          <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🌟</span> Funciones exclusivas y soporte prioritario</li>
-          <li className="flex items-center gap-3 text-cyan-100 text-lg"><span className="text-cosmic-magenta font-bold text-xl">🚫</span> Sin anuncios</li>
-        </ul>
-        <div className="w-full flex justify-center">
+        
+        <div className="text-center mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-cosmic-magenta mb-3 leading-tight drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">
+            Hazte Premium y desbloquea conversaciones cósmicas
+          </h1>
+          <p className="text-cyan-100 text-sm md:text-base leading-relaxed max-w-sm mx-auto">
+            Accede a todas las funciones exclusivas de Amor Astral y realiza tu pago premium de forma segura a través de Stripe:
+          </p>
+        </div>
+
+        <div className="w-full mb-6">
+          <ul className="space-y-2.5">
+            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
+              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">🔓</span>
+              <span>Desbloquear conversaciones cósmicas</span>
+            </li>
+            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
+              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">💬</span>
+              <span>Acceso ilimitado a chats</span>
+            </li>
+            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
+              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">🌟</span>
+              <span>Funciones exclusivas y soporte prioritario</span>
+            </li>
+            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
+              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">🚫</span>
+              <span>Sin anuncios</span>
+            </li>
+          </ul>
+        </div>
+
+        <div className="w-full">
           <button
             onClick={handleActivatePremium}
-            className="w-full max-w-md bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-extrabold py-4 rounded-2xl shadow-lg text-xl tracking-wide border-2 border-cyan-200 animate-pulse focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+            className="w-full bg-gradient-to-r from-cosmic-magenta to-cyan-400 hover:from-cosmic-magenta/90 hover:to-cyan-400/90 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg text-base md:text-lg tracking-wide border-2 border-cyan-200 animate-pulse focus:outline-none focus:ring-2 focus:ring-cosmic-magenta transition-all duration-200"
             tabIndex={0}
             aria-label="Activar Premium con Stripe"
             style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}
@@ -133,6 +152,7 @@ const Premium = () => {
             Activa tu suscripción por 29,9€ con pago seguro Stripe
           </button>
         </div>
+
         <div className="pointer-events-none absolute inset-0 rounded-3xl" style={{boxShadow:'0 0 96px 24px #38bdf855, 0 0 192px 48px #a78bfa22'}}></div>
       </div>
     </div>

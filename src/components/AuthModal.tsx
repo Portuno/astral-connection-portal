@@ -303,114 +303,86 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 </div>
               </div>
 
-              <form onSubmit={handleRegister} data-form="register" className="space-y-3">
-                                          <div className="space-y-2">
-                            <Label htmlFor="register-name" className="text-sm font-semibold text-gray-800">Nombre completo</Label>
-                            <div className="relative">
-                              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
-                              <Input
-                                id="register-name"
-                                type="text"
-                                placeholder="Tu nombre"
-                                value={registerForm.name}
-                                onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
-                                onKeyPress={(e) => handleKeyPress(e, 'register-email')}
-                                className="pl-10 pr-16 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
-                                required
-                              />
-                              <button
-                                type="button"
-                                onClick={() => handleNextField('register-name', 'register-email')}
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-cosmic-magenta text-white px-2 py-1 rounded-lg text-xs font-medium hover:bg-cosmic-magenta/90 transition-colors"
-                              >
-                                Siguiente
-                              </button>
-                            </div>
-                          </div>
-                                          <div className="space-y-2">
-                            <Label htmlFor="register-email" className="text-sm font-semibold text-gray-800">Email</Label>
-                            <div className="relative">
-                              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
-                              <Input
-                                id="register-email"
-                                type="email"
-                                placeholder="tu@email.com"
-                                value={registerForm.email}
-                                onChange={(e) => handleEmailChange(e, false)}
-                                onKeyPress={(e) => handleKeyPress(e, 'register-password')}
-                                className="pl-10 pr-16 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
-                                required
-                              />
-                              <button
-                                type="button"
-                                onClick={() => handleNextField('register-email', 'register-password')}
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-cosmic-magenta text-white px-2 py-1 rounded-lg text-xs font-medium hover:bg-cosmic-magenta/90 transition-colors"
-                              >
-                                Siguiente
-                              </button>
-                            </div>
-                          </div>
-                                          <div className="space-y-2">
-                            <Label htmlFor="register-password" className="text-sm font-semibold text-gray-800">Contraseña</Label>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
-                              <Input
-                                id="register-password"
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Mínimo 6 caracteres"
-                                value={registerForm.password}
-                                onChange={(e) => handlePasswordChange(e, false)}
-                                onKeyPress={(e) => handleKeyPress(e, 'register-confirm-password')}
-                                className="pl-10 pr-20 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
-                                required
-                                minLength={6}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
-                              >
-                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleNextField('register-password', 'register-confirm-password')}
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-cosmic-magenta text-white px-2 py-1 rounded-lg text-xs font-medium hover:bg-cosmic-magenta/90 transition-colors"
-                              >
-                                Siguiente
-                              </button>
-                            </div>
-                          </div>
-                                          <div className="space-y-2">
-                            <Label htmlFor="register-confirm-password" className="text-sm font-semibold text-gray-800">Confirmar contraseña</Label>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
-                              <Input
-                                id="register-confirm-password"
-                                type={showConfirmPassword ? "text" : "password"}
-                                placeholder="Confirma tu contraseña"
-                                value={registerForm.confirmPassword}
-                                onChange={handleConfirmPasswordChange}
-                                onKeyPress={(e) => handleKeyPress(e)}
-                                className="pl-10 pr-20 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
-                                required
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
-                              >
-                                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleNextField('register-confirm-password')}
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-cosmic-magenta text-white px-2 py-1 rounded-lg text-xs font-medium hover:bg-cosmic-magenta/90 transition-colors"
-                              >
-                                Crear
-                              </button>
-                            </div>
-                          </div>
+              <form onSubmit={handleRegister} data-form="register" className="space-y-3" style={{ paddingBottom: '120px' }}>
+                <div className="space-y-2">
+                  <Label htmlFor="register-name" className="text-sm font-semibold text-gray-800">Nombre completo</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
+                    <Input
+                      id="register-name"
+                      type="text"
+                      placeholder="Tu nombre"
+                      value={registerForm.name}
+                      onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
+                      onKeyPress={(e) => handleKeyPress(e, 'register-email')}
+                      className="pl-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="register-email" className="text-sm font-semibold text-gray-800">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
+                    <Input
+                      id="register-email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={registerForm.email}
+                      onChange={(e) => handleEmailChange(e, false)}
+                      onKeyPress={(e) => handleKeyPress(e, 'register-password')}
+                      className="pl-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="register-password" className="text-sm font-semibold text-gray-800">Contraseña</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
+                    <Input
+                      id="register-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Mínimo 6 caracteres"
+                      value={registerForm.password}
+                      onChange={(e) => handlePasswordChange(e, false)}
+                      onKeyPress={(e) => handleKeyPress(e, 'register-confirm-password')}
+                      className="pl-10 pr-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="register-confirm-password" className="text-sm font-semibold text-gray-800">Confirmar contraseña</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
+                    <Input
+                      id="register-confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirma tu contraseña"
+                      value={registerForm.confirmPassword}
+                      onChange={handleConfirmPasswordChange}
+                      onKeyPress={(e) => handleKeyPress(e)}
+                      className="pl-10 pr-10 h-12 rounded-xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 h-12 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 mt-4"
@@ -448,7 +420,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 </div>
               </div>
 
-              <form onSubmit={handleLogin} data-form="login" className="space-y-3">
+              <form onSubmit={handleLogin} data-form="login" className="space-y-3" style={{ paddingBottom: '120px' }}>
                 <div className="space-y-2">
                   <Label htmlFor="login-email" className="text-sm font-semibold text-gray-800">Email</Label>
                   <div className="relative">

@@ -237,6 +237,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
     try {
       console.log("📝 Registrando usuario:", email);
+      
+      // Crear el usuario en Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -252,8 +254,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
 
-      console.log("✅ Registro exitoso:", data.user?.email);
-      return !!data.user;
+      if (!data.user) {
+        console.error('❌ No se pudo crear el usuario');
+        return false;
+      }
+
+      console.log("✅ Registro exitoso:", data.user.email);
+
+      // No iniciamos sesión automáticamente después del registro
+      // El usuario será redirigido a la página de loading y luego a premium
+      return true;
     } catch (error) {
       console.error('❌ Registration error:', error);
       return false;

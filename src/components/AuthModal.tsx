@@ -176,7 +176,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     }
   };
 
-  // Función para manejar Enter en los campos
+  // Función mejorada para manejar Enter y navegación automática
   const handleKeyPress = (e: React.KeyboardEvent, nextFieldId?: string) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -192,6 +192,64 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
           form.requestSubmit();
         }
       }
+    }
+  };
+
+  // Función para navegación automática al completar email
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>, isLogin: boolean = false) => {
+    const email = e.target.value;
+    
+    if (isLogin) {
+      setLoginForm({...loginForm, email});
+    } else {
+      setRegisterForm({...registerForm, email});
+    }
+
+    // Navegar automáticamente al siguiente campo si el email está completo
+    if (email.includes('@') && email.includes('.') && email.length > 5) {
+      setTimeout(() => {
+        const nextField = document.getElementById(isLogin ? 'login-password' : 'register-password');
+        if (nextField) {
+          nextField.focus();
+        }
+      }, 100);
+    }
+  };
+
+  // Función para navegación automática al completar contraseña
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>, isLogin: boolean = false) => {
+    const password = e.target.value;
+    
+    if (isLogin) {
+      setLoginForm({...loginForm, password});
+    } else {
+      setRegisterForm({...registerForm, password});
+    }
+
+    // Navegar automáticamente al campo de confirmar contraseña si la contraseña tiene al menos 6 caracteres
+    if (!isLogin && password.length >= 6) {
+      setTimeout(() => {
+        const nextField = document.getElementById('register-confirm-password');
+        if (nextField) {
+          nextField.focus();
+        }
+      }, 100);
+    }
+  };
+
+  // Función para navegación automática al completar confirmar contraseña
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const confirmPassword = e.target.value;
+    setRegisterForm({...registerForm, confirmPassword});
+
+    // Si las contraseñas coinciden y tienen al menos 6 caracteres, enviar automáticamente
+    if (confirmPassword === registerForm.password && confirmPassword.length >= 6) {
+      setTimeout(() => {
+        const form = document.querySelector('form[data-form="register"]');
+        if (form) {
+          (form as HTMLFormElement).requestSubmit();
+        }
+      }, 300);
     }
   };
 
@@ -256,7 +314,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 </div>
               </div>
 
-              <form onSubmit={handleRegister} className="space-y-5">
+              <form onSubmit={handleRegister} data-form="register" className="space-y-5">
                 <div className="space-y-3">
                   <Label htmlFor="register-name" className="text-sm font-semibold text-gray-800">Nombre completo</Label>
                   <div className="relative">
@@ -282,7 +340,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       type="email"
                       placeholder="tu@email.com"
                       value={registerForm.email}
-                      onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
+                      onChange={(e) => handleEmailChange(e, false)}
                       onKeyPress={(e) => handleKeyPress(e, 'register-password')}
                       className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
@@ -298,7 +356,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       type={showPassword ? "text" : "password"}
                       placeholder="Mínimo 6 caracteres"
                       value={registerForm.password}
-                      onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
+                      onChange={(e) => handlePasswordChange(e, false)}
                       onKeyPress={(e) => handleKeyPress(e, 'register-confirm-password')}
                       className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
@@ -322,7 +380,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirma tu contraseña"
                       value={registerForm.confirmPassword}
-                      onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
+                      onChange={handleConfirmPasswordChange}
                       onKeyPress={(e) => handleKeyPress(e)}
                       className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
@@ -373,7 +431,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 </div>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-5">
+              <form onSubmit={handleLogin} data-form="login" className="space-y-5">
                 <div className="space-y-3">
                   <Label htmlFor="login-email" className="text-sm font-semibold text-gray-800">Email</Label>
                   <div className="relative">
@@ -383,7 +441,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       type="email"
                       placeholder="tu@email.com"
                       value={loginForm.email}
-                      onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+                      onChange={(e) => handleEmailChange(e, true)}
                       onKeyPress={(e) => handleKeyPress(e, 'login-password')}
                       className="pl-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required
@@ -399,7 +457,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                       type={showPassword ? "text" : "password"}
                       placeholder="Tu contraseña"
                       value={loginForm.password}
-                      onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                      onChange={(e) => handlePasswordChange(e, true)}
                       onKeyPress={(e) => handleKeyPress(e)}
                       className="pl-12 pr-12 h-14 rounded-2xl border-2 border-gray-200 focus:border-cosmic-magenta focus:ring-2 focus:ring-cosmic-magenta/20 transition-all duration-200 text-base text-gray-900 bg-white"
                       required

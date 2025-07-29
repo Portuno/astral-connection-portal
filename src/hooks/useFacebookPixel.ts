@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 declare global {
   interface Window {
@@ -7,19 +7,44 @@ declare global {
 }
 
 export const useFacebookPixel = () => {
+  const eventQueue = useRef<Set<string>>(new Set());
+
   const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
     if (typeof window !== 'undefined' && window.fbq) {
+      // Prevent duplicate events in short time
+      const eventKey = `${eventName}_${JSON.stringify(parameters || {})}`;
+      
+      if (eventQueue.current.has(eventKey)) {
+        console.log(`Facebook Pixel: Event ${eventName} already tracked recently, skipping.`);
+        return;
+      }
+
+      // Add to queue to prevent duplicates
+      eventQueue.current.add(eventKey);
+      
+      // Remove from queue after 5 seconds
+      setTimeout(() => {
+        eventQueue.current.delete(eventKey);
+      }, 5000);
+
       if (parameters) {
         window.fbq('track', eventName, parameters);
       } else {
         window.fbq('track', eventName);
       }
+      
+      console.log(`Facebook Pixel: Tracked ${eventName}`, parameters || '');
     }
   };
 
   const trackPageView = () => {
     if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'PageView');
+      // Only track PageView once per session
+      if (!sessionStorage.getItem('fbq_pageview_tracked')) {
+        window.fbq('track', 'PageView');
+        sessionStorage.setItem('fbq_pageview_tracked', 'true');
+        console.log('Facebook Pixel: Tracked PageView');
+      }
     }
   };
 

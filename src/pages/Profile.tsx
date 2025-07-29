@@ -131,20 +131,22 @@ const ProfilePage = () => {
         </div>
 
         <CardContent className="p-0">
-          {/* Slider de fotos */}
+          {/* Slider de fotos mejorado */}
           {photos.length > 0 && (
             <div className="flex flex-col items-center mb-6 relative">
-              <img
-                ref={imgRef}
-                src={photos[currentPhoto]}
-                alt={`Foto ${currentPhoto + 1} de ${profile.name}`}
-                className="object-cover w-full h-80 rounded-2xl border-4 border-cosmic-magenta shadow-lg cursor-pointer select-none"
-                onClick={handleImageClick}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-                draggable={false}
-                style={{ userSelect: 'none' }}
-              />
+              <div className="w-full max-w-sm mx-auto">
+                <img
+                  ref={imgRef}
+                  src={photos[currentPhoto]}
+                  alt={`Foto ${currentPhoto + 1} de ${profile.name}`}
+                  className="w-full h-auto max-h-96 object-contain rounded-2xl border-4 border-cosmic-magenta shadow-lg cursor-pointer select-none"
+                  onClick={handleImageClick}
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                  draggable={false}
+                  style={{ userSelect: 'none' }}
+                />
+              </div>
               {photos.length > 1 && (
                 <div className="flex gap-1 mt-3">
                   {photos.map((_, idx) => (

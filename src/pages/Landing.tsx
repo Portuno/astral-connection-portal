@@ -3,13 +3,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
+import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 import { Heart, Star, Users, Sparkles, Moon, Sun } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { trackLead } = useFacebookPixel();
   
   const handleOpenOnboarding = () => {
+    // Track Lead event when user starts onboarding
+    trackLead();
     navigate('/prehome');
   };
 

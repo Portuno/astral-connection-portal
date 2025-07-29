@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useFacebookPixel } from '@/hooks/useFacebookPixel';
 import { X } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 
@@ -42,6 +43,7 @@ const GalacticBackground = () => (
 
 const Premium = () => {
   const { toast } = useToast();
+  const { trackInitiateCheckout } = useFacebookPixel();
   const navigate = useNavigate();
   const { user, session } = useAuth();
 
@@ -56,6 +58,10 @@ const Premium = () => {
       });
       return;
     }
+    
+    // Track Facebook Pixel event for checkout initiation
+    trackInitiateCheckout();
+    
     try {
       console.log("[DEBUG] Llamando a Supabase function...", {
         user_id: user.id,

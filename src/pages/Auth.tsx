@@ -7,12 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
+import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 import { Mail, Lock, User, Eye, EyeOff, Sparkles, ArrowLeft } from "lucide-react";
 
 const Auth = () => {
   const { register, loginWithGoogle } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { trackCompleteRegistration } = useFacebookPixel();
   const [isLoading, setIsLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -133,6 +135,9 @@ const Auth = () => {
     try {
       const success = await register(registerForm.email, registerForm.password, registerForm.name);
       if (success) {
+        // Track Facebook Pixel event for successful registration
+        trackCompleteRegistration();
+        
         toast({
           title: "¡Cuenta creada exitosamente! 🎉",
           description: "Preparando tu experiencia astral...",
@@ -197,10 +202,10 @@ const Auth = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#0a1033] via-[#1a1440] to-[#2a0a3c] flex flex-col">
       {/* Header simple */}
       <div className="flex items-center justify-between p-4">
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-cyan-200 hover:text-cosmic-magenta transition-colors"
-        >
+                 <button
+           onClick={() => navigate('/home')}
+           className="flex items-center gap-2 text-cyan-200 hover:text-cosmic-magenta transition-colors"
+         >
           <ArrowLeft className="w-5 h-5" />
           <span className="text-sm font-medium">Volver</span>
         </button>

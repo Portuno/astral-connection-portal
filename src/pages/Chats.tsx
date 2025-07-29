@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
+import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 import { useRef } from "react";
 
 interface ChatWithProfile {
@@ -45,6 +46,7 @@ const Chats = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const { trackSearch } = useFacebookPixel();
   const [chats, setChats] = useState<ChatWithProfile[]>([]);
   const [filteredChats, setFilteredChats] = useState<ChatWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -296,13 +298,16 @@ const Chats = () => {
       return;
     }
 
+    // Track Search event when user searches
+    trackSearch();
+
     const filtered = chats.filter(chat =>
       chat.profile.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       chat.profile.sign.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     setFilteredChats(filtered);
-  }, [searchQuery, chats]);
+  }, [searchQuery, chats, trackSearch]);
 
   const formatMessageTime = (timestamp: string) => {
     const date = new Date(timestamp);

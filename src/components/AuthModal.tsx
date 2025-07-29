@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "./AuthProvider";
 import { useToast } from "@/hooks/use-toast";
+import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Eye, EyeOff, Sparkles } from "lucide-react";
 
@@ -18,6 +19,7 @@ interface AuthModalProps {
 const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
   const { register, loginWithGoogle } = useAuth();
   const { toast } = useToast();
+  const { trackCompleteRegistration } = useFacebookPixel();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -159,6 +161,9 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     try {
       const success = await register(registerForm.email, registerForm.password, registerForm.name);
       if (success) {
+        // Track Facebook Pixel event for successful registration
+        trackCompleteRegistration();
+        
         toast({
           title: "¡Cuenta creada exitosamente! 🎉",
           description: "Preparando tu experiencia astral...",

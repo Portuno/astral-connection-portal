@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Heart, Star, Moon, Sun, Navigation, LogOut, Crown, Sparkles, MapPin, Calendar, X, Wrench } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
+import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -19,6 +20,7 @@ const Home = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isAuthenticated, logout, refreshUser } = useAuth();
+  const { trackViewContent } = useFacebookPixel();
   const [compatibleProfiles, setCompatibleProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -62,6 +64,11 @@ const Home = () => {
 
     loadUserProfile();
   }, [isAuthenticated, user]);
+
+  // Track ViewContent event when component mounts
+  useEffect(() => {
+    trackViewContent();
+  }, [trackViewContent]);
 
   useEffect(() => {
     const fetchProfiles = async () => {

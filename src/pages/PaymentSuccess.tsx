@@ -1,8 +1,17 @@
 import { useNavigate } from 'react-router-dom';
+import { useFacebookPixel } from '@/hooks/useFacebookPixel';
+import { useEffect } from 'react';
 import { Sparkles, Star, Moon, Heart } from 'lucide-react';
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
+  const { trackPurchase } = useFacebookPixel();
+
+  // Track purchase event when component mounts
+  useEffect(() => {
+    // Track purchase with default value (you can adjust this based on your pricing)
+    trackPurchase(29.99, 'USD');
+  }, [trackPurchase]);
 
   const handleGoHome = () => {
     navigate('/home');

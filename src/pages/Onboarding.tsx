@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 
 const steps = [
   "Fotos",
@@ -13,6 +14,7 @@ const steps = [
 
 export default function Onboarding({ userId }: { userId: string }) {
   const navigate = useNavigate();
+  const { trackPersonalizeProduct } = useFacebookPixel();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     photo_url: "",
@@ -125,6 +127,10 @@ export default function Onboarding({ userId }: { userId: string }) {
       }).eq("user_id", userId);
       setLoading(false);
       if (error) return setError("Error guardando perfil: " + error.message);
+      
+      // Track Facebook Pixel event for profile personalization completion
+      trackPersonalizeProduct();
+      
       navigate("/home");
       return;
     }

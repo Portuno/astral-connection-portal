@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useFacebookPixel } from '@/hooks/useFacebookPixel';
 
 const cities = [
   'Madrid, España', 'Barcelona, España', 'Valencia, España', 'Sevilla, España', 'Zaragoza, España', 'Málaga, España', 'Murcia, España', 'Palma, España', 'Bilbao, España', 'Alicante, España',
@@ -9,6 +10,7 @@ const cities = [
 
 export default function PreHome() {
   const navigate = useNavigate();
+  const { trackFindLocation } = useFacebookPixel();
   const [form, setForm] = useState({
     name: '',
     birthDate: '',
@@ -57,6 +59,8 @@ export default function PreHome() {
   const handleSelectCity = (city: string) => {
     setForm({ ...form, birthCity: city });
     setSuggestions([]);
+    // Track Facebook Pixel event when user selects a location
+    trackFindLocation();
   };
 
   const handleSuggestCities = () => {

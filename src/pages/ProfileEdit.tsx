@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useFacebookPixel } from '@/hooks/useFacebookPixel';
 
 const GENDER_OPTIONS = [
   { value: '', label: 'Selecciona tu género' },
@@ -20,6 +21,7 @@ const ProfileEdit = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { trackSubmitApplication } = useFacebookPixel();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<{
     id: string;
@@ -178,6 +180,8 @@ const ProfileEdit = () => {
     if (result.error) {
       toast({ title: 'Error', description: result.error.message, variant: 'destructive' });
     } else {
+      // Track Facebook Pixel event for profile submission
+      trackSubmitApplication();
       toast({ title: 'Perfil actualizado', description: 'Tus cambios han sido guardados.' });
       navigate('/home');
     }

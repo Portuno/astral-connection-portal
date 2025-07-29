@@ -43,7 +43,7 @@ const GalacticBackground = () => (
 
 const Premium = () => {
   const { toast } = useToast();
-  const { trackInitiateCheckout } = useFacebookPixel();
+  const { trackInitiateCheckout, trackSubscribe, trackAddPaymentInfo } = useFacebookPixel();
   const navigate = useNavigate();
   const { user, session } = useAuth();
 
@@ -59,8 +59,10 @@ const Premium = () => {
       return;
     }
     
-    // Track Facebook Pixel event for checkout initiation
+    // Track Facebook Pixel events for subscription initiation
     trackInitiateCheckout();
+    trackSubscribe('29.90', 'EUR', '29.90');
+    trackAddPaymentInfo();
     
     try {
       console.log("[DEBUG] Llamando a Supabase function...", {

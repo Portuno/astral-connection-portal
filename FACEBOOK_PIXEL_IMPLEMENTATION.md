@@ -131,6 +131,87 @@ useEffect(() => {
 }, [searchQuery, chats, trackSearch]);
 ```
 
+### 7. SubmitApplication
+**Ubicación:** `src/pages/ProfileEdit.tsx`
+**Descripción:** Se activa cuando los usuarios envían/actualizan su perfil
+**Implementación:**
+```typescript
+const { trackSubmitApplication } = useFacebookPixel();
+
+// En la función handleSubmit después del guardado exitoso
+if (result.error) {
+  // ... manejo de error
+} else {
+  trackSubmitApplication();
+  // ... resto del código
+}
+```
+
+### 8. Contact
+**Ubicación:** `src/pages/Diagnostic.tsx`
+**Descripción:** Se activa cuando los usuarios acceden a la página de diagnóstico (intento de contacto con soporte)
+**Implementación:**
+```typescript
+const { trackContact } = useFacebookPixel();
+
+useEffect(() => {
+  trackContact();
+}, [trackContact]);
+```
+
+### 9. Subscribe
+**Ubicación:** `src/pages/Premium.tsx`
+**Descripción:** Se activa cuando los usuarios inician una suscripción premium
+**Implementación:**
+```typescript
+const { trackSubscribe } = useFacebookPixel();
+
+const handleActivatePremium = async () => {
+  trackSubscribe('29.90', 'EUR', '29.90');
+  // ... resto del código
+};
+```
+
+### 10. FindLocation
+**Ubicación:** `src/pages/PreHome.tsx`
+**Descripción:** Se activa cuando los usuarios seleccionan una ubicación de nacimiento
+**Implementación:**
+```typescript
+const { trackFindLocation } = useFacebookPixel();
+
+const handleSelectCity = (city: string) => {
+  setForm({ ...form, birthCity: city });
+  trackFindLocation();
+};
+```
+
+### 11. AddPaymentInfo
+**Ubicación:** `src/pages/Premium.tsx`
+**Descripción:** Se activa cuando los usuarios intentan añadir información de pago
+**Implementación:**
+```typescript
+const { trackAddPaymentInfo } = useFacebookPixel();
+
+const handleActivatePremium = async () => {
+  trackAddPaymentInfo();
+  // ... resto del código
+};
+```
+
+### 12. PersonalizeProduct
+**Ubicación:** `src/pages/Onboarding.tsx`
+**Descripción:** Se activa cuando los usuarios completan la personalización de su perfil
+**Implementación:**
+```typescript
+const { trackPersonalizeProduct } = useFacebookPixel();
+
+// En la función handleNext después del guardado exitoso del perfil
+if (error) return setError("Error guardando perfil: " + error.message);
+
+trackPersonalizeProduct();
+navigate("/home");
+```
+
 ## Componente de Seguimiento Avanzado
 
 Se ha creado un componente `FacebookPixelTracker` en `src/components/FacebookPixelTracker.tsx` para casos de uso más avanzados donde se necesite rastrear eventos basados en condiciones específicas.
@@ -155,4 +236,5 @@ Se ha creado un componente `FacebookPixelTracker` en `src/components/FacebookPix
 - Todos los eventos incluyen verificación de que `window.fbq` existe antes de ejecutarse
 - Los eventos se ejecutan solo en el lado del cliente (browser)
 - Se mantiene la compatibilidad con SSR/SSG
-- Los valores de compra están hardcodeados pero pueden ser dinámicos según el plan seleccionado 
+- Los valores de compra están hardcodeados pero pueden ser dinámicos según el plan seleccionado
+- La implementación está optimizada para el rendimiento y no afecta la experiencia del usuario 

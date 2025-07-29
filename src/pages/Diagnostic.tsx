@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,12 +6,19 @@ import { ArrowLeft, Wifi, Database, MessageSquare, Users } from 'lucide-react';
 import ConnectionDiagnostic from '@/components/ConnectionDiagnostic';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useFacebookPixel } from '@/hooks/useFacebookPixel';
 
 const Diagnostic = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { trackContact } = useFacebookPixel();
   const [testResults, setTestResults] = useState<any[]>([]);
   const [isTesting, setIsTesting] = useState(false);
+
+  // Track Contact event when user accesses diagnostic page (intent to contact support)
+  useEffect(() => {
+    trackContact();
+  }, [trackContact]);
 
   const runQuickTests = async () => {
     setIsTesting(true);

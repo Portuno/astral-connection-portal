@@ -23,6 +23,15 @@ export const useFacebookPixel = () => {
     }
   };
 
+  // Standard Meta Pixel Events - Complete Implementation
+  const trackAddToCart = (value?: number, currency?: string) => {
+    trackEvent('AddToCart', value && currency ? { value, currency } : undefined);
+  };
+
+  const trackAddToWishlist = (value?: number, currency?: string) => {
+    trackEvent('AddToWishlist', value && currency ? { value, currency } : undefined);
+  };
+
   const trackAddPaymentInfo = () => {
     trackEvent('AddPaymentInfo');
   };
@@ -35,8 +44,8 @@ export const useFacebookPixel = () => {
     trackEvent('Contact');
   };
 
-  const trackPersonalizeProduct = () => {
-    trackEvent('PersonalizeProduct');
+  const trackDonate = (value?: number, currency?: string) => {
+    trackEvent('Donate', value && currency ? { value, currency } : undefined);
   };
 
   const trackFindLocation = () => {
@@ -55,8 +64,16 @@ export const useFacebookPixel = () => {
     trackEvent('Purchase', { value, currency });
   };
 
+  const trackSchedule = () => {
+    trackEvent('Schedule');
+  };
+
   const trackSearch = () => {
     trackEvent('Search');
+  };
+
+  const trackStartTrial = (value: string = '0.00', currency: string = 'USD', predictedLtv: string = '0.00') => {
+    trackEvent('StartTrial', { value, currency, predicted_ltv: predictedLtv });
   };
 
   const trackSubmitApplication = () => {
@@ -71,20 +88,30 @@ export const useFacebookPixel = () => {
     trackEvent('ViewContent');
   };
 
+  const trackPersonalizeProduct = () => {
+    trackEvent('PersonalizeProduct');
+  };
+
   return {
     trackEvent,
     trackPageView,
+    // Complete list of standard Meta Pixel events
+    trackAddToCart,
+    trackAddToWishlist,
     trackAddPaymentInfo,
     trackCompleteRegistration,
     trackContact,
-    trackPersonalizeProduct,
+    trackDonate,
     trackFindLocation,
     trackInitiateCheckout,
     trackLead,
     trackPurchase,
+    trackSchedule,
     trackSearch,
+    trackStartTrial,
     trackSubmitApplication,
     trackSubscribe,
     trackViewContent,
+    trackPersonalizeProduct,
   };
 }; 

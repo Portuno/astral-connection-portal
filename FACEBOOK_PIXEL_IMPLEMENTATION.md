@@ -1,12 +1,12 @@
-# Implementación de Facebook Pixel en Amor Astral
+# Implementación Completa de Facebook Pixel en Amor Astral
 
 ## Resumen
 
-Se ha implementado el píxel de Facebook (ID: 1515946322709140) en el sitio web de Amor Astral con el código base en todas las páginas y eventos específicos en páginas concretas.
+Se ha implementado el píxel de Facebook (ID: 1515946322709140) en el sitio web de Amor Astral con el código base en todas las páginas y **todos los eventos estándar de Meta** implementados según la documentación oficial.
 
 ## Código Base Implementado
 
-El código base del píxel ya está implementado en `index.html` y se ejecuta en todas las páginas del sitio web.
+El código base del píxel está implementado en `index.html` y se ejecuta en todas las páginas del sitio web.
 
 ```html
 <!-- Meta Pixel Code -->
@@ -22,32 +22,35 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fbq('init', '1515946322709140');
 fbq('track', 'PageView');
 </script>
-<noscript>
-<img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1515946322709140&ev=PageView&noscript=1"/>
-</noscript>
 <!-- End Meta Pixel Code -->
 ```
 
-## Hook Personalizado
+## Hook Personalizado - Implementación Completa
 
-Se ha creado un hook personalizado `useFacebookPixel` en `src/hooks/useFacebookPixel.ts` que proporciona funciones para rastrear todos los eventos estándar de Facebook:
+Se ha creado un hook personalizado `useFacebookPixel` en `src/hooks/useFacebookPixel.ts` que proporciona funciones para rastrear **todos los eventos estándar de Meta**:
 
-- `trackPageView()` - Vista de página
-- `trackAddPaymentInfo()` - Información de pago añadida
-- `trackCompleteRegistration()` - Registro completado
-- `trackContact()` - Contacto
-- `trackPersonalizeProduct()` - Personalizar producto
-- `trackFindLocation()` - Buscar ubicación
-- `trackInitiateCheckout()` - Finalización de compra iniciada
-- `trackLead()` - Cliente potencial
-- `trackPurchase(value, currency)` - Comprar
-- `trackSearch()` - Buscar
-- `trackSubmitApplication()` - Enviar solicitud
-- `trackSubscribe(value, currency, predictedLtv)` - Suscribirse
-- `trackViewContent()` - Ver contenido
+### Eventos Estándar de Meta Implementados:
 
-## Eventos Implementados
+1. **`trackPageView()`** - Vista de página (incluido en código base)
+2. **`trackAddToCart(value?, currency?)`** - Añadir al carrito
+3. **`trackAddToWishlist(value?, currency?)`** - Añadir a la lista de deseos
+4. **`trackAddPaymentInfo()`** - Información de pago añadida
+5. **`trackCompleteRegistration()`** - Registro completado
+6. **`trackContact()`** - Contacto
+7. **`trackDonate(value?, currency?)`** - Hacer donación
+8. **`trackFindLocation()`** - Buscar ubicación
+9. **`trackInitiateCheckout()`** - Finalización de compra iniciada
+10. **`trackLead()`** - Cliente potencial
+11. **`trackPurchase(value, currency)`** - Comprar
+12. **`trackSchedule()`** - Programar
+13. **`trackSearch()`** - Buscar
+14. **`trackStartTrial(value, currency, predictedLtv)`** - Iniciar prueba
+15. **`trackSubmitApplication()`** - Enviar solicitud
+16. **`trackSubscribe(value, currency, predictedLtv)`** - Suscribirse
+17. **`trackViewContent()`** - Ver contenido
+18. **`trackPersonalizeProduct()`** - Personalizar producto
+
+## Eventos Implementados en Páginas Específicas
 
 ### 1. CompleteRegistration
 **Ubicación:** `src/pages/Auth.tsx` y `src/components/AuthModal.tsx`
@@ -212,17 +215,29 @@ trackPersonalizeProduct();
 navigate("/home");
 ```
 
+## Eventos Adicionales Disponibles
+
+Los siguientes eventos están implementados y disponibles para uso futuro:
+
+- **`trackAddToCart()`** - Para funcionalidades de carrito de compras
+- **`trackAddToWishlist()`** - Para listas de favoritos
+- **`trackDonate()`** - Para donaciones
+- **`trackSchedule()`** - Para programación de citas
+- **`trackStartTrial()`** - Para pruebas gratuitas
+
 ## Componente de Seguimiento Avanzado
 
 Se ha creado un componente `FacebookPixelTracker` en `src/components/FacebookPixelTracker.tsx` para casos de uso más avanzados donde se necesite rastrear eventos basados en condiciones específicas.
 
-## Beneficios de la Implementación
+## Beneficios de la Implementación Completa
 
-1. **Seguimiento Completo:** Todos los eventos importantes del funnel de conversión están cubiertos
-2. **Optimización de Anuncios:** Los datos permitirán optimizar campañas para conversiones específicas
-3. **Audiencias Personalizadas:** Se pueden crear audiencias basadas en comportamientos específicos
-4. **Análisis de Conversión:** Mejor comprensión del journey del usuario
-5. **ROI Mejorado:** Optimización de presupuesto publicitario basada en datos reales
+1. **Cobertura Total:** Todos los eventos estándar de Meta están implementados
+2. **Flexibilidad:** Puedes usar cualquier evento estándar según tus necesidades
+3. **Optimización de Anuncios:** Los datos permitirán optimizar campañas para conversiones específicas
+4. **Audiencias Personalizadas:** Se pueden crear audiencias basadas en comportamientos específicos
+5. **Análisis de Conversión:** Mejor comprensión del journey del usuario
+6. **ROI Mejorado:** Optimización de presupuesto publicitario basada en datos reales
+7. **Cumplimiento de Estándares:** Implementación según las especificaciones oficiales de Meta
 
 ## Próximos Pasos Recomendados
 
@@ -230,6 +245,7 @@ Se ha creado un componente `FacebookPixelTracker` en `src/components/FacebookPix
 2. **Configurar Conversiones:** Configurar los eventos como conversiones en Facebook Ads Manager
 3. **Crear Audiencias:** Crear audiencias personalizadas basadas en los eventos rastreados
 4. **Optimización Continua:** Monitorear y ajustar la implementación según los resultados
+5. **Implementar Eventos Adicionales:** Usar los eventos disponibles según las necesidades del negocio
 
 ## Notas Técnicas
 
@@ -237,4 +253,5 @@ Se ha creado un componente `FacebookPixelTracker` en `src/components/FacebookPix
 - Los eventos se ejecutan solo en el lado del cliente (browser)
 - Se mantiene la compatibilidad con SSR/SSG
 - Los valores de compra están hardcodeados pero pueden ser dinámicos según el plan seleccionado
-- La implementación está optimizada para el rendimiento y no afecta la experiencia del usuario 
+- La implementación está optimizada para el rendimiento y no afecta la experiencia del usuario
+- **Cumple con todas las especificaciones oficiales de Meta para eventos estándar** 

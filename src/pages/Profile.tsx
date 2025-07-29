@@ -99,40 +99,46 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cosmic-blue flex flex-col items-center py-8 px-4">
-      <Card className="w-full max-w-2xl bg-white/10 backdrop-blur-md border-white/20 p-6 relative">
-        {/* Botón Volver arriba a la izquierda y % compatible a la derecha */}
-        <div className="flex flex-row items-center justify-between w-full absolute top-4 left-0 px-6">
-          <button
-            onClick={() => navigate('/home')}
-            className="flex items-center gap-2 text-cosmic-magenta hover:text-fuchsia-400 bg-white/20 px-3 py-1 rounded-lg font-semibold shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
-            aria-label="Volver al inicio"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">Volver</span>
-          </button>
+    <div className="min-h-screen bg-cosmic-blue flex flex-col items-center py-4 px-4">
+      <Card className="w-full max-w-md bg-white/10 backdrop-blur-md border-white/20 p-4 relative">
+        {/* Header optimizado para móvil */}
+        <div className="flex items-center justify-between w-full mb-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/home')}
+              className="flex items-center justify-center w-8 h-8 text-cosmic-magenta hover:text-fuchsia-400 bg-white/20 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-cosmic-magenta"
+              aria-label="Volver al inicio"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <h1 className="text-white text-xl font-bold">{profile.name}</h1>
+          </div>
           <Badge className="bg-cosmic-gold/20 text-cosmic-gold text-xs">
             {profile.compatibility_score}% compatible
           </Badge>
         </div>
-        <CardHeader className="flex flex-col items-center gap-2 mt-16">
-          <CardTitle className="text-white text-3xl mt-2">{profile.name}</CardTitle>
-          <div className="flex items-center gap-2 text-gray-300">
+
+        {/* Edad y ubicación en una línea */}
+        <div className="flex items-center justify-center gap-4 text-gray-300 text-sm mb-4">
+          <div className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />
             <span>{profile.age} años</span>
-            <MapPin className="w-4 h-4 ml-2" />
+          </div>
+          <div className="flex items-center gap-1">
+            <MapPin className="w-4 h-4" />
             <span>{profile.location}</span>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+
+        <CardContent className="p-0">
           {/* Slider de fotos */}
           {photos.length > 0 && (
-            <div className="flex flex-col items-center mb-8 relative">
+            <div className="flex flex-col items-center mb-6 relative">
               <img
                 ref={imgRef}
                 src={photos[currentPhoto]}
                 alt={`Foto ${currentPhoto + 1} de ${profile.name}`}
-                className="object-cover w-full max-w-sm sm:max-w-lg md:w-[30rem] md:h-[30rem] rounded-2xl border-4 border-cosmic-magenta shadow-lg mx-auto cursor-pointer select-none"
+                className="object-cover w-full h-80 rounded-2xl border-4 border-cosmic-magenta shadow-lg cursor-pointer select-none"
                 onClick={handleImageClick}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
@@ -140,25 +146,7 @@ const ProfilePage = () => {
                 style={{ userSelect: 'none' }}
               />
               {photos.length > 1 && (
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => setCurrentPhoto((currentPhoto - 1 + photos.length) % photos.length)}
-                    className="bg-cosmic-magenta text-white rounded-full px-3 py-1 hidden sm:inline"
-                    aria-label="Foto anterior"
-                  >
-                    {"<"}
-                  </button>
-                  <button
-                    onClick={() => setCurrentPhoto((currentPhoto + 1) % photos.length)}
-                    className="bg-cosmic-magenta text-white rounded-full px-3 py-1 hidden sm:inline"
-                    aria-label="Foto siguiente"
-                  >
-                    {">"}
-                  </button>
-                </div>
-              )}
-              {photos.length > 1 && (
-                <div className="flex gap-1 mt-2">
+                <div className="flex gap-1 mt-3">
                   {photos.map((_, idx) => (
                     <span
                       key={idx}
@@ -169,30 +157,35 @@ const ProfilePage = () => {
               )}
             </div>
           )}
-          {/* Info astrológica */}
-          <div className="flex flex-wrap gap-4 mb-4 justify-center">
-            <div className="flex items-center gap-2 text-sm text-gray-200">
-              <Sun className="w-4 h-4 text-cosmic-gold" />
-              <span>Sol: {profile.sign}</span>
+
+          {/* Info astrológica optimizada - solo emojis en una línea */}
+          <div className="flex justify-center gap-6 mb-6">
+            <div className="flex items-center gap-1 text-lg">
+              <span>☀️</span>
+              <span className="text-sm text-gray-200">{profile.sign}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-200">
-              <Moon className="w-4 h-4 text-cosmic-magenta" />
-              <span>Luna: {profile.moon_sign}</span>
+            <div className="flex items-center gap-1 text-lg">
+              <span>🌙</span>
+              <span className="text-sm text-gray-200">{profile.moon_sign}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-200">
-              <Navigation className="w-4 h-4 text-cosmic-blue" />
-              <span>Ascendente: {profile.rising_sign}</span>
+            <div className="flex items-center gap-1 text-lg">
+              <span>⭐</span>
+              <span className="text-sm text-gray-200">{profile.rising_sign}</span>
             </div>
           </div>
-          {/* Descripción */}
-          <p className="text-gray-100 text-base mb-8 text-center whitespace-pre-line">
-            {profile.description}
-          </p>
-          {/* Botón Chatear con (primer nombre) */}
-          <div className="flex justify-center mt-6">
+
+          {/* Descripción mejorada */}
+          <div className="mb-6">
+            <p className="text-gray-100 text-sm leading-relaxed text-center px-2 font-medium">
+              {profile.description}
+            </p>
+          </div>
+
+          {/* Botón Chatear optimizado */}
+          <div className="flex justify-center">
             <Button
               onClick={() => navigate(`/chat/${profile.id}`)}
-              className="bg-cosmic-magenta hover:bg-fuchsia-600 text-white font-bold text-lg px-8 py-3 rounded-xl shadow-lg"
+              className="w-full bg-gradient-to-r from-cosmic-magenta to-purple-600 hover:from-cosmic-magenta/90 hover:to-purple-600/90 text-white font-bold text-base py-3 rounded-xl shadow-lg"
               aria-label={`Chatear con ${profile.name.split(' ')[0]}`}
             >
               {`Chatear con ${profile.name.split(' ')[0]}`}

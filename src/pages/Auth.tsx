@@ -272,22 +272,8 @@ const Auth = () => {
             </p>
           </div>
 
-          {/* Tabs simplificados */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
-            <TabsList className="grid w-full grid-cols-2 bg-white/10 p-1 rounded-xl">
-              <TabsTrigger 
-                value="register" 
-                className="text-xs font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200 text-white"
-              >
-                Registrarse
-              </TabsTrigger>
-              <TabsTrigger 
-                value="login" 
-                className="text-xs font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-cosmic-magenta data-[state=active]:shadow-sm transition-all duration-200 text-white"
-              >
-                Iniciar Sesión
-              </TabsTrigger>
-            </TabsList>
+          {/* Solo mostrar el formulario de registro */}
+          <div className="w-full mb-6">
 
             <TabsContent value="register" className="space-y-4">
               <form ref={formRef} onSubmit={handleRegister} id="register-form" className="space-y-3">

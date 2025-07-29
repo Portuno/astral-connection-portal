@@ -236,8 +236,13 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
     setRegisterForm({...registerForm, confirmPassword});
   };
 
+  const handleClose = () => {
+    onClose();
+    navigate('/home');
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent 
         ref={modalRef}
         className={`w-[95vw] max-w-md mx-auto bg-white border-0 rounded-3xl shadow-2xl overflow-y-auto transition-all duration-300 ${

@@ -113,7 +113,7 @@ const Premium = () => {
         
         <div className="text-center mb-5">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-cosmic-magenta mb-3 leading-tight drop-shadow-[0_2px_8px_rgba(168,139,250,0.25)]">
-            Hazte Premium y desbloquea<br className="hidden sm:block" />
+            Hazte premium y desbloquea<br className="hidden sm:block" />
             conversaciones cósmicas
           </h1>
           <p className="text-cyan-100 text-sm md:text-base leading-relaxed max-w-sm mx-auto">
@@ -124,16 +124,16 @@ const Premium = () => {
         <div className="w-full mb-5">
           <ul className="space-y-3">
             <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
-              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">🔓</span>
-              <span>Desbloquear conversaciones cósmicas</span>
-            </li>
-            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
               <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">💬</span>
-              <span>Acceso ilimitado a chats</span>
+              <span>Accede a conversaciones ilimitadas con tus compatibilidades astrales</span>
             </li>
             <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
               <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">🌟</span>
-              <span>Funciones exclusivas y soporte prioritario</span>
+              <span>Disfruta de funciones exclusivas para profundizar tus conexiones</span>
+            </li>
+            <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
+              <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">⚡</span>
+              <span>Prioridad total en soporte y asistencia</span>
             </li>
             <li className="flex items-start gap-3 text-cyan-100 text-sm md:text-base leading-relaxed">
               <span className="text-cosmic-magenta font-bold text-lg flex-shrink-0 mt-0.5">🚫</span>
@@ -150,7 +150,7 @@ const Premium = () => {
             aria-label="Activar Premium"
             style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}
           >
-            Activa tu suscripción por 29,90€
+            Activar Premium por 29,90€
           </button>
         </div>
 

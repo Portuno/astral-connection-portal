@@ -61,7 +61,7 @@ const Premium = () => {
     
     // Track Facebook Pixel events for subscription initiation
     trackInitiateCheckout();
-    trackSubscribe('29.90', 'EUR', '29.90');
+    trackSubscribe('9.90', 'EUR', '9.90');
     trackAddPaymentInfo();
     
     try {
@@ -158,7 +158,7 @@ const Premium = () => {
             aria-label="Activar Premium"
             style={{ boxShadow: '0 0 24px 4px #38bdf8cc, 0 0 64px 8px #a78bfa55' }}
           >
-            Activar Premium por 29,90€
+            Activar Premium por 9,90€
           </button>
         </div>
 

@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
             quantity: 1
           }
         ],
-        mode: "subscription", // <-- ahora es recurring
+        mode: "subscription",
         success_url: `${APP_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${APP_URL}/premium`,
         client_reference_id: user_id,
@@ -132,4 +132,4 @@ Deno.serve(async (req) => {
       }
     });
   }
-}); 
+});

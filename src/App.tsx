@@ -37,7 +37,7 @@ const OnboardingWrapper = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <MetaPixelProvider pixelId={import.meta.env.VITE_META_PIXEL_ID || '1515946322777777'}>
+      <MetaPixelProvider pixelId={import.meta.env.VITE_META_PIXEL_ID || '1457424402059062'}>
         <TooltipProvider>
           <Toaster />
           <BrowserRouter>
